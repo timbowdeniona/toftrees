@@ -1,0 +1,32 @@
+
+import { client } from '../../sanity/client';
+
+async function getSiteSettings() {
+  const settings = await client.fetch(`*[_type == "siteSettings"][0]{
+    historicalProjectSummary
+  }`);
+  return settings;
+}
+
+export default async function ProjectHistoryPage() {
+  const settings = await getSiteSettings();
+
+  return (
+    <div className="container mx-auto">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl md:text-5xl font-bold text-center mb-4 text-white">
+          Project History
+        </h1>
+      </div>
+      <div className="max-w-3xl mx-auto">
+        {settings?.historicalProjectSummary ? (
+          <div className="prose prose-lg max-w-none text-gray-400 leading-relaxed">
+            <p>{settings.historicalProjectSummary}</p>
+          </div>
+        ) : (
+          <p className="text-lg text-gray-400">No project history available.</p>
+        )}
+      </div>
+    </div>
+  );
+}
