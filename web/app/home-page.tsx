@@ -5,7 +5,18 @@ import { MarketingLayout } from '../components/layout/marketing-layout'
 import Image from 'next/image'
 import { urlFor } from '../sanity/client'
 
-const HeroSection: React.FC<{ churchImage: any }> = ({ churchImage }) => {
+interface ChurchImage {
+  asset: {
+    _ref: string;
+  };
+}
+
+interface Settings {
+  churchImage: ChurchImage;
+  shortHistory: string;
+}
+
+const HeroSection: React.FC<{ churchImage: ChurchImage }> = ({ churchImage }) => {
   return (
     <Box position="relative" overflow="hidden">
       <Container maxW="container.xl" pt={{ base: 40, lg: 60 }} pb="40">
@@ -36,7 +47,7 @@ const HeroSection: React.FC<{ churchImage: any }> = ({ churchImage }) => {
   )
 }
 
-const HistorySection: React.FC<{ shortHistory: any }> = ({ shortHistory }) => {
+const HistorySection: React.FC<{ shortHistory: string }> = ({ shortHistory }) => {
   return (
     <Box id="history">
       <Container maxW="container.lg" py="20">
@@ -53,7 +64,7 @@ const HistorySection: React.FC<{ shortHistory: any }> = ({ shortHistory }) => {
   )
 }
 
-export default function HomePage({ settings }: { settings: any }) {
+export default function HomePage({ settings }: { settings: Settings }) {
   return (
     <MarketingLayout>
       <HeroSection churchImage={settings?.churchImage} />

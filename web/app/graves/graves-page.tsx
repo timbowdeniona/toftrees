@@ -4,7 +4,9 @@ import { Box, Container, Heading, SimpleGrid, Text } from '@chakra-ui/react'
 import { MarketingLayout } from '../../components/layout/marketing-layout'
 import Link from 'next/link'
 
-export default function GravesPageClient({ graves }: { graves: any[] }) {
+import { Grave } from '../../types';
+
+export default function GravesPageClient({ graves }: { graves: Grave[] }) {
   return (
     <MarketingLayout>
       <Container maxW="container.xl" py="20">
@@ -13,13 +15,10 @@ export default function GravesPageClient({ graves }: { graves: any[] }) {
         </Heading>
         {graves.length > 0 ? (
           <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4, xl: 5 }} spacing="6">
-            {graves.map((grave: any) => (
+            {graves.map((grave) => (
               <Link href={`/graves/${grave._id}`} key={grave._id}>
                 <Box
                   bg="white"
-                  _dark={{ bg: 'gray.800' }}
-                  color="gray.800"
-                  _dark={{ color: 'white' }}
                   rounded="lg"
                   p="6"
                   shadow="md"
@@ -27,7 +26,10 @@ export default function GravesPageClient({ graves }: { graves: any[] }) {
                   transition="all 0.2s ease-in-out"
                   borderWidth="1px"
                   borderColor="gray.200"
-                  _dark={{ borderColor: 'gray.700' }}
+                  _dark={{ 
+                    bg: 'gray.800',
+                    borderColor: 'gray.700' 
+                  }}
                   textAlign="center"
                 >
                   <Heading as="h2" size="md" mb="2">

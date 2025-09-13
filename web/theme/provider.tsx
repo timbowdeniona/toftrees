@@ -1,4 +1,7 @@
+'use client'
+
 import { extendTheme, type ThemeConfig } from '@chakra-ui/react'
+import { SaasProvider } from '@saas-ui/react'
 import '@fontsource-variable/inter'
 
 import components from './components'
@@ -32,4 +35,6 @@ const theme = extendTheme({
   components,
 })
 
-export default theme
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  return <SaasProvider theme={theme}>{children}</SaasProvider>
+}

@@ -12,7 +12,7 @@ import * as React from 'react'
 import { Logo } from './logo'
 import Navigation from './navigation'
 
-export interface HeaderProps extends Omit<BoxProps, 'children'> {}
+export type HeaderProps = Omit<BoxProps, 'children'>
 
 export const Header = (props: HeaderProps) => {
   const ref = React.useRef<HTMLHeadingElement>(null)

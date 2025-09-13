@@ -1,7 +1,8 @@
 import { client } from '../../sanity/client'
 import GravesPageClient from './graves-page'
+import { Grave } from '../../types'
 
-async function getGraves() {
+async function getGraves(): Promise<Grave[]> {
   const graves = await client.fetch(`*[_type == "grave"]{
     _id,
     graveNo,

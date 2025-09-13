@@ -9,7 +9,7 @@ export interface NavLinkProps extends ButtonProps {
 }
 
 export const NavLink = forwardRef<NavLinkProps, "a">((props, ref) => {
-  const { href, type, isActive, ...rest } = props;
+  const { href, isActive, ...rest } = props;
 
   return (
     <Button

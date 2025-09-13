@@ -5,7 +5,9 @@ import { MarketingLayout } from '../../../components/layout/marketing-layout'
 import Image from 'next/image'
 import { urlFor } from '../../../sanity/client'
 
-export default function GraveDetailsPageClient({ grave }: { grave: any }) {
+import { Grave } from '../../../types';
+
+export default function GraveDetailsPageClient({ grave }: { grave: Grave }) {
   if (!grave) {
     return (
       <MarketingLayout>
@@ -43,19 +45,19 @@ export default function GraveDetailsPageClient({ grave }: { grave: any }) {
               Persons Buried
             </Heading>
             <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing="6">
-              {grave.persons.map((person: any, index: number) => (
+              {grave.persons.map((person, index) => (
                 <Box
                   key={index}
                   bg="white"
-                  _dark={{ bg: 'gray.800' }}
-                  color="gray.800"
-                  _dark={{ color: 'white' }}
                   rounded="lg"
                   p="6"
                   shadow="md"
                   borderWidth="1px"
                   borderColor="gray.200"
-                  _dark={{ borderColor: 'gray.700' }}
+                  _dark={{ 
+                    bg: 'gray.800',
+                    borderColor: 'gray.700' 
+                  }}
                 >
                   <Heading as="h3" size="md" mb="2">{person.name}</Heading>
                   <Text mb="2">Buried: {person.dateBurial}</Text>
