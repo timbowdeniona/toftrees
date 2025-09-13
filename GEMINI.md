@@ -22,6 +22,7 @@ The website will feature:
 - **General Feel** A dark theme with modern typography
 
 ## Enforced Rules
+- Check Context7 MCP server for latest documentation on technologies and libraries used
 - Use modern CSS (Flexbox, Grid), avoid floats.
 - Use TypeScript over JavaScript.
 - Use ESLint + Prettier for code style.

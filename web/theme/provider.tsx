@@ -1,16 +1,10 @@
-'use client'
-
-import { extendTheme, type ThemeConfig } from '@chakra-ui/react'
+import { extendTheme } from '@chakra-ui/react'
 import { SaasProvider } from '@saas-ui/react'
 import '@fontsource-variable/inter'
 
 import components from './components'
 import { fontSizes } from './foundations/typography'
-
-const config: ThemeConfig = {
-  initialColorMode: 'dark',
-  useSystemColorMode: false,
-}
+import config from './config'
 
 const theme = extendTheme({
   config,

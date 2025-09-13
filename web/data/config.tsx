@@ -26,6 +26,11 @@ const siteConfig = {
         label: 'Project History',
         href: '/history',
       },
+      {
+        id: 'map',
+        label: 'Map',
+        href: '/map',
+      },
     ],
   },
   footer: {
