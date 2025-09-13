@@ -18,3 +18,22 @@ export interface Grave {
   persons: Person[];
   locationDescription?: string;
 }
+
+export interface Hotspot {
+  _key: string;
+  x: number;
+  y: number;
+  grave: {
+    _ref: string;
+  };
+}
+
+export interface ImageMap {
+  title: string;
+  image: {
+    asset: {
+      _ref: string;
+    };
+  };
+  hotspots: Hotspot[];
+}
