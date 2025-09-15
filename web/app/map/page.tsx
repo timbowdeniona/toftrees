@@ -2,7 +2,12 @@ import { client } from '../../sanity/client'
 import MapPageClient from './map-page'
 
 async function getImageMap() {
-  const imageMap = await client.fetch(`*[_type == "imageMap"][0]`);
+  const imageMap = await client.fetch(`*[_type == "imageMap"][0]{
+    _id,
+    title,
+    image,
+    hotspots
+  }`);
   return imageMap;
 }
 

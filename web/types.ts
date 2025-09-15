@@ -29,6 +29,7 @@ export interface Hotspot {
 }
 
 export interface ImageMap {
+  _id: string;
   title: string;
   image: {
     asset: {

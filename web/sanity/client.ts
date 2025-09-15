@@ -9,7 +9,8 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true,
+  useCdn: false,
+  token: process.env.NEXT_PUBLIC_SANITY_API_TOKEN,
 })
 
 const builder = imageUrlBuilder(client)
