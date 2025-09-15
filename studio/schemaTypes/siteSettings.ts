@@ -28,7 +28,8 @@ export default  defineType({
     defineField({
       name: 'historicalProjectSummary',
       title: 'Historical Project Summary',
-      type: 'text',
+      type: 'array',
+      of: [{type: 'block'}],
     }),
     defineField({
       name: 'contactDetails',
