@@ -22,7 +22,7 @@ export default async function ProjectHistoryPage() {
           </h1>
         </div>
         <div className="max-w-3xl mx-auto">
-          {settings?.historicalProjectSummary ? (
+          {Array.isArray(settings?.historicalProjectSummary) && settings.historicalProjectSummary.length > 0 ? (
             <div className="prose prose-lg max-w-none text-gray-400 leading-relaxed">
               <PortableText value={settings.historicalProjectSummary} />
             </div>

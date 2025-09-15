@@ -1,21 +1,47 @@
 'use client'
 
-import { Box, Container, Heading, SimpleGrid, Text } from '@chakra-ui/react'
+import { Box, Container, Heading, SimpleGrid, Text, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
 import { MarketingLayout } from '../../components/layout/marketing-layout'
 import Link from 'next/link'
-
-import { Grave } from '../../types';
+import { Grave } from '../../types'
+import { useState, useMemo } from 'react'
+import { FaSearch } from 'react-icons/fa'
 
 export default function GravesPageClient({ graves }: { graves: Grave[] }) {
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredGraves = useMemo(() => {
+    if (!searchQuery) {
+      return graves
+    }
+    return graves.filter((grave) =>
+      grave.familySurname?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  }, [graves, searchQuery])
+
   return (
     <MarketingLayout>
       <Container maxW="container.xl" py="20">
         <Heading as="h1" size="2xl" textAlign="center" mb="12">
           Graves
         </Heading>
-        {graves.length > 0 ? (
+        <Box mb="8">
+          <InputGroup>
+            <InputLeftElement pointerEvents="none">
+              <FaSearch color="gray.300" />
+            </InputLeftElement>
+            <Input
+              placeholder="Search by surname..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              bg="white"
+              _dark={{ bg: 'gray.700' }}
+            />
+          </InputGroup>
+        </Box>
+        {filteredGraves.length > 0 ? (
           <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4, xl: 5 }} spacing="6">
-            {graves.map((grave) => (
+            {filteredGraves.map((grave) => (
               <Link href={`/graves/${grave._id}`} key={grave._id}>
                 <Box
                   bg="white"
@@ -41,7 +67,9 @@ export default function GravesPageClient({ graves }: { graves: Grave[] }) {
             ))}
           </SimpleGrid>
         ) : (
-          <Text textAlign="center">No graves found.</Text>
+          <Text textAlign="center">
+            {searchQuery ? `No graves found for "${searchQuery}".` : 'No graves found.'}
+          </Text>
         )}
       </Container>
     </MarketingLayout>
