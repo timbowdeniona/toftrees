@@ -10,6 +10,7 @@ The website will feature:
 * A front page with an image of the church and a history of the church.
 * A "graves" tab that lists all the graves and allows users to click through to a details page for each grave.
 * A hotspotted image of the churchyard that allows users to click on a grave and be taken to its corresponding page.
+* A project history tab that will display the history of the project
 
 # GEMINI.md
 
@@ -23,6 +24,7 @@ The website will feature:
 
 ## Enforced Rules
 - Check Context7 MCP server for latest documentation on technologies and libraries used
+- Use a Test Driven Development approach, generate tests first then code the feature
 - Use modern CSS (Flexbox, Grid), avoid floats.
 - Use TypeScript over JavaScript.
 - Use ESLint + Prettier for code style.
@@ -63,6 +65,11 @@ The Sanity schema is defined in the `studio/schemaTypes` directory.
     *   `churchVideo`: A video of the church.
     *   `historicalProjectSummary`: A summary of the historical project.
     *   `contactDetails`: Contact details for the project.
+
+*   **`imageMap.ts`**: Defines the schema for the hotspotted image. Key fields include:
+    * `title`: The title of the image
+    * `image`: The actual image file
+    * `hotspots`: An array of the hotspots to be overlaid on the image
 
 ## Building and Running
 

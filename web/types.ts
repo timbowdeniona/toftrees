@@ -21,14 +21,17 @@ export interface Grave {
 
 export interface Hotspot {
   _key: string;
+  _type: 'hotspot';
   x: number;
   y: number;
   grave: {
     _ref: string;
+    _type: 'reference';
   };
 }
 
 export interface ImageMap {
+  _id: string;
   title: string;
   image: {
     asset: {
