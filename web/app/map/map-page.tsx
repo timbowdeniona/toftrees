@@ -49,6 +49,7 @@ export default function MapPageClient({
   const [searchTerm, setSearchTerm] = useState('')
   const cancelRef = useRef<HTMLButtonElement>(null)
   const imageContainerRef = useRef<HTMLDivElement>(null)
+  const imageRef = useRef<HTMLImageElement>(null)
   const [hotspotToDelete, setHotspotToDelete] = useState<Hotspot | null>(null)
 
   const filteredGraves = useMemo(() => {
