@@ -19,6 +19,7 @@ import {
   ModalHeader,
   ModalOverlay,
   Text,
+  Tooltip,
   VStack,
 } from '@chakra-ui/react'
 import { MarketingLayout } from '../../components/layout/marketing-layout'
@@ -58,6 +59,11 @@ export default function MapPageClient({
       `${grave.graveNo} ${grave.familySurname}`.toLowerCase().includes(searchTerm.toLowerCase()),
     )
   }, [graves, searchTerm])
+
+  const graveMap = useMemo(() => {
+    if (!graves) return new Map()
+    return new Map(graves.map((grave) => [grave._id, grave]))
+  }, [graves])
 
   if (!imageMap) {
     return (
@@ -154,21 +160,26 @@ export default function MapPageClient({
               width={2000}
               height={1000}
             />
-            {imageMap.hotspots?.map((hotspot: Hotspot) => (
-              <Link href={`/graves/${hotspot.grave._ref}`} key={hotspot._key} passHref>
-                <Box
-                  onContextMenu={(e) => handleHotspotContextMenu(e, hotspot)}
-                  position="absolute"
-                  top={`${hotspot.y}%`}
-                  left={`${hotspot.x}%`}
-                  width="10px"
-                  height="10px"
-                  bg="red.500"
-                  borderRadius="full"
-                  transform="translate(-50%, -50%)"
-                />
-              </Link>
-            ))}
+            {imageMap.hotspots?.map((hotspot: Hotspot) => {
+              const grave = graveMap.get(hotspot.grave._ref)
+              return (
+                <Tooltip label={grave?.familySurname || ''} aria-label="A tooltip" key={hotspot._key}>
+                  <Box
+                    as={Link}
+                    href={`/graves/${hotspot.grave._ref}`}
+                    onContextMenu={(e) => handleHotspotContextMenu(e, hotspot)}
+                    position="absolute"
+                    top={`${hotspot.y}%`}
+                    left={`${hotspot.x}%`}
+                    width="10px"
+                    height="10px"
+                    bg="red.500"
+                    borderRadius="full"
+                    transform="translate(-50%, -50%)"
+                  />
+                </Tooltip>
+              )
+            })}
             {contextMenu && (
               <Box
                 position="fixed"
