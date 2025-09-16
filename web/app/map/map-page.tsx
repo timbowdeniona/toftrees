@@ -1,20 +1,63 @@
 'use client'
 
-import { Box, Container, Heading, Text, Menu, MenuButton, MenuList, MenuItem, useDisclosure } from '@chakra-ui/react'
+import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  Box,
+  Button,
+  Container,
+  Heading,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  Text,
+  VStack,
+} from '@chakra-ui/react'
 import { MarketingLayout } from '../../components/layout/marketing-layout'
 import Image from 'next/image'
-import { urlFor, client } from '../../sanity/client'
+import { urlFor, writeClient } from '../../sanity/client'
 import Link from 'next/link'
 import { ImageMap, Hotspot, Grave } from '../../types'
-import { useState, useRef } from 'react'
-import GraveSelectionModal from './grave-selection-modal'
+import { useState, useRef, MouseEvent, useMemo } from 'react'
 
-export default function MapPageClient({ imageMap: initialImageMap }: { imageMap: ImageMap }) {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclosure()
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
+export default function MapPageClient({
+  imageMap: initialImageMap,
+  graves,
+}: {
+  imageMap: ImageMap
+  graves: Grave[]
+}) {
+  const [imageMap, setImageMap] = useState(initialImageMap)
+  const [contextMenu, setContextMenu] = useState<{
+    x: number
+    y: number
+    hotspot: Hotspot | null
+    type: 'add' | 'delete'
+    coords?: { x: number; y: number }
+  } | null>(null)
+  const [isAlertOpen, setIsAlertOpen] = useState(false)
+  const [isGraveSelectorOpen, setIsGraveSelectorOpen] = useState(false)
+  const [newHotspotCoords, setNewHotspotCoords] = useState<{ x: number; y: number } | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const cancelRef = useRef<HTMLButtonElement>(null)
+  const imageContainerRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
-  const [imageMap, setImageMap] = useState<ImageMap | undefined>(initialImageMap)
+  const [hotspotToDelete, setHotspotToDelete] = useState<Hotspot | null>(null)
+
+  const filteredGraves = useMemo(() => {
+    if (!searchTerm) return graves
+    return graves.filter((grave) =>
+      `${grave.graveNo} ${grave.familySurname}`.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
+  }, [graves, searchTerm])
 
   if (!imageMap) {
     return (
@@ -26,68 +69,84 @@ export default function MapPageClient({ imageMap: initialImageMap }: { imageMap:
     )
   }
 
-  const handleContextMenu = (event: React.MouseEvent) => {
-    event.preventDefault()
-    const rect = imageRef.current?.getBoundingClientRect()
-    if (rect) {
-      setMenuPosition({ x: event.clientX - rect.left, y: event.clientY - rect.top })
-      onOpen()
+  const handleHotspotContextMenu = (e: MouseEvent<HTMLDivElement>, hotspot: Hotspot) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setContextMenu({ x: e.clientX, y: e.clientY, hotspot, type: 'delete' })
+  }
+
+  const handleMapContextMenu = (e: MouseEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    if (imageContainerRef.current) {
+      const rect = imageContainerRef.current.getBoundingClientRect()
+      const x = ((e.clientX - rect.left) / rect.width) * 100
+      const y = ((e.clientY - rect.top) / rect.height) * 100
+      setContextMenu({ x: e.clientX, y: e.clientY, hotspot: null, type: 'add', coords: { x, y } })
     }
   }
 
-  const handleAddHotspot = () => {
-    onClose()
-    onModalOpen()
+  const closeContextMenu = () => {
+    setContextMenu(null)
   }
 
-  const handleSelectGrave = async (grave: Grave) => {
-    onModalClose()
+  const handleDeleteClick = () => {
+    if (contextMenu && contextMenu.hotspot) {
+      setHotspotToDelete(contextMenu.hotspot)
+      setIsAlertOpen(true)
+      closeContextMenu()
+    }
+  }
 
-    if (imageRef.current && imageMap) {
-      const { width, height } = imageRef.current.getBoundingClientRect()
-      const x = (menuPosition.x / width) * 100
-      const y = (menuPosition.y / height) * 100
+  const handleAddHotspotClick = () => {
+    if (contextMenu && contextMenu.type === 'add' && contextMenu.coords) {
+      setNewHotspotCoords(contextMenu.coords)
+      setIsGraveSelectorOpen(true)
+      closeContextMenu()
+    }
+  }
 
-      const newHotspotForSanity = {
-        _key: new Date().toISOString(),
+  const handleGraveSelect = async (grave: Grave) => {
+    if (newHotspotCoords) {
+      const newHotspot: Hotspot = {
+        _key: Date.now().toString(),
         _type: 'hotspot',
-        x,
-        y,
-        grave: {
-          _type: 'reference',
-          _ref: grave._id,
-        },
+        x: newHotspotCoords.x,
+        y: newHotspotCoords.y,
+        grave: { _ref: grave._id, _type: 'reference' },
       }
-
-      const newHotspotForState: Hotspot = {
-        _key: newHotspotForSanity._key,
-        x: newHotspotForSanity.x,
-        y: newHotspotForSanity.y,
-        grave: {
-          _ref: newHotspotForSanity.grave._ref,
-        },
-      }
-
-      setImageMap(prev => {
-        if (!prev) return prev;
-        return {
-            ...prev,
-            hotspots: [...(prev.hotspots || []), newHotspotForState],
-        }
-      })
-
-      await client.patch(imageMap._id).setIfMissing({ hotspots: [] }).append('hotspots', [newHotspotForSanity]).commit()
+      await writeClient
+        .patch(imageMap._id)
+        .insert('after', 'hotspots[-1]', [newHotspot])
+        .commit()
+      setImageMap({ ...imageMap, hotspots: [...(imageMap.hotspots || []), newHotspot] })
+      setNewHotspotCoords(null)
     }
+    setIsGraveSelectorOpen(false)
+  }
+
+  const onConfirmDelete = async () => {
+    if (hotspotToDelete) {
+      await writeClient
+        .patch(imageMap._id)
+        .unset([`hotspots[_key=="${hotspotToDelete._key}"]`])
+        .commit()
+      const updatedHotspots = imageMap.hotspots.filter(
+        (h) => h._key !== hotspotToDelete._key,
+      )
+      setImageMap({ ...imageMap, hotspots: updatedHotspots })
+      setHotspotToDelete(null)
+    }
+    setIsAlertOpen(false)
   }
 
   return (
     <MarketingLayout>
-      <Container maxW="container.xl" py="20">
+      <Container maxW="container.xl" py="20" onClick={closeContextMenu}>
         <Heading as="h1" size="2xl" textAlign="center" mb="12">
           {imageMap.title}
         </Heading>
         {imageMap.image ? (
-          <Box position="relative" onContextMenu={handleContextMenu}>
+          <Box position="relative" onContextMenu={handleMapContextMenu} ref={imageContainerRef}>
             <Image
               ref={imageRef}
               src={urlFor(imageMap.image).url()}
@@ -96,8 +155,9 @@ export default function MapPageClient({ imageMap: initialImageMap }: { imageMap:
               height={1000}
             />
             {imageMap.hotspots?.map((hotspot: Hotspot) => (
-              <Link href={`/graves/${hotspot.grave._ref}`} key={hotspot._key}>
+              <Link href={`/graves/${hotspot.grave._ref}`} key={hotspot._key} passHref>
                 <Box
+                  onContextMenu={(e) => handleHotspotContextMenu(e, hotspot)}
                   position="absolute"
                   top={`${hotspot.y}%`}
                   left={`${hotspot.x}%`}
@@ -109,18 +169,75 @@ export default function MapPageClient({ imageMap: initialImageMap }: { imageMap:
                 />
               </Link>
             ))}
-            <Menu isOpen={isOpen} onClose={onClose}>
-              <MenuButton style={{ position: 'absolute', top: menuPosition.y, left: menuPosition.x }} />
-              <MenuList>
-                <MenuItem onClick={handleAddHotspot}>Add Hotspot</MenuItem>
-              </MenuList>
-            </Menu>
-            <GraveSelectionModal isOpen={isModalOpen} onClose={onModalClose} onSelectGrave={handleSelectGrave} />
+            {contextMenu && (
+              <Box
+                position="fixed"
+                top={`${contextMenu.y}px`}
+                left={`${contextMenu.x}px`}
+                bg="gray.800"
+                color="white"
+                border="1px solid"
+                borderColor="gray.600"
+                borderRadius="md"
+                p={2}
+                boxShadow="md"
+              >
+                {contextMenu.type === 'delete' ? (
+                  <Button variant="ghost" size="sm" onClick={handleDeleteClick}>
+                    Delete Hotspot
+                  </Button>
+                ) : (
+                  <Button variant="ghost" size="sm" onClick={handleAddHotspotClick}>
+                    Add Hotspot
+                  </Button>
+                )}
+              </Box>
+            )}
           </Box>
         ) : (
           <Text textAlign="center">No map image found.</Text>
         )}
       </Container>
+      <AlertDialog isOpen={isAlertOpen} leastDestructiveRef={cancelRef} onClose={() => setIsAlertOpen(false)}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Hotspot
+            </AlertDialogHeader>
+            <AlertDialogBody>Are you sure you want to delete this hotspot?</AlertDialogBody>
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={() => setIsAlertOpen(false)}>
+                No
+              </Button>
+              <Button colorScheme="red" onClick={onConfirmDelete} ml={3}>
+                Yes
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+      <Modal isOpen={isGraveSelectorOpen} onClose={() => setIsGraveSelectorOpen(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Select a Grave</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Input
+              placeholder="Search by grave number or surname"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              mb={4}
+            />
+            <VStack spacing={2} align="stretch" maxH="400px" overflowY="auto">
+              {filteredGraves.map((grave) => (
+                <Button key={grave._id} onClick={() => handleGraveSelect(grave)} justifyContent="flex-start">
+                  {grave.graveNo} - {grave.familySurname}
+                </Button>
+              ))}
+            </VStack>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </MarketingLayout>
   )
 }

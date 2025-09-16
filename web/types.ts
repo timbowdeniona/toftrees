@@ -21,10 +21,12 @@ export interface Grave {
 
 export interface Hotspot {
   _key: string;
+  _type: 'hotspot';
   x: number;
   y: number;
   grave: {
     _ref: string;
+    _type: 'reference';
   };
 }
 
