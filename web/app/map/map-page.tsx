@@ -147,6 +147,7 @@ export default function MapPageClient({
         {imageMap.image ? (
           <Box position="relative" onContextMenu={handleMapContextMenu} ref={imageContainerRef}>
             <Image
+              ref={imageRef}
               src={urlFor(imageMap.image).url()}
               alt={imageMap.title}
               width={2000}
