@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Container, Heading, SimpleGrid, Text, VStack } from '@chakra-ui/react'
+import { AspectRatio, Box, Container, Heading, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { MarketingLayout } from '../../../components/layout/marketing-layout'
 import Image from 'next/image'
 import { urlFor } from '../../../sanity/client'
@@ -29,13 +29,15 @@ export default function GraveDetailsPageClient({ grave }: { grave: Grave }) {
         </VStack>
 
         {grave.headstoneImage && (
-          <Box w="full" maxW="2xl" mx="auto" mb="12" rounded="lg" overflow="hidden">
-            <Image
-              src={urlFor(grave.headstoneImage).url()}
-              alt={`Headstone for grave ${grave.graveNo}`}
-              width={800}
-              height={600}
-            />
+          <Box w="full" maxW="2xl" mx="auto" mb="12">
+            <AspectRatio ratio={4 / 3} rounded="lg" overflow="hidden">
+              <Image
+                src={urlFor(grave.headstoneImage).url()}
+                alt={`Headstone for grave ${grave.graveNo}`}
+                fill
+                style={{ objectFit: 'contain' }}
+              />
+            </AspectRatio>
           </Box>
         )}
 
