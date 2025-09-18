@@ -43,4 +43,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-ai_docs
+/ai_docs/images
+/ai_docs/references

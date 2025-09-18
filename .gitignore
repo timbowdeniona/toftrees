@@ -5,7 +5,9 @@
 /.pnp
 .pnp.js
 
-ai_docs/
+/ai_docs/*
+!/ai_docs/templates/
+!/ai_docs/tasks/
 
 # testing
 /coverage
