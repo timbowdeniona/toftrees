@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react'
 import { Footer } from '../footer'
-import siteConfig from '../../../data/config'
 
 // Mock the siteConfig
 jest.mock('../../../data/config', () => ({
