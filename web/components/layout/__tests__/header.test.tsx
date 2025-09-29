@@ -6,7 +6,11 @@ jest.mock('components/layout/logo', () => ({
   Logo: () => <div data-testid="logo" />,
 }))
 
-jest.mock('components/layout/navigation', () => () => <div data-testid="navigation" />)
+jest.mock('components/layout/navigation', () => {
+  const Navigation = () => <div data-testid="navigation" />
+  Navigation.displayName = 'Navigation'
+  return Navigation
+})
 
 describe('Header', () => {
   it('renders the Logo and Navigation components', () => {

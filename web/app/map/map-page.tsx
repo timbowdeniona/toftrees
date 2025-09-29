@@ -167,7 +167,7 @@ export default function MapPageClient({
                   <Box
                     as={Link}
                     href={`/graves/${hotspot.grave._ref}`}
-                    onContextMenu={(e) => handleHotspotContextMenu(e, hotspot)}
+                    onContextMenu={(e: MouseEvent<HTMLDivElement>) => handleHotspotContextMenu(e, hotspot)}
                     position="absolute"
                     top={`${hotspot.y}%`}
                     left={`${hotspot.x}%`}
