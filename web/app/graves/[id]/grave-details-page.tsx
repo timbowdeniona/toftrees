@@ -108,7 +108,7 @@ export default function GraveDetailsPageClient({ grave }: { grave: Grave }) {
                   {person.parents && (
                     <Box mt="4" borderTopWidth="1px" pt="4">
                       <Heading as="h4" size="sm" mb="1">Parents</Heading>
-                      <Text>{person.groReference}</Text>
+                      <Text>{person.parents}</Text>
                     </Box>
                   )}
                   {person.brcri && (
