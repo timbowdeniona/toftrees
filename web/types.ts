@@ -22,6 +22,9 @@ export type Grave = {
     page?: string;
     dateBurial?: string;
     groReference?: string;
+    baptism?: string;
+    parents?: string;
+    brcri?: string;
     official?: string;
     ref?: string;
     folio?: string;
