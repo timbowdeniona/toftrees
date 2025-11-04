@@ -1,4 +1,4 @@
-import { defineField, defineType } from 'sanity';
+import { defineField, defineType, defineArrayMember } from 'sanity';
 
 export default defineType({
   name: 'grave',
@@ -64,6 +64,57 @@ export default defineType({
       name: 'headstoneVideo',
       title: 'Headstone Video',
       type: 'file',
+    }),
+    defineField({
+      name: 'inscription',
+      title: 'Inscription',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'block',
+          styles: [{ title: 'Normal', value: 'normal' }],
+          lists: [],
+          marks: {
+            decorators: [
+              { title: 'Bold', value: 'strong' },
+              { title: 'Italic', value: 'em' },
+            ],
+            annotations: [],
+          },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'headstoneCondition',
+      title: 'Headstone Condition',
+      type: 'text',
+    }),
+    defineField({
+      name: 'footstone',
+      title: 'Footstone',
+      type: 'boolean',
+    }),
+    defineField({
+      name: 'footstoneInscription',
+      title: 'Footstone Inscription',
+      type: 'text',
+    }),
+    defineField({
+      name: 'additionalInformation',
+      title: 'Additional Information',
+      type: 'text',
+    }),
+    defineField({
+      name: 'scenicGraveImage',
+      title: 'Scenic Grave Image',
+      type: 'image',
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: 'graveImages',
+      title: 'Grave Images',
+      type: 'array',
+      of: [{ type: 'image', options: { hotspot: true } }],
     }),
   ],
 });

@@ -16,7 +16,14 @@ async function getGrave(id: string) {
     persons,
     graveyardLocation,
     headstoneImage,
-    headstoneVideo
+    headstoneVideo,
+    inscription,
+    headstoneCondition,
+    footstone,
+    footstoneInscription,
+    additionalInformation,
+    scenicGraveImage,
+    graveImages
   }`);
   return grave;
 }

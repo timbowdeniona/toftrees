@@ -4,6 +4,7 @@ import { AspectRatio, Box, Container, Heading, SimpleGrid, Text, VStack } from '
 import { MarketingLayout } from '../../../components/layout/marketing-layout'
 import Image from 'next/image'
 import { urlFor } from '../../../sanity/client'
+import { PortableText } from '@portabletext/react'
 
 import { Grave } from '../../../types';
 
@@ -38,6 +39,27 @@ export default function GraveDetailsPageClient({ grave }: { grave: Grave }) {
                 style={{ objectFit: 'contain' }}
               />
             </AspectRatio>
+          </Box>
+        )}
+
+        {grave.inscription && (
+          <Box mb="12">
+            <Heading as="h2" size="xl" mb="8" textAlign="center">
+              Inscription
+            </Heading>
+            <Box
+              maxH="300px"
+              overflowY="auto"
+              p="4"
+              borderWidth="1px"
+              borderColor="gray.200"
+              rounded="md"
+              _dark={{
+                borderColor: 'gray.700',
+              }}
+            >
+              <PortableText value={grave.inscription} />
+            </Box>
           </Box>
         )}
 
@@ -88,6 +110,68 @@ export default function GraveDetailsPageClient({ grave }: { grave: Grave }) {
               Location
             </Heading>
             <Text fontSize="lg" textAlign="center">{grave.locationDescription}</Text>
+          </Box>
+        )}
+
+        {grave.headstoneCondition && (
+          <Box mt="12">
+            <Heading as="h2" size="xl" mb="4" textAlign="center">
+              Headstone Condition
+            </Heading>
+            <Text fontSize="lg" textAlign="center">{grave.headstoneCondition}</Text>
+          </Box>
+        )}
+
+        {(grave.footstone || grave.footstoneInscription) && (
+          <Box mt="12">
+            <Heading as="h2" size="xl" mb="4" textAlign="center">
+              Footstone
+            </Heading>
+            {grave.footstone && <Text fontSize="lg" textAlign="center">Footstone present</Text>}
+            {grave.footstoneInscription && <Text fontSize="lg" textAlign="center">Inscription: {grave.footstoneInscription}</Text>}
+          </Box>
+        )}
+
+        {grave.additionalInformation && (
+          <Box mt="12">
+            <Heading as="h2" size="xl" mb="4" textAlign="center">
+              Additional Information
+            </Heading>
+            <Text fontSize="lg" textAlign="center">{grave.additionalInformation}</Text>
+          </Box>
+        )}
+
+        {(grave.scenicGraveImage || grave.graveImages) && (
+          <Box mt="12">
+            <Heading as="h2" size="xl" mb="8" textAlign="center">
+              Images
+            </Heading>
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing="6">
+              {grave.scenicGraveImage && (
+                <Box w="full" mx="auto">
+                  <AspectRatio ratio={4 / 3} rounded="lg" overflow="hidden">
+                    <Image
+                      src={urlFor(grave.scenicGraveImage).url()}
+                      alt={`Scenic image for grave ${grave.graveNo}`}
+                      fill
+                      style={{ objectFit: 'contain' }}
+                    />
+                  </AspectRatio>
+                </Box>
+              )}
+              {grave.graveImages && grave.graveImages.map((image, index) => (
+                <Box key={index} w="full" mx="auto">
+                  <AspectRatio ratio={4 / 3} rounded="lg" overflow="hidden">
+                    <Image
+                      src={urlFor(image).url()}
+                      alt={`Grave image ${index + 1} for grave ${grave.graveNo}`}
+                      fill
+                      style={{ objectFit: 'contain' }}
+                    />
+                  </AspectRatio>
+                </Box>
+              ))}
+            </SimpleGrid>
           </Box>
         )}
       </Container>

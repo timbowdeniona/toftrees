@@ -18,9 +18,10 @@ const config = {
     '^components/(.*)$': '<rootDir>/components/$1',
     '^data/(.*)$': '<rootDir>/data/$1',
     '^sanity/(.*)$': '<rootDir>/sanity/$1',
+    'nanoid': '<rootDir>/__mocks__/nanoid.js',
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!nanoid|@sanity/client|@sanity/image-url|next-sanity)/',
+    '/node_modules/(?!(nanoid|@sanity/client|next-sanity|@sanity/image-url))/',
   ],
 }
  
