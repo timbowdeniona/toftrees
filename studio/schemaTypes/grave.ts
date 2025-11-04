@@ -34,6 +34,7 @@ export default defineType({
           { name: 'age', title: 'Age', type: 'number' },
           { name: 'page', title: 'Page', type: 'string' },
           { name: 'dateBurial', title: 'Date of Burial', type: 'string' },
+          { name: 'dateOfBirth', title: 'Date of Birth', type: 'date' },
           { name: 'groReference', title: 'GRO Reference', type: 'string' },
           { name: 'baptism', title: 'Baptism', type: 'string' },
           { name: 'parents', title: 'Parents', type: 'string' },

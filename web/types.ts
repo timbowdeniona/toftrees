@@ -21,6 +21,7 @@ export type Grave = {
     age?: number;
     page?: string;
     dateBurial?: string;
+    dateOfBirth?: Date
     groReference?: string;
     baptism?: string;
     parents?: string;
