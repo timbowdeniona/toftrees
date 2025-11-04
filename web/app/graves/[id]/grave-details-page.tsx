@@ -114,7 +114,7 @@ export default function GraveDetailsPageClient({ grave }: { grave: Grave }) {
                   {person.brcri && (
                     <Box mt="4" borderTopWidth="1px" pt="4">
                       <Heading as="h4" size="sm" mb="1">Birth Record Civil Registration Index</Heading>
-                      <Text>{person.groReference}</Text>
+                      <Text>{person.brcri}</Text>
                     </Box>
                   )}
                   {person.notes && (
