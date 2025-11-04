@@ -92,6 +92,30 @@ export default function GraveDetailsPageClient({ grave }: { grave: Grave }) {
                       <Text>{person.official}</Text>
                     </Box>
                   )}
+                  {person.groReference && (
+                    <Box mt="4" borderTopWidth="1px" pt="4">
+                      <Heading as="h4" size="sm" mb="1">GRO Record</Heading>
+                      <Text>{person.groReference}</Text>
+                    </Box>
+                  )}
+                  {person.baptism && (
+                    <Box mt="4" borderTopWidth="1px" pt="4">
+                      <Heading as="h4" size="sm" mb="1">Baptism</Heading>
+                      <Text>{person.baptism}</Text>
+                    </Box>
+                  )}
+                  {person.parents && (
+                    <Box mt="4" borderTopWidth="1px" pt="4">
+                      <Heading as="h4" size="sm" mb="1">Parents</Heading>
+                      <Text>{person.groReference}</Text>
+                    </Box>
+                  )}
+                  {person.brcri && (
+                    <Box mt="4" borderTopWidth="1px" pt="4">
+                      <Heading as="h4" size="sm" mb="1">Birth Record Civil Registration Index</Heading>
+                      <Text>{person.groReference}</Text>
+                    </Box>
+                  )}
                   {person.notes && (
                     <Box mt="4" borderTopWidth="1px" pt="4">
                       <Heading as="h4" size="sm" mb="1">Notes</Heading>

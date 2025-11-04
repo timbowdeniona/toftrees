@@ -35,11 +35,16 @@ export default defineType({
           { name: 'page', title: 'Page', type: 'string' },
           { name: 'dateBurial', title: 'Date of Burial', type: 'string' },
           { name: 'groReference', title: 'GRO Reference', type: 'string' },
+          { name: 'baptism', title: 'Baptism', type: 'string' },
+          { name: 'parents', title: 'Parents', type: 'string' },
+          { name: 'brcri', title: 'Birth Record Civil Registration Index', type: 'string' },
           { name: 'official', title: 'Official', type: 'string' },
           { name: 'ref', title: 'Page/Folio Ref', type: 'string' },
           { name: 'folio', title: 'Folio', type: 'string' },
           { name: 'abode', title: 'Abode', type: 'string' },
           { name: 'notes', title: 'Notes', type: 'text' },
+          { name: 'baptism', title: 'Baptism', type: 'text' },
+          { name: 'parents', title: 'Parents', type: 'text' },
         ],
         preview: {
           select: {
