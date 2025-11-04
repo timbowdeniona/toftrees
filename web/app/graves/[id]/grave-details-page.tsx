@@ -93,6 +93,12 @@ export default function GraveDetailsPageClient({ grave }: { grave: Grave }) {
                       <Text>{person.official}</Text>
                     </Box>
                   )}
+                  {person.dateOfBirth && (
+                    <Box mt="4" borderTopWidth="1px" pt="4">
+                      <Heading as="h4" size="sm" mb="1">Date Of Birth</Heading>
+                      <Text>{person.dateOfBirth.toISOString()}</Text>
+                    </Box>
+                  )}
                   {person.groReference && (
                     <Box mt="4" borderTopWidth="1px" pt="4">
                       <Heading as="h4" size="sm" mb="1">GRO Record</Heading>
@@ -108,7 +114,7 @@ export default function GraveDetailsPageClient({ grave }: { grave: Grave }) {
                   {person.parents && (
                     <Box mt="4" borderTopWidth="1px" pt="4">
                       <Heading as="h4" size="sm" mb="1">Parents</Heading>
-                      <Text>{person.groReference}</Text>
+                      <Text>{person.parents}</Text>
                     </Box>
                   )}
                   {person.brcri && (
