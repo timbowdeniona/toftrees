@@ -43,8 +43,6 @@ export default defineType({
           { name: 'folio', title: 'Folio', type: 'string' },
           { name: 'abode', title: 'Abode', type: 'string' },
           { name: 'notes', title: 'Notes', type: 'text' },
-          { name: 'baptism', title: 'Baptism', type: 'text' },
-          { name: 'parents', title: 'Parents', type: 'text' },
         ],
         preview: {
           select: {
