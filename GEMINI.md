@@ -110,3 +110,9 @@ The frontend is a Next.js application.
 
 *   The Sanity schema is written in TypeScript.
 *   The data is stored in a `.ndjson` file.
+
+## Active Technologies
+- TypeScrip + Sanity, Next.js, Reac (002-extend-graves-schema)
+
+## Recent Changes
+- 002-extend-graves-schema: Added TypeScrip + Sanity, Next.js, Reac

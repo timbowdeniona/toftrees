@@ -6,18 +6,96 @@ export interface Person {
   notes?: string;
 }
 
-export interface Grave {
+export type Grave = {
   _id: string;
-  graveNo: string;
-  familySurname: string;
-  headstoneImage?: {
-    asset: {
-      _ref: string;
-    };
-  };
-  persons: Person[];
+  _type: "grave";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  graveNo?: number;
+  familySurname?: string;
   locationDescription?: string;
-}
+  persons?: Array<{
+    name?: string;
+    year?: number;
+    age?: number;
+    page?: string;
+    dateBurial?: string;
+    groReference?: string;
+    official?: string;
+    ref?: string;
+    folio?: string;
+    abode?: string;
+    notes?: string;
+    _key: string;
+  }>;
+  graveyardLocation?: Geopoint;
+  headstoneImage?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  headstoneVideo?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.fileAsset";
+    };
+    media?: unknown;
+    _type: "file";
+  };
+  inscription?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: never;
+    markDefs?: null;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  headstoneCondition?: string;
+  footstone?: boolean;
+  footstoneInscription?: string;
+  additionalInformation?: string;
+  scenicGraveImage?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  graveImages?: Array<{
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+    _key: string;
+  }>;
+};
 
 export interface Hotspot {
   _key: string;
@@ -40,3 +118,28 @@ export interface ImageMap {
   };
   hotspots: Hotspot[];
 }
+
+export type Geopoint = {
+  _type: "geopoint";
+  lat?: number;
+  lng?: number;
+  alt?: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x?: number;
+  y?: number;
+  height?: number;
+  width?: number;
+};
+
+export type SanityImageCrop = {
+  _type: "sanity.imageCrop";
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+};
+
+export declare const internalGroqTypeReferenceTo: unique symbol;
