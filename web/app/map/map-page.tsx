@@ -27,7 +27,9 @@ import Image from 'next/image'
 import { urlFor, writeClient } from '../../sanity/client'
 import Link from 'next/link'
 import { ImageMap, Hotspot, Grave } from '../../types'
-import { useState, useRef, MouseEvent, useMemo } from 'react'
+import { useSearchParams } from 'next/navigation';
+import { useState, useRef, MouseEvent, useMemo, useEffect } from 'react'
+import { FaFlag } from 'react-icons/fa'
 
 export default function MapPageClient({
   imageMap: initialImageMap,
@@ -52,6 +54,9 @@ export default function MapPageClient({
   const imageContainerRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
   const [hotspotToDelete, setHotspotToDelete] = useState<Hotspot | null>(null)
+
+  const searchParams = useSearchParams()
+  const graveId = searchParams.get('grave')
 
   const filteredGraves = useMemo(() => {
     if (!searchTerm) return graves
@@ -162,21 +167,34 @@ export default function MapPageClient({
             />
             {imageMap.hotspots?.map((hotspot: Hotspot) => {
               const grave = graveMap.get(hotspot.grave._ref)
+              const isSelected = grave?._id === graveId
               return (
-                <Tooltip label={grave?.familySurname || ''} aria-label="A tooltip" key={hotspot._key}>
-                  <Box
-                    as={Link}
-                    href={`/graves/${hotspot.grave._ref}`}
-                    onContextMenu={(e: MouseEvent<HTMLDivElement>) => handleHotspotContextMenu(e, hotspot)}
-                    position="absolute"
-                    top={`${hotspot.y}%`}
-                    left={`${hotspot.x}%`}
-                    width="10px"
-                    height="10px"
-                    bg="red.500"
-                    borderRadius="full"
-                    transform="translate(-50%, -50%)"
-                  />
+                <Tooltip label={grave?.familySurname || ''} aria-label="A tooltip" key={hotspot._key} isOpen={isSelected}>
+                  {isSelected ? (
+                    <Box
+                      as={FaFlag}
+                      position="absolute"
+                      top={`${hotspot.y}%`}
+                      left={`${hotspot.x}%`}
+                      color="yellow.500"
+                      size="20px"
+                      transform="translate(-50%, -100%)" // Adjust to position flag correctly
+                    />
+                  ) : (
+                    <Box
+                      as={Link}
+                      href={`/graves/${hotspot.grave._ref}`}
+                      onContextMenu={(e: MouseEvent<HTMLDivElement>) => handleHotspotContextMenu(e, hotspot)}
+                      position="absolute"
+                      top={`${hotspot.y}%`}
+                      left={`${hotspot.x}%`}
+                      width="10px"
+                      height="10px"
+                      bg="red.500"
+                      borderRadius="full"
+                      transform="translate(-50%, -50%)"
+                    />
+                  )}
                 </Tooltip>
               )
             })}
