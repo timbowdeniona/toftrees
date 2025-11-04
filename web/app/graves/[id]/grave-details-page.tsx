@@ -1,6 +1,6 @@
 'use client'
 
-import { AspectRatio, Box, Container, Heading, SimpleGrid, Text, VStack } from '@chakra-ui/react'
+import { AspectRatio, Box, Container, Heading, SimpleGrid, Text, VStack, Button, Link } from '@chakra-ui/react'
 import { MarketingLayout } from '../../../components/layout/marketing-layout'
 import Image from 'next/image'
 import { urlFor } from '../../../sanity/client'
@@ -27,6 +27,7 @@ export default function GraveDetailsPageClient({ grave }: { grave: Grave }) {
             Grave No: {grave.graveNo}
           </Heading>
           <Text fontSize="xl" color="muted">Family: {grave.familySurname}</Text>
+          <Button as={Link} href={`/map?grave=${grave._id}`} colorScheme="blue">View on Map</Button>
         </VStack>
 
         {grave.headstoneImage && (

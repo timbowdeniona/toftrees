@@ -113,6 +113,7 @@ The frontend is a Next.js application.
 
 ## Active Technologies
 - TypeScrip + Sanity, Next.js, Reac (002-extend-graves-schema)
+- TypeScrip + Next.js, React, Chakra UI (003-view-grave-on-map)
 
 ## Recent Changes
 - 002-extend-graves-schema: Added TypeScrip + Sanity, Next.js, Reac
