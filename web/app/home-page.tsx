@@ -2,6 +2,7 @@
 
 import { Box, Container, Heading, Text, VStack, Button } from '@chakra-ui/react'
 import { MarketingLayout } from '../components/layout/marketing-layout'
+import { ContentSectionRenderer } from '../components/content-sections'
 import Image from 'next/image'
 import { urlFor } from '../sanity/client'
 
@@ -11,9 +12,44 @@ interface ChurchImage {
   };
 }
 
+interface ContentSection {
+  _type: string;
+  _key: string;
+  heading?: string;
+  bodyText?: unknown[];
+  image?: unknown;
+  imageAltText?: string;
+  imagePosition?: 'left' | 'right';
+  title?: string;
+  titleText?: string;
+  searchBarPlaceholder?: string;
+  hyperlinkLabel?: string;
+  hyperlinkUrl?: string;
+}
+
 interface Settings {
   churchImage: ChurchImage;
   shortHistory: string;
+  contentSections?: ContentSection[];
+  navigationBar?: {
+    logoImage?: {
+      asset: {
+        _ref: string;
+        _type: 'reference';
+      };
+      _type: 'image';
+    };
+    titleText?: string;
+    navigationLinks?: Array<{ _key?: string; linkText: string; linkUrl: string }>;
+  };
+  footer?: {
+    navigationLinks?: Array<{ _key?: string; label: string; url: string }>;
+    copyrightText?: string;
+    privacyPolicyLabel?: string;
+    privacyPolicyUrl?: string;
+    termsLabel?: string;
+    termsUrl?: string;
+  };
 }
 
 const HeroSection: React.FC<{ churchImage: ChurchImage }> = ({ churchImage }) => {
@@ -66,9 +102,13 @@ const HistorySection: React.FC<{ shortHistory: string }> = ({ shortHistory }) =>
 
 export default function HomePage({ settings }: { settings: Settings }) {
   return (
-    <MarketingLayout>
+    <MarketingLayout 
+      headerProps={{ navigationConfig: settings?.navigationBar }}
+      footerProps={{ config: settings?.footer }}
+    >
       <HeroSection churchImage={settings?.churchImage} />
       <HistorySection shortHistory={settings?.shortHistory} />
+      <ContentSectionRenderer sections={settings?.contentSections} />
     </MarketingLayout>
   )
 }

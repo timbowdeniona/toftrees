@@ -44,5 +44,27 @@ export default  defineType({
         ]
       }]
     }),
+    defineField({
+      name: 'contentSections',
+      title: 'Content Sections',
+      type: 'array',
+      description: 'Add content sections to your pages',
+      of: [
+        { type: 'headingBodyText' },
+        { type: 'imageText' },
+      ],
+    }),
+    defineField({
+      name: 'footer',
+      title: 'Footer Configuration',
+      type: 'footer',
+      description: 'Configure the site footer displayed on all pages',
+    }),
+    defineField({
+      name: 'navigationBar',
+      title: 'Navigation Bar Configuration',
+      type: 'navigationBar',
+      description: 'Configure the site navigation bar displayed on all pages',
+    }),
   ],
 });

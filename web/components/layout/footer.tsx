@@ -1,82 +1,134 @@
+'use client'
+
 import {
   Box,
-  BoxProps,
   Container,
   Flex,
   HStack,
-  SimpleGrid,
   Stack,
   Text,
+  Link as ChakraLink,
 } from '@chakra-ui/react'
-import { Link, LinkProps } from '@saas-ui/react'
-
+import Image from 'next/image'
+import Link from 'next/link'
+import { FooterConfig } from '../../types'
 import siteConfig from '../../data/config'
 
-export interface FooterProps extends BoxProps {
-  columns?: number
+export interface FooterProps {
+  config?: FooterConfig
 }
 
-export const Footer: React.FC<FooterProps> = (props) => {
-  const { columns = 2, ...rest } = props
+export const Footer: React.FC<FooterProps> = ({ config }) => {
+  // Fallback to default config if no CMS config is provided
+  const copyrightText = config?.copyrightText || siteConfig.footer.copyright
+  const navigationLinks = config?.navigationLinks || siteConfig.footer?.links || []
+
+  const privacyLink =
+    config?.privacyPolicyLabel && config?.privacyPolicyUrl
+      ? { label: config.privacyPolicyLabel, url: config.privacyPolicyUrl }
+      : null
+
+  const termsLink =
+    config?.termsLabel && config?.termsUrl
+      ? { label: config.termsLabel, url: config.termsUrl }
+      : null
+
   return (
-    <Box bg="white" _dark={{ bg: 'gray.900' }} {...rest}>
-      <Container maxW="container.2xl" px="8" py="8">
-        <SimpleGrid columns={columns}>
-          <Stack spacing="8">
-            <Stack alignItems="flex-start">
-              <Flex>
-                <Box as={siteConfig.logo} flex="1" height="32px" />
-              </Flex>
-              <Text fontSize="md" color="muted">
-                {siteConfig.seo.description}
-              </Text>
-            </Stack>
-            <Copyright>{siteConfig.footer.copyright}</Copyright>
+    <Box
+      bg="#0d120e"
+      color="#dcd7c9"
+      borderTopWidth="1px"
+      borderColor="rgba(255,255,255,0.06)"
+    >
+      <Container maxW="container.2xl" px={{ base: 6, md: 120 }} py={{ base: 8, md: 120 }}>
+        <Stack
+          direction={{ base: 'column', md: 'row' }}
+          spacing={{ base: 8, md: 10 }}
+          align={{ base: 'flex-start', md: 'center' }}
+          justify="space-between"
+        >
+          <Stack spacing={4}>
+            <Flex align="center" gap={3}>
+              <Box flexShrink={0} height="36px">
+                <Image
+                  src="/logo-footer.svg"
+                  alt="All Saints Church Toftrees"
+                  width={180}
+                  height={40}
+                  priority
+                  style={{ height: '100%', width: 'auto' }}
+                />
+              </Box>
+            </Flex>
           </Stack>
-          <HStack justify="flex-end" spacing="4" alignSelf="flex-end">
-            {siteConfig.footer?.links?.map(({ href, label }) => (
-              <FooterLink key={href} href={href as string}>
-                {label}
-              </FooterLink>
-            ))}
-          </HStack>
-        </SimpleGrid>
+
+          {navigationLinks.length > 0 && (
+            <HStack
+              spacing={{ base: 4, md: 8 }}
+              flexWrap="wrap"
+              justify={{ base: 'flex-start', md: 'flex-end' }}
+            >
+              {navigationLinks.map((link, index) => (
+                <ChakraLink
+                  key={link._key || `${link.url}-${index}`}
+                  as={Link}
+                  href={link.url}
+                  color="#e8e3d6"
+                  fontSize="18px"
+                  fontWeight={600}
+                  lineHeight="normal"
+                  letterSpacing="2.16px"
+                  textTransform="uppercase"
+                  _hover={{ color: 'white', textDecoration: 'underline' }}
+                >
+                  {link.label}
+                </ChakraLink>
+              ))}
+            </HStack>
+          )}
+        </Stack>
+
+        <HStack
+          spacing={6}
+          mt={{ base: 6, md: 8 }}
+          flexWrap="wrap"
+          justify={{ base: 'flex-start', md: 'flex-start' }}
+          fontSize="12px"
+          fontWeight={300}
+          lineHeight="150%"
+          color="rgba(220,215,201,0.8)"
+        >
+          <Text fontSize="12px" fontWeight={300} lineHeight="150%">
+            {copyrightText}
+          </Text>
+
+          {privacyLink && (
+            <ChakraLink
+              as={Link}
+              href={privacyLink.url}
+              fontSize="12px"
+              fontWeight={300}
+              lineHeight="150%"
+              _hover={{ color: 'white', textDecoration: 'underline' }}
+            >
+              {privacyLink.label}
+            </ChakraLink>
+          )}
+
+          {termsLink && (
+            <ChakraLink
+              as={Link}
+              href={termsLink.url}
+              fontSize="12px"
+              fontWeight={300}
+              lineHeight="150%"
+              _hover={{ color: 'white', textDecoration: 'underline' }}
+            >
+              {termsLink.label}
+            </ChakraLink>
+          )}
+        </HStack>
       </Container>
     </Box>
-  )
-}
-
-export interface CopyrightProps {
-  title?: React.ReactNode
-  children: React.ReactNode
-}
-
-export const Copyright: React.FC<CopyrightProps> = ({ title, children }) => {
-  let content
-  if (title && !children) {
-    content = `&copy; ${new Date().getFullYear()} - ${title}`
-  }
-  return (
-    <Text color="muted" fontSize="sm">
-      {content || children}
-    </Text>
-  )
-}
-
-export const FooterLink: React.FC<LinkProps> = (props) => {
-  const { children, ...rest } = props
-  return (
-    <Link
-      color="muted"
-      fontSize="sm"
-      textDecoration="none"
-      _hover={{
-        color: 'white',
-        transition: 'color .2s ease-in',
-      }}
-      {...rest}
-    >
-      {children}
-    </Link>
   )
 }

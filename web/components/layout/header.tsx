@@ -1,9 +1,10 @@
+'use client'
+
 import {
   Box,
   BoxProps,
   Container,
   Flex,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 
@@ -11,10 +12,13 @@ import * as React from 'react'
 
 import { Logo } from './logo'
 import Navigation from './navigation'
+import { NavigationBarConfig } from '../../types'
 
-export type HeaderProps = Omit<BoxProps, 'children'>
+export interface HeaderProps extends Omit<BoxProps, 'children'> {
+  navigationConfig?: NavigationBarConfig;
+}
 
-export const Header = (props: HeaderProps) => {
+export const Header = ({ navigationConfig, ...props }: HeaderProps) => {
   const ref = React.useRef<HTMLHeadingElement>(null)
   const [y, setY] = React.useState(0)
   const { height = 0 } = ref.current?.getBoundingClientRect() ?? {}
@@ -24,8 +28,6 @@ export const Header = (props: HeaderProps) => {
     return scrollY.on('change', () => setY(scrollY.get()))
   }, [scrollY])
 
-  const bg = useColorModeValue('whiteAlpha.700', 'rgba(29, 32, 37, 0.7)')
-
   return (
     <Box
       ref={ref}
@@ -33,19 +35,20 @@ export const Header = (props: HeaderProps) => {
       top="0"
       w="full"
       position="fixed"
-      backdropFilter="blur(5px)"
       zIndex="sticky"
-      borderColor="whiteAlpha.100"
+      bg="#FFFFFF"
+      borderColor="gray.200"
       transitionProperty="common"
       transitionDuration="normal"
-      bg={y > height ? bg : ''}
-      boxShadow={y > height ? 'md' : ''}
-      borderBottomWidth={y > height ? '1px' : ''}
+      boxShadow={y > height ? 'md' : 'none'}
+      borderBottomWidth="1px"
       {...props}
     >
-      <Container maxW="container.2xl" px="8" py="4">
+      <Container maxW="container.2xl" px="120px" py="10">
         <Flex width="full" align="center" justify="space-between">
           <Logo
+            logoImage={navigationConfig?.logoImage}
+            titleText={navigationConfig?.titleText}
             onClick={(e) => {
               if (window.location.pathname === '/') {
                 e.preventDefault()
@@ -57,7 +60,7 @@ export const Header = (props: HeaderProps) => {
               }
             }}
           />
-          <Navigation />
+          <Navigation links={navigationConfig?.navigationLinks} />
         </Flex>
       </Container>
     </Box>
