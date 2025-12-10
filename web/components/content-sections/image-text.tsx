@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { Box, Container, Grid, GridItem, Heading, VStack, Link as ChakraLink } from '@chakra-ui/react'

@@ -38,8 +38,8 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
             return (
               <HeadingBodyTextSection
                 key={section._key}
-                heading={section.heading}
-                bodyText={section.bodyText}
+                heading={section.heading ?? ''}
+                bodyText={section.bodyText ?? []}
               />
             )
 
@@ -47,11 +47,11 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
             return (
               <ImageTextSection
                 key={section._key}
-                image={section.image}
-                imageAltText={section.imageAltText}
-                imagePosition={section.imagePosition}
-                title={section.title}
-                bodyText={section.bodyText}
+                image={section.image as { asset: { _ref: string } }}
+                imageAltText={section.imageAltText ?? ''}
+                imagePosition={section.imagePosition ?? 'left'}
+                title={section.title ?? ''}
+                bodyText={section.bodyText ?? []}
                 hyperlinkLabel={section.hyperlinkLabel}
                 hyperlinkUrl={section.hyperlinkUrl}
               />
