@@ -5,6 +5,7 @@ import headingBodyText from "./headingBodyText"
 import imageText from "./imageText"
 import footer from "./footer"
 import navigationBar from "./navigationBar"
+import heroImage from "./heroImage"
 
 export const schemaTypes = [
     grave,
@@ -13,5 +14,6 @@ export const schemaTypes = [
     headingBodyText,
     imageText,
     footer,
-    navigationBar
+    navigationBar,
+    heroImage
 ]

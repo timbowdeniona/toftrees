@@ -52,6 +52,7 @@ export default  defineType({
       of: [
         { type: 'headingBodyText' },
         { type: 'imageText' },
+        { type: 'heroImage' },
       ],
     }),
     defineField({

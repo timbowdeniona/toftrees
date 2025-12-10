@@ -2,6 +2,7 @@
 
 import { HeadingBodyTextSection } from './heading-body-text'
 import { ImageTextSection } from './image-text'
+import { HeroImageSection } from './hero-image'
 
 interface ContentSection {
   _type: string
@@ -14,6 +15,10 @@ interface ContentSection {
   title?: string
   hyperlinkLabel?: string
   hyperlinkUrl?: string
+  heroBackgroundImage?: unknown
+  heroImageAltText?: string
+  overlayIconImage?: unknown
+  overlayIconAltText?: string
 }
 
 interface ContentSectionRendererProps {
@@ -49,6 +54,17 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
                 bodyText={section.bodyText}
                 hyperlinkLabel={section.hyperlinkLabel}
                 hyperlinkUrl={section.hyperlinkUrl}
+              />
+            )
+
+          case 'heroImage':
+            return (
+              <HeroImageSection
+                key={section._key}
+                heroBackgroundImage={section.heroBackgroundImage}
+                heroImageAltText={section.heroImageAltText || 'Hero image'}
+                overlayIconImage={section.overlayIconImage}
+                overlayIconAltText={section.overlayIconAltText}
               />
             )
 

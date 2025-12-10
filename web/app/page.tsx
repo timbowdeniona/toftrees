@@ -21,6 +21,12 @@ async function getSiteSettings() {
         bodyText,
         hyperlinkLabel,
         hyperlinkUrl
+      },
+      _type == "heroImage" => {
+        heroBackgroundImage,
+        heroImageAltText,
+        overlayIconImage,
+        overlayIconAltText
       }
     },
     navigationBar {
