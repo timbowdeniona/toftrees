@@ -53,6 +53,7 @@ export default  defineType({
         { type: 'headingBodyText' },
         { type: 'imageText' },
         { type: 'heroImage' },
+        { type: 'graveSearch' },
       ],
     }),
     defineField({

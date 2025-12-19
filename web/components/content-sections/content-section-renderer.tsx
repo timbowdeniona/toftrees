@@ -3,6 +3,7 @@
 import { HeadingBodyTextSection } from './heading-body-text'
 import { ImageTextSection } from './image-text'
 import { HeroImageSection } from './hero-image'
+import { GraveSearchSection } from './grave-search'
 
 interface ContentSection {
   _type: string
@@ -13,6 +14,8 @@ interface ContentSection {
   imageAltText?: string
   imagePosition?: 'left' | 'right'
   title?: string
+  titleText?: string
+  searchBarPlaceholder?: string
   hyperlinkLabel?: string
   hyperlinkUrl?: string
   heroBackgroundImage?: unknown
@@ -65,6 +68,22 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
                 heroImageAltText={section.heroImageAltText || 'Hero image'}
                 overlayIconImage={section.overlayIconImage}
                 overlayIconAltText={section.overlayIconAltText}
+              />
+            )
+
+          case 'graveSearch':
+            return (
+              <GraveSearchSection
+                key={section._key}
+                titleText={section.titleText ?? ''}
+                bodyText={Array.isArray(section.bodyText) ? (section.bodyText as Array<{
+                  _type: string
+                  _key: string
+                  [key: string]: unknown
+                }>) : undefined}
+                searchBarPlaceholder={section.searchBarPlaceholder ?? ''}
+                hyperlinkLabel={section.hyperlinkLabel}
+                hyperlinkUrl={section.hyperlinkUrl}
               />
             )
 

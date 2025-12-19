@@ -6,6 +6,7 @@ import imageText from "./imageText"
 import footer from "./footer"
 import navigationBar from "./navigationBar"
 import heroImage from "./heroImage"
+import graveSearch from "./graveSearch"
 
 export const schemaTypes = [
     grave,
@@ -15,5 +16,6 @@ export const schemaTypes = [
     imageText,
     footer,
     navigationBar,
-    heroImage
+    heroImage,
+    graveSearch
 ]

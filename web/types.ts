@@ -178,3 +178,24 @@ export interface NavigationBarConfig {
     _key?: string;
   }>;
 }
+
+export interface GraveSearchSection {
+  _type: 'graveSearch';
+  _key: string;
+  titleText: string;
+  bodyText?: Array<{
+    _type: 'block';
+    _key: string;
+    children?: Array<{
+      _type: 'span';
+      _key: string;
+      text?: string;
+      marks?: string[];
+    }>;
+    style?: string;
+    markDefs?: unknown[];
+  }>;
+  searchBarPlaceholder: string;
+  hyperlinkLabel?: string;
+  hyperlinkUrl?: string;
+}

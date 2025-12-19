@@ -27,6 +27,13 @@ async function getSiteSettings() {
         heroImageAltText,
         overlayIconImage,
         overlayIconAltText
+      },
+      _type == "graveSearch" => {
+        titleText,
+        bodyText,
+        searchBarPlaceholder,
+        hyperlinkLabel,
+        hyperlinkUrl
       }
     },
     navigationBar {
