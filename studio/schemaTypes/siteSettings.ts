@@ -74,5 +74,11 @@ export default  defineType({
       type: 'termPage',
       description: 'Configure the Terms & Conditions page content and hero banner',
     }),
+    defineField({
+      name: 'contactPage',
+      title: 'Contact Page',
+      type: 'contactPage',
+      description: 'Configure the Contact page content and hero banner',
+    }),
   ],
 });
