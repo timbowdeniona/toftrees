@@ -3,4 +3,5 @@ export { ImageTextSection } from './image-text'
 export { HeroImageSection } from './hero-image'
 export { GraveSearchSection } from './grave-search'
 export { ContentSectionRenderer } from './content-section-renderer'
+export { Homehero } from './homehero'
 

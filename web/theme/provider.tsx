@@ -15,8 +15,8 @@ const theme = extendTheme({
         bg: 'white',
         fontSize: 'lg',
         _dark: {
-          color: 'white',
-          bg: 'gray.900',
+          color: 'gray.900',
+          bg: 'white',
         },
       },
     }),
