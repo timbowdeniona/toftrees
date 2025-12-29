@@ -21,10 +21,36 @@ interface ContentSection {
   imageAltText?: string;
   imagePosition?: 'left' | 'right';
   title?: string;
+  textBackgroundColor?: string;
   titleText?: string;
   searchBarPlaceholder?: string;
   hyperlinkLabel?: string;
   hyperlinkUrl?: string;
+  column1?: {
+    columnTitle?: string;
+    headingLevel?: string;
+    bodyText?: unknown[];
+  };
+  column2?: {
+    columnTitle?: string;
+    headingLevel?: string;
+    bodyText?: unknown[];
+  };
+  backgroundColor?: 'white' | 'lightGreen';
+  ctaLabel?: string;
+  ctaUrl?: string;
+  heroBackgroundImage?: unknown;
+  heroImageAltText?: string;
+  overlayIconImage?: unknown;
+  overlayIconAltText?: string;
+  pageBreadcrumb?: string;
+  backgroundImage?: unknown;
+  backgroundImageAltText?: string;
+  bannerColour?: string;
+  timelineItems?: Array<{
+    year: string;
+    description: string;
+  }>;
 }
 
 interface Settings {

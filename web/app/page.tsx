@@ -9,6 +9,14 @@ async function getSiteSettings() {
     contentSections[]{
       _type,
       _key,
+      _type == "heroBanner" => {
+        pageBreadcrumb,
+        title,
+        bodyText,
+        backgroundImage,
+        backgroundImageAltText,
+        bannerColour
+      },
       _type == "headingBodyText" => {
         heading,
         bodyText
@@ -20,7 +28,8 @@ async function getSiteSettings() {
         title,
         bodyText,
         hyperlinkLabel,
-        hyperlinkUrl
+        hyperlinkUrl,
+        textBackgroundColor
       },
       _type == "heroImage" => {
         heroBackgroundImage,
@@ -34,6 +43,29 @@ async function getSiteSettings() {
         searchBarPlaceholder,
         hyperlinkLabel,
         hyperlinkUrl
+      },
+      _type == "textComponent2" => {
+        title,
+        column1 {
+          columnTitle,
+          headingLevel,
+          bodyText
+        },
+        column2 {
+          columnTitle,
+          headingLevel,
+          bodyText
+        },
+        backgroundColor,
+        ctaLabel,
+        ctaUrl
+      },
+      _type == "timeline" => {
+        title,
+        timelineItems[] {
+          year,
+          description
+        }
       }
     },
     navigationBar {

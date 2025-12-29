@@ -1,0 +1,154 @@
+'use client'
+
+import { Box, Container, VStack } from '@chakra-ui/react'
+
+interface TimelineItem {
+  year: string
+  description: string
+}
+
+interface TimelineProps {
+  title?: string
+  timelineItems?: TimelineItem[]
+}
+
+// Timeline separator graphic component (SVG pattern)
+function TimelineSeparator() {
+  return (
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+    >
+      <svg
+        width="81"
+        height="11"
+        viewBox="0 0 81 11"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M0.353516 10.3535L5.35352 5.35352M10.3535 0.353516L5.35352 5.35352M5.35352 5.35352L10.3535 10.3535L0.353516 0.353516"
+          stroke="#A3B18A"
+        />
+        <path
+          d="M10.3535 10.3535L15.3535 5.35352M20.3535 0.353516L15.3535 5.35352M15.3535 5.35352L20.3535 10.3535L10.3535 0.353516"
+          stroke="#A3B18A"
+        />
+        <path
+          d="M20.3535 10.3535L25.3535 5.35352M30.3535 0.353516L25.3535 5.35352M25.3535 5.35352L30.3535 10.3535L20.3535 0.353516"
+          stroke="#A3B18A"
+        />
+        <path
+          d="M30.3535 10.3535L35.3535 5.35352M40.3535 0.353516L35.3535 5.35352M35.3535 5.35352L40.3535 10.3535L30.3535 0.353516"
+          stroke="#A3B18A"
+        />
+        <path
+          d="M40.3535 10.3535L45.3535 5.35352M50.3535 0.353516L45.3535 5.35352M45.3535 5.35352L50.3535 10.3535L40.3535 0.353516"
+          stroke="#A3B18A"
+        />
+        <path
+          d="M50.3535 10.3535L55.3535 5.35352M60.3535 0.353516L55.3535 5.35352M55.3535 5.35352L60.3535 10.3535L50.3535 0.353516"
+          stroke="#A3B18A"
+        />
+        <path
+          d="M60.3535 10.3535L65.3535 5.35352M70.3535 0.353516L65.3535 5.35352M65.3535 5.35352L70.3535 10.3535L60.3535 0.353516"
+          stroke="#A3B18A"
+        />
+        <path
+          d="M70.3535 10.3535L75.3535 5.35352M80.3535 0.353516L75.3535 5.35352M75.3535 5.35352L80.3535 10.3535L70.3535 0.353516"
+          stroke="#A3B18A"
+        />
+      </svg>
+    </Box>
+  )
+}
+
+export function TimelineSection({ title, timelineItems }: TimelineProps) {
+  if (!timelineItems || timelineItems.length === 0) {
+    return null
+  }
+
+  return (
+    <Box py={{ base: 12, md: '120px' }}>
+      <Container maxW="container.xl" px={0}>
+        <VStack spacing={8} align="center">
+          {/* Title */}
+          {title && (
+            <Box
+              pb={6}
+              pt={0}
+              sx={{
+                fontFamily: '"Cormorant Garamond", serif',
+                fontSize: '18px',
+                fontWeight: 600,
+                color: '#2E4028',
+                textTransform: 'uppercase',
+                letterSpacing: '2.16px',
+                lineHeight: 'normal',
+                textAlign: 'center',
+              }}
+            >
+              {title}
+            </Box>
+          )}
+
+          {/* Timeline Items */}
+          {timelineItems.map((item, index) => (
+            <Box key={index} w="full">
+              <VStack spacing={6} align="center">
+                {/* Year and Separator */}
+                <VStack spacing={6} align="center">
+                  {/* Separator only for items after the first one */}
+                  {index > 0 && <TimelineSeparator />}
+                  <Box
+                    sx={{
+                      fontFamily: '"Cormorant Garamond", serif',
+                      fontSize: { base: '36px', md: '48px' },
+                      fontWeight: 600,
+                      lineHeight: '0.9',
+                      color: '#1A1F16',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {item.year}
+                  </Box>
+                </VStack>
+
+                {/* Description */}
+                <Box
+                  maxW="800px"
+                  w={{ base: 'full', md: '800px' }}
+                  px={{ base: 4, md: 0 }}
+                  sx={{
+                    fontFamily: '"Host Grotesk", sans-serif',
+                    fontSize: '18px',
+                    fontWeight: 300,
+                    lineHeight: '1.5',
+                    color: '#2E4028',
+                    textAlign: 'center',
+                    whiteSpace: 'pre-wrap',
+                  }}
+                >
+                  {item.description}
+                </Box>
+              </VStack>
+
+              {/* Vertical Line (except for last item) */}
+              {index < timelineItems.length - 1 && (
+                <Box
+                  bg="#A3B18A"
+                  h={{ base: '60px', md: 25 }}
+                  w="1px"
+                  mx="auto"
+                  mt={0}
+                />
+              )}
+            </Box>
+          ))}
+        </VStack>
+      </Container>
+    </Box>
+  )
+}
+
