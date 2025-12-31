@@ -66,6 +66,12 @@ async function getSiteSettings() {
           year,
           description
         }
+      },
+      _type == "multiImage" => {
+        images[] {
+          image,
+          imageAltText
+        }
       }
     },
     navigationBar {

@@ -87,7 +87,7 @@ export function ImageTextSection({
     <Box>
       <Flex
         direction={{ base: 'column', md: 'row' }}
-        align="stretch"
+        align={{ base: 'stretch', md: 'center' }}
       >
         {/* Image */}
         <Box
@@ -96,6 +96,7 @@ export function ImageTextSection({
           position="relative"
           height={{ base: '300px', md: '696px' }}
           minH={{ base: '300px', md: '696px' }}
+          alignSelf={{ base: 'stretch', md: 'center' }}
         >
           <Image
             src={urlFor(image).url()}

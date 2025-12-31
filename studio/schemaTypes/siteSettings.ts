@@ -57,6 +57,7 @@ export default  defineType({
         { type: 'graveSearch' },
         { type: 'textComponent2' },
         { type: 'timeline' },
+        { type: 'multiImage' },
       ],
     }),
     defineField({
@@ -88,6 +89,12 @@ export default  defineType({
       title: 'History Page',
       type: 'historyPage',
       description: 'Configure the History page content and hero banner',
+    }),
+    defineField({
+      name: 'projectPage',
+      title: 'Project Page',
+      type: 'projectPage',
+      description: 'Configure the Project page content sections',
     }),
   ],
 });

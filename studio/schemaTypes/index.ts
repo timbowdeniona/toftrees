@@ -12,7 +12,9 @@ import termPage from "./termPage"
 import contactPage from "./contactPage"
 import textComponent2 from "./textComponent2"
 import historyPage from "./historyPage"
+import projectPage from "./projectPage"
 import timeline from "./timeline"
+import multiImage from "./multiImage"
 
 export const schemaTypes = [
     grave,
@@ -29,5 +31,7 @@ export const schemaTypes = [
     contactPage,
     textComponent2,
     historyPage,
-    timeline
+    projectPage,
+    timeline,
+    multiImage
 ]

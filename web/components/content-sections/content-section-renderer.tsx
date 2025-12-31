@@ -7,6 +7,7 @@ import { GraveSearchSection } from './grave-search'
 import { TextComponent2 } from './text-component-2'
 import { TimelineSection } from './timeline'
 import { Homehero } from './homehero'
+import { MultiImageSection } from './multi-image'
 
 interface ContentSection {
   _type: string
@@ -15,7 +16,11 @@ interface ContentSection {
   bodyText?: unknown[]
   image?: unknown
   imageAltText?: string
-  imagePosition?: 'left' | 'right'
+  images?: Array<{
+    image: unknown
+    imageAltText: string
+  }>
+  imagePosition?: 'left' | 'right' | 'centre'
   title?: string
   titleText?: string
   searchBarPlaceholder?: string
@@ -89,12 +94,16 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
             )
 
           case 'imageText':
+            // ImageTextSection only supports 'left' | 'right', so convert 'centre' to 'left'
+            const imageTextPosition = section.imagePosition === 'centre' 
+              ? 'left' 
+              : (section.imagePosition === 'right' ? 'right' : 'left') as 'left' | 'right'
             return (
               <ImageTextSection
                 key={section._key}
                 image={section.image as { asset: { _ref: string } }}
                 imageAltText={section.imageAltText ?? ''}
-                imagePosition={section.imagePosition ?? 'left'}
+                imagePosition={imageTextPosition}
                 title={section.title ?? ''}
                 bodyText={section.bodyText ?? []}
                 hyperlinkLabel={section.hyperlinkLabel}
@@ -160,6 +169,17 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
                   year: string
                   description: string
                 }>}
+              />
+            )
+
+          case 'multiImage':
+            return (
+              <MultiImageSection
+                key={section._key}
+                images={(section.images as Array<{
+                  image: { asset: { _ref: string } }
+                  imageAltText: string
+                }>) || []}
               />
             )
 
