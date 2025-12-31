@@ -7,4 +7,6 @@ export { TimelineSection } from './timeline'
 export { ContentSectionRenderer } from './content-section-renderer'
 export { Homehero } from './homehero'
 export { MultiImageSection } from './multi-image'
+export { LogoTextSection } from './logo-text'
+export { FreeTextSection } from './free-text'
 

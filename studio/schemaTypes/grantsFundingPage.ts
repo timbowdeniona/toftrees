@@ -1,8 +1,8 @@
 import { defineField, defineType } from 'sanity';
 
 export default defineType({
-  name: 'historyPage',
-  title: 'History Page',
+  name: 'grantsFundingPage',
+  title: 'Grants & Funding Page',
   type: 'object',
   fields: [
     defineField({
@@ -31,7 +31,7 @@ export default defineType({
     },
     prepare({ title, breadcrumb }) {
       return {
-        title: title || 'History Page',
+        title: title || 'Grants & Funding Page',
         subtitle: breadcrumb || 'No breadcrumb',
       };
     },

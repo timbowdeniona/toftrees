@@ -20,6 +20,16 @@ interface ImageTextProps {
   hyperlinkLabel?: string
   hyperlinkUrl?: string
   textBackgroundColor?: string
+  spacing?: {
+    mobile?: {
+      top?: number
+      bottom?: number
+    }
+    web?: {
+      top?: number
+      bottom?: number
+    }
+  }
 }
 
 // Timeline separator graphic component (SVG pattern)
@@ -79,12 +89,34 @@ export function ImageTextSection({
   hyperlinkLabel,
   hyperlinkUrl,
   textBackgroundColor,
+  spacing,
 }: ImageTextProps) {
   // Use custom color if provided, otherwise default to Light Beige from Figma design
   const bgColor = textBackgroundColor || '#FBFAF7'
 
+  const spacingStyle = spacing
+    ? {
+        pt:
+          spacing.mobile?.top !== undefined && spacing.web?.top !== undefined
+            ? { base: `${spacing.mobile.top}px`, md: `${spacing.web.top}px` }
+            : spacing.mobile?.top !== undefined
+            ? `${spacing.mobile.top}px`
+            : spacing.web?.top !== undefined
+            ? `${spacing.web.top}px`
+            : undefined,
+        pb:
+          spacing.mobile?.bottom !== undefined && spacing.web?.bottom !== undefined
+            ? { base: `${spacing.mobile.bottom}px`, md: `${spacing.web.bottom}px` }
+            : spacing.mobile?.bottom !== undefined
+            ? `${spacing.mobile.bottom}px`
+            : spacing.web?.bottom !== undefined
+            ? `${spacing.web.bottom}px`
+            : undefined,
+      }
+    : {}
+
   return (
-    <Box>
+    <Box {...spacingStyle}>
       <Flex
         direction={{ base: 'column', md: 'row' }}
         align={{ base: 'stretch', md: 'center' }}

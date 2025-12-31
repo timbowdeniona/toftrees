@@ -8,6 +8,8 @@ import { TextComponent2 } from './text-component-2'
 import { TimelineSection } from './timeline'
 import { Homehero } from './homehero'
 import { MultiImageSection } from './multi-image'
+import { LogoTextSection } from './logo-text'
+import { FreeTextSection } from './free-text'
 
 interface ContentSection {
   _type: string
@@ -16,11 +18,14 @@ interface ContentSection {
   bodyText?: unknown[]
   image?: unknown
   imageAltText?: string
+  logo?: unknown
+  logoPosition?: 'left' | 'right'
   images?: Array<{
     image: unknown
     imageAltText: string
   }>
   imagePosition?: 'left' | 'right' | 'centre'
+  backgroundColor?: 'white' | 'lightGreen' | string
   title?: string
   titleText?: string
   searchBarPlaceholder?: string
@@ -41,7 +46,6 @@ interface ContentSection {
     headingLevel?: string
     bodyText?: unknown[]
   }
-  backgroundColor?: 'white' | 'lightGreen'
   ctaLabel?: string
   ctaUrl?: string
   pageBreadcrumb?: string
@@ -52,6 +56,27 @@ interface ContentSection {
     year: string
     description: string
   }>
+  content?: unknown[]
+  spacing?: {
+    mobile?: {
+      top?: number
+      bottom?: number
+    }
+    web?: {
+      top?: number
+      bottom?: number
+    }
+  }
+  containerPadding?: {
+    mobile?: {
+      top?: number
+      bottom?: number
+    }
+    web?: {
+      top?: number
+      bottom?: number
+    }
+  }
 }
 
 interface ContentSectionRendererProps {
@@ -90,6 +115,7 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
                 key={section._key}
                 heading={section.heading ?? ''}
                 bodyText={section.bodyText ?? []}
+                spacing={section.spacing as { mobile?: { top?: number; bottom?: number }; web?: { top?: number; bottom?: number } } | undefined}
               />
             )
 
@@ -109,6 +135,7 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
                 hyperlinkLabel={section.hyperlinkLabel}
                 hyperlinkUrl={section.hyperlinkUrl}
                 textBackgroundColor={section.textBackgroundColor}
+                spacing={section.spacing as { mobile?: { top?: number; bottom?: number }; web?: { top?: number; bottom?: number } } | undefined}
               />
             )
 
@@ -157,6 +184,8 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
                 backgroundColor={section.backgroundColor as 'white' | 'lightGreen' | undefined}
                 ctaLabel={section.ctaLabel}
                 ctaUrl={section.ctaUrl}
+                spacing={section.spacing as { mobile?: { top?: number; bottom?: number }; web?: { top?: number; bottom?: number } } | undefined}
+                containerPadding={section.containerPadding as { mobile?: { top?: number; bottom?: number }; web?: { top?: number; bottom?: number } } | undefined}
               />
             )
 
@@ -169,6 +198,7 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
                   year: string
                   description: string
                 }>}
+                spacing={section.spacing as { mobile?: { top?: number; bottom?: number }; web?: { top?: number; bottom?: number } } | undefined}
               />
             )
 
@@ -180,6 +210,30 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
                   image: { asset: { _ref: string } }
                   imageAltText: string
                 }>) || []}
+                spacing={section.spacing as { mobile?: { top?: number; bottom?: number }; web?: { top?: number; bottom?: number } } | undefined}
+              />
+            )
+
+          case 'logoText':
+            return (
+              <LogoTextSection
+                key={section._key}
+                logo={section.logo as { asset: { _ref: string } }}
+                imageAltText={section.imageAltText ?? ''}
+                logoPosition={section.logoPosition as 'left' | 'right' | undefined}
+                bodyText={Array.isArray(section.bodyText) ? (section.bodyText as Array<Record<string, unknown>>) : []}
+                backgroundColor={section.backgroundColor}
+                spacing={section.spacing as { mobile?: { top?: number; bottom?: number }; web?: { top?: number; bottom?: number } } | undefined}
+              />
+            )
+
+          case 'freeText':
+            return (
+              <FreeTextSection
+                key={section._key}
+                content={Array.isArray(section.content) ? (section.content as Array<Record<string, unknown>>) : []}
+                skipWrapper={true}
+                spacing={section.spacing as { mobile?: { top?: number; bottom?: number }; web?: { top?: number; bottom?: number } } | undefined}
               />
             )
 

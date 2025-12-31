@@ -38,6 +38,12 @@ export default defineType({
         },
       ],
     }),
+    defineField({
+      name: 'spacing',
+      title: 'Spacing',
+      type: 'spacing',
+      description: 'Top and bottom spacing for this section (mobile and web)',
+    }),
   ],
   preview: {
     select: {
