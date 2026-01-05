@@ -104,5 +104,11 @@ export default  defineType({
       type: 'grantsFundingPage',
       description: 'Configure the Grants & Funding page content sections',
     }),
+    defineField({
+      name: 'graveListPage',
+      title: 'Grave List Page',
+      type: 'graveListPage',
+      description: 'Configure the Grave List page content sections',
+    }),
   ],
 });

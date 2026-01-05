@@ -10,7 +10,9 @@ async function getTermsData() {
         bodyText,
         backgroundImage,
         backgroundImageAltText,
-        bannerColour
+        bannerColour,
+        enableGraveSearch,
+        searchPlaceholder
       },
       content
     },

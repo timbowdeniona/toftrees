@@ -13,7 +13,9 @@ async function getGrantsFundingData() {
           bodyText,
           backgroundImage,
           backgroundImageAltText,
-          bannerColour
+          bannerColour,
+          enableGraveSearch,
+          searchPlaceholder
         },
         _type == "headingBodyText" => {
           heading,

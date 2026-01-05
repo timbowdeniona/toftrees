@@ -1,19 +1,11 @@
 import { client } from '../../sanity/client'
-import HistoryPageClient from './history-page'
+import GraveListPageClient from './grave-list-page'
+import { Grave, ImageMap } from '../../types'
 
-async function getHistoryData() {
-  const data = await client.fetch(`*[_type == "siteSettings"][0]{
-    historyPage {
-      heroBanner {
-        pageBreadcrumb,
-        title,
-        bodyText,
-        backgroundImage,
-        backgroundImageAltText,
-        bannerColour,
-        enableGraveSearch,
-        searchPlaceholder
-      },
+async function getGraveListData() {
+  const [siteSettings, graves, imageMap] = await Promise.all([
+    client.fetch(`*[_type == "siteSettings"][0]{
+    graveListPage {
       contentSections[]{
         _type,
         _key,
@@ -196,11 +188,44 @@ async function getHistoryData() {
       termsLabel,
       termsUrl
     }
-  }`)
-  return data
+  }`),
+    client.fetch<Grave[]>(`*[_type == "grave"] | order(familySurname asc)`),
+    client.fetch<ImageMap>(`*[_type == "imageMap"][0]{
+      _id,
+      title,
+      image {
+        asset {
+          _ref
+        }
+      },
+      hotspots[] {
+        _key,
+        _type,
+        x,
+        y,
+        grave-> {
+          _id,
+          graveNo,
+          familySurname,
+          headstoneImage,
+          persons[] {
+            name,
+            year
+          }
+        }
+      }
+    }`),
+  ])
+
+  return {
+    siteSettings,
+    graves: graves || [],
+    imageMap: imageMap || null,
+  }
 }
 
-export default async function HistoryPage() {
-  const data = await getHistoryData()
-  return <HistoryPageClient data={data} />
+export default async function GraveListPage() {
+  const { siteSettings, graves, imageMap } = await getGraveListData()
+  return <GraveListPageClient data={siteSettings} graves={graves} imageMap={imageMap} />
 }
+

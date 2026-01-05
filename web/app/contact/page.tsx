@@ -10,7 +10,9 @@ async function getContactData() {
           bodyText,
           backgroundImage,
           backgroundImageAltText,
-          bannerColour
+          bannerColour,
+          enableGraveSearch,
+          searchPlaceholder
         },
         label,
         name,

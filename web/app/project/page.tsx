@@ -14,7 +14,9 @@ async function getProjectData() {
           bodyText,
           backgroundImage,
           backgroundImageAltText,
-          bannerColour
+          bannerColour,
+          enableGraveSearch,
+          searchPlaceholder
         },
         _type == "headingBodyText" => {
           heading,

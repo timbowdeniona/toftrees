@@ -106,7 +106,22 @@ export interface Hotspot {
   _type: 'hotspot';
   x: number;
   y: number;
-  grave: {
+  grave?: {
+    _id: string;
+    graveNo?: number;
+    familySurname?: string;
+    headstoneImage?: {
+      asset?: {
+        _ref: string;
+        _type: 'reference';
+      };
+      _type: 'image';
+    };
+    persons?: Array<{
+      name?: string;
+      year?: number;
+    }>;
+  } | {
     _ref: string;
     _type: 'reference';
   };

@@ -9,4 +9,5 @@ export { Homehero } from './homehero'
 export { MultiImageSection } from './multi-image'
 export { LogoTextSection } from './logo-text'
 export { FreeTextSection } from './free-text'
+export { GraveListView } from './grave-list-view'
 
