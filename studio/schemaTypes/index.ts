@@ -7,6 +7,8 @@ import footer from "./footer"
 import navigationBar from "./navigationBar"
 import heroImage from "./heroImage"
 import graveSearch from "./graveSearch"
+import heroBanner from "./heroBanner"
+import termPage from "./termPage"
 
 export const schemaTypes = [
     grave,
@@ -17,5 +19,7 @@ export const schemaTypes = [
     footer,
     navigationBar,
     heroImage,
-    graveSearch
+    graveSearch,
+    heroBanner,
+    termPage
 ]

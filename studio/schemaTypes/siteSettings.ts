@@ -68,5 +68,11 @@ export default  defineType({
       type: 'navigationBar',
       description: 'Configure the site navigation bar displayed on all pages',
     }),
+    defineField({
+      name: 'termPage',
+      title: 'Term Page',
+      type: 'termPage',
+      description: 'Configure the Terms & Conditions page content and hero banner',
+    }),
   ],
 });
