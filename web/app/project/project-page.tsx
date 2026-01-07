@@ -1,22 +1,59 @@
 'use client'
 
 import { Container, Box } from '@chakra-ui/react'
-import React from 'react'
 import { PortableText } from '@portabletext/react'
 import { MarketingLayout } from '../../components/layout/marketing-layout'
-import { Homehero } from '../../components/content-sections'
+import { ContentSectionRenderer } from '../../components/content-sections'
 
-interface TermsData {
-  termPage?: {
-    heroBanner?: {
-      pageBreadcrumb?: string
-      title?: string
-      bodyText?: unknown[]
-      backgroundImage?: unknown
-      backgroundImageAltText?: string
-      bannerColour?: string
-    }
+interface ContentSection {
+  _type: string
+  _key: string
+  heading?: string
+  bodyText?: unknown[]
+  image?: unknown
+  imageAltText?: string
+  images?: Array<{
+    image: unknown
+    imageAltText: string
+  }>
+  imagePosition?: 'left' | 'right' | 'centre'
+  title?: string
+  textBackgroundColor?: string
+  titleText?: string
+  searchBarPlaceholder?: string
+  hyperlinkLabel?: string
+  hyperlinkUrl?: string
+  column1?: {
+    columnTitle?: string
+    headingLevel?: string
+    bodyText?: unknown[]
+  }
+  column2?: {
+    columnTitle?: string
+    headingLevel?: string
+    bodyText?: unknown[]
+  }
+  backgroundColor?: 'white' | 'lightGreen'
+  ctaLabel?: string
+  ctaUrl?: string
+  heroBackgroundImage?: unknown
+  heroImageAltText?: string
+  overlayIconImage?: unknown
+  overlayIconAltText?: string
+  pageBreadcrumb?: string
+  backgroundImage?: unknown
+  backgroundImageAltText?: string
+  bannerColour?: string
+  timelineItems?: Array<{
+    year: string
+    description: string
+  }>
+}
+
+interface ProjectData {
+  projectPage?: {
     content?: Array<Record<string, unknown>>
+    contentSections?: ContentSection[]
   }
   navigationBar?: {
     logoImage?: {
@@ -39,28 +76,19 @@ interface TermsData {
   }
 }
 
-export default function TermsPageClient({ data }: { data: TermsData }) {
+export default function ProjectPageClient({ data }: { data: ProjectData }) {
   return (
     <MarketingLayout
       headerProps={{ navigationConfig: data?.navigationBar }}
       footerProps={{ config: data?.footer }}
     >
-      {/* Hero Banner */}
-      {data?.termPage?.heroBanner && (
-        <Homehero
-          pageBreadcrumb={data.termPage.heroBanner.pageBreadcrumb}
-          title={data.termPage.heroBanner.title}
-          bodyText={data.termPage.heroBanner.bodyText}
-          backgroundImage={data.termPage.heroBanner.backgroundImage}
-          backgroundImageAltText={data.termPage.heroBanner.backgroundImageAltText}
-          bannerColour={data.termPage.heroBanner.bannerColour}
-        />
-      )}
+      {/* Content Sections */}
+      <ContentSectionRenderer sections={data?.projectPage?.contentSections} />
 
-      {/* Terms Content */}
-      <Container maxW="container.xl" py={{ base: '32px', sm: '128px' }}>
-        <Box maxW="3xl" mx="auto">
-          {Array.isArray(data?.termPage?.content) && data.termPage.content.length > 0 ? (
+      {/* Project Content */}
+      {Array.isArray(data?.projectPage?.content) && data.projectPage.content.length > 0 && (
+        <Container maxW="container.xl" py={{ base: '32px', sm: '128px' }}>
+          <Box maxW="3xl" mx="auto">
             <Box
               className="prose prose-lg max-w-none"
               sx={{
@@ -99,7 +127,7 @@ export default function TermsPageClient({ data }: { data: TermsData }) {
             >
               <PortableText
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                value={data.termPage.content as any}
+                value={data.projectPage.content as any}
                 components={{
                   marks: {
                     fontSize: ({ children, value }: { children: React.ReactNode; value?: { 
@@ -128,16 +156,9 @@ export default function TermsPageClient({ data }: { data: TermsData }) {
                 }}
               />
             </Box>
-          ) : (
-            <Box textAlign="center" py="12">
-              <Box as="p" fontSize="lg" color="gray.500" _dark={{ color: 'gray.400' }}>
-                No terms and conditions content available.
-              </Box>
-            </Box>
-          )}
-        </Box>
-      </Container>
+          </Box>
+        </Container>
+      )}
     </MarketingLayout>
   )
 }
-

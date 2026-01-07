@@ -6,4 +6,5 @@ export { TextComponent2 } from './text-component-2'
 export { TimelineSection } from './timeline'
 export { ContentSectionRenderer } from './content-section-renderer'
 export { Homehero } from './homehero'
+export { MultiImageSection } from './multi-image'
 

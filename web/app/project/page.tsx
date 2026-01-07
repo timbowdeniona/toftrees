@@ -1,17 +1,10 @@
 import { client } from '../../sanity/client'
-import HistoryPageClient from './history-page'
+import ProjectPageClient from './project-page'
 
-async function getHistoryData() {
+async function getProjectData() {
   const data = await client.fetch(`*[_type == "siteSettings"][0]{
-    historyPage {
-      heroBanner {
-        pageBreadcrumb,
-        title,
-        bodyText,
-        backgroundImage,
-        backgroundImageAltText,
-        bannerColour
-      },
+    projectPage {
+      content,
       contentSections[]{
         _type,
         _key,
@@ -106,7 +99,7 @@ async function getHistoryData() {
   return data
 }
 
-export default async function HistoryPage() {
-  const data = await getHistoryData()
-  return <HistoryPageClient data={data} />
+export default async function ProjectPage() {
+  const data = await getProjectData()
+  return <ProjectPageClient data={data} />
 }

@@ -18,6 +18,7 @@ export default defineType({
         { type: 'graveSearch' },
         { type: 'textComponent2' },
         { type: 'timeline' },
+        { type: 'multiImage' },
       ],
     }),
   ],

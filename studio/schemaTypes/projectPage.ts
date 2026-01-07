@@ -1,19 +1,29 @@
 import { defineField, defineType } from 'sanity';
 
 export default defineType({
-  name: 'termPage',
-  title: 'Term Page',
+  name: 'projectPage',
+  title: 'Project Page',
   type: 'object',
   fields: [
     defineField({
-      name: 'heroBanner',
-      title: 'Hero Banner',
-      type: 'heroBanner',
-      description: 'Configure the hero banner for the Terms & Conditions page',
+      name: 'contentSections',
+      title: 'Content Sections',
+      type: 'array',
+      description: 'Add content sections to your pages',
+      of: [
+        { type: 'heroBanner' },
+        { type: 'headingBodyText' },
+        { type: 'imageText' },
+        { type: 'heroImage' },
+        { type: 'graveSearch' },
+        { type: 'textComponent2' },
+        { type: 'timeline' },
+        { type: 'multiImage' },
+      ],
     }),
     defineField({
       name: 'content',
-      title: 'Terms & Conditions Content',
+      title: 'Project Content',
       type: 'array',
       of: [
         {
@@ -85,7 +95,7 @@ export default defineType({
           },
         },
       ],
-      description: 'Content for the Terms & Conditions page',
+      description: 'Content for the Project page',
     }),
   ],
   preview: {
@@ -95,10 +105,9 @@ export default defineType({
     },
     prepare({ title, breadcrumb }) {
       return {
-        title: title || 'Term Page',
+        title: title || 'Project Page',
         subtitle: breadcrumb || 'No breadcrumb',
       };
     },
   },
 });
-

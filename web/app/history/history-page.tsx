@@ -11,7 +11,11 @@ interface ContentSection {
   bodyText?: unknown[]
   image?: unknown
   imageAltText?: string
-  imagePosition?: 'left' | 'right'
+  images?: Array<{
+    image: unknown
+    imageAltText: string
+  }>
+  imagePosition?: 'left' | 'right' | 'centre'
   title?: string
   textBackgroundColor?: string
   titleText?: string
