@@ -1,17 +1,9 @@
 import { client } from '../../sanity/client'
-import HistoryPageClient from './history-page'
+import GrantsFundingPageClient from './grants-funding-page'
 
-async function getHistoryData() {
+async function getGrantsFundingData() {
   const data = await client.fetch(`*[_type == "siteSettings"][0]{
-    historyPage {
-      heroBanner {
-        pageBreadcrumb,
-        title,
-        bodyText,
-        backgroundImage,
-        backgroundImageAltText,
-        bannerColour
-      },
+    grantsFundingPage {
       contentSections[]{
         _type,
         _key,
@@ -196,7 +188,8 @@ async function getHistoryData() {
   return data
 }
 
-export default async function HistoryPage() {
-  const data = await getHistoryData()
-  return <HistoryPageClient data={data} />
+export default async function GrantsFundingPage() {
+  const data = await getGrantsFundingData()
+  return <GrantsFundingPageClient data={data} />
 }
+

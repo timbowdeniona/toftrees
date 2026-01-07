@@ -18,6 +18,26 @@ interface TextComponent2Props {
   backgroundColor?: 'white' | 'lightGreen'
   ctaLabel?: string
   ctaUrl?: string
+  spacing?: {
+    mobile?: {
+      top?: number
+      bottom?: number
+    }
+    web?: {
+      top?: number
+      bottom?: number
+    }
+  }
+  containerPadding?: {
+    mobile?: {
+      top?: number
+      bottom?: number
+    }
+    web?: {
+      top?: number
+      bottom?: number
+    }
+  }
 }
 
 const backgroundColorMap = {
@@ -32,8 +52,52 @@ export function TextComponent2({
   backgroundColor = 'white',
   ctaLabel,
   ctaUrl,
+  spacing,
+  containerPadding,
 }: TextComponent2Props) {
   const bgColor = backgroundColorMap[backgroundColor]
+
+  const spacingStyle = spacing
+    ? {
+        pt:
+          spacing.mobile?.top !== undefined && spacing.web?.top !== undefined
+            ? { base: `${spacing.mobile.top}px`, md: `${spacing.web.top}px` }
+            : spacing.mobile?.top !== undefined
+            ? `${spacing.mobile.top}px`
+            : spacing.web?.top !== undefined
+            ? `${spacing.web.top}px`
+            : undefined,
+        pb:
+          spacing.mobile?.bottom !== undefined && spacing.web?.bottom !== undefined
+            ? { base: `${spacing.mobile.bottom}px`, md: `${spacing.web.bottom}px` }
+            : spacing.mobile?.bottom !== undefined
+            ? `${spacing.mobile.bottom}px`
+            : spacing.web?.bottom !== undefined
+            ? `${spacing.web.bottom}px`
+            : undefined,
+      }
+    : {}
+
+  const containerPaddingStyle = containerPadding
+    ? {
+        pt:
+          containerPadding.mobile?.top !== undefined && containerPadding.web?.top !== undefined
+            ? { base: `${containerPadding.mobile.top}px`, md: `${containerPadding.web.top}px` }
+            : containerPadding.mobile?.top !== undefined
+            ? `${containerPadding.mobile.top}px`
+            : containerPadding.web?.top !== undefined
+            ? `${containerPadding.web.top}px`
+            : undefined,
+        pb:
+          containerPadding.mobile?.bottom !== undefined && containerPadding.web?.bottom !== undefined
+            ? { base: `${containerPadding.mobile.bottom}px`, md: `${containerPadding.web.bottom}px` }
+            : containerPadding.mobile?.bottom !== undefined
+            ? `${containerPadding.mobile.bottom}px`
+            : containerPadding.web?.bottom !== undefined
+            ? `${containerPadding.web.bottom}px`
+            : undefined,
+      }
+    : {}
 
   // Debug logging
   if (process.env.NODE_ENV === 'development') {
@@ -44,17 +108,23 @@ export function TextComponent2({
       backgroundColor,
       ctaLabel,
       ctaUrl,
+      containerPadding,
+      containerPaddingStyle,
     })
   }
 
   return (
     <Box
-      py={{ base: 8, md: 32 }}
       px={{ base: 6, md: 0 }}
       bg={bgColor}
+      {...spacingStyle}
     >
-      <Container maxW="container.xl" px={0}>
-        <VStack spacing={{ base: 4, md: 8 }} align="stretch">
+      <Container
+        maxW="container.xl"
+        px={0}
+        {...containerPaddingStyle}
+      >
+        <VStack spacing={{ base: 4, md: '32px' }} align="stretch">
           {/* Title */}
           {title && (
             <Box textAlign="center">
@@ -78,7 +148,7 @@ export function TextComponent2({
           {(column1?.bodyText || column2?.bodyText) ? (
             <Flex
               direction={{ base: 'column', md: 'row' }}
-              gap={{ base: 6, md: 16 }}
+              gap={{ base: 6, md: '64px' }}
               align="start"
             >
               {/* Column 1 */}

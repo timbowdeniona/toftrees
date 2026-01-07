@@ -196,6 +196,18 @@ export default defineType({
       type: 'url',
       description: 'URL for the call-to-action button',
     }),
+    defineField({
+      name: 'spacing',
+      title: 'Spacing',
+      type: 'spacing',
+      description: 'Top and bottom spacing for this section (mobile and web)',
+    }),
+    defineField({
+      name: 'containerPadding',
+      title: 'Container Padding',
+      type: 'containerPadding',
+      description: 'Left and right padding for the container (mobile and web)',
+    }),
   ],
   preview: {
     select: {

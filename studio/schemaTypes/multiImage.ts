@@ -47,6 +47,12 @@ export default defineType({
       ],
       validation: (rule) => rule.min(1).error('At least one image is required'),
     }),
+    defineField({
+      name: 'spacing',
+      title: 'Spacing',
+      type: 'spacing',
+      description: 'Top and bottom spacing for this section (mobile and web)',
+    }),
   ],
   preview: {
     select: {

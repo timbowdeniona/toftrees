@@ -19,6 +19,8 @@ export default defineType({
         { type: 'textComponent2' },
         { type: 'timeline' },
         { type: 'multiImage' },
+        { type: 'logoText' },
+        { type: 'freeText' },
       ],
     }),
     defineField({

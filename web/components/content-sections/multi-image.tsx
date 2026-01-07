@@ -16,6 +16,16 @@ interface ImageItem {
 
 interface MultiImageProps {
   images: ImageItem[]
+  spacing?: {
+    mobile?: {
+      top?: number
+      bottom?: number
+    }
+    web?: {
+      top?: number
+      bottom?: number
+    }
+  }
 }
 
 // Arrow icon component
@@ -39,6 +49,7 @@ function ArrowIcon({ direction }: { direction: 'left' | 'right' }) {
 
 export function MultiImageSection({
   images,
+  spacing,
 }: MultiImageProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
 
@@ -66,8 +77,29 @@ export function MultiImageSection({
   
   const scrollPosition = calculateScrollPosition()
 
+  const spacingStyle = spacing
+    ? {
+        pt:
+          spacing.mobile?.top !== undefined && spacing.web?.top !== undefined
+            ? { base: `${spacing.mobile.top}px`, md: `${spacing.web.top}px` }
+            : spacing.mobile?.top !== undefined
+            ? `${spacing.mobile.top}px`
+            : spacing.web?.top !== undefined
+            ? `${spacing.web.top}px`
+            : undefined,
+        pb:
+          spacing.mobile?.bottom !== undefined && spacing.web?.bottom !== undefined
+            ? { base: `${spacing.mobile.bottom}px`, md: `${spacing.web.bottom}px` }
+            : spacing.mobile?.bottom !== undefined
+            ? `${spacing.mobile.bottom}px`
+            : spacing.web?.bottom !== undefined
+            ? `${spacing.web.bottom}px`
+            : undefined,
+      }
+    : {}
+
   return (
-    <Box width="100%" py={{ base: '24px', md: '48px' }}>
+    <Box width="100%" {...spacingStyle}>
       {/* Desktop: Horizontal layout */}
       <Box display={{ base: 'none', md: 'block' }}>
         <Flex

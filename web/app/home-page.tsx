@@ -19,6 +19,8 @@ interface ContentSection {
   bodyText?: unknown[];
   image?: unknown;
   imageAltText?: string;
+  logo?: unknown;
+  logoPosition?: 'left' | 'right';
   images?: Array<{
     image: unknown;
     imageAltText: string;
@@ -43,6 +45,16 @@ interface ContentSection {
   backgroundColor?: 'white' | 'lightGreen';
   ctaLabel?: string;
   ctaUrl?: string;
+  spacing?: {
+    mobile?: {
+      top?: number;
+      bottom?: number;
+    };
+    web?: {
+      top?: number;
+      bottom?: number;
+    };
+  };
   heroBackgroundImage?: unknown;
   heroImageAltText?: string;
   overlayIconImage?: unknown;

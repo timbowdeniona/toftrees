@@ -58,6 +58,8 @@ export default  defineType({
         { type: 'textComponent2' },
         { type: 'timeline' },
         { type: 'multiImage' },
+        { type: 'logoText' },
+        { type: 'freeText' },
       ],
     }),
     defineField({
@@ -95,6 +97,12 @@ export default  defineType({
       title: 'Project Page',
       type: 'projectPage',
       description: 'Configure the Project page content sections',
+    }),
+    defineField({
+      name: 'grantsFundingPage',
+      title: 'Grants & Funding Page',
+      type: 'grantsFundingPage',
+      description: 'Configure the Grants & Funding page content sections',
     }),
   ],
 });

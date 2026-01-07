@@ -1,29 +1,29 @@
 import { defineField, defineType } from 'sanity';
 
 export default defineType({
-  name: 'imageText',
-  title: 'Image + Text',
+  name: 'logoText',
+  title: 'Logo and Text',
   type: 'object',
   fields: [
     defineField({
-      name: 'image',
-      title: 'Image',
+      name: 'logo',
+      title: 'Logo',
       type: 'image',
       options: {
         hotspot: true,
       },
-      validation: (rule) => rule.required().error('Image is required'),
+      validation: (rule) => rule.required().error('Logo is required'),
     }),
     defineField({
       name: 'imageAltText',
       title: 'Image Alt Text',
       type: 'string',
-      description: 'Alternative text for the image (required for accessibility)',
+      description: 'Alternative text for the logo (required for accessibility)',
       validation: (rule) => rule.required().error('Image Alt Text is required'),
     }),
     defineField({
-      name: 'imagePosition',
-      title: 'Image Position',
+      name: 'logoPosition',
+      title: 'Logo Position',
       type: 'string',
       options: {
         list: [
@@ -32,19 +32,12 @@ export default defineType({
         ],
         layout: 'radio',
       },
-      initialValue: 'left',
-      validation: (rule) => rule.required().error('Image Position is required'),
-    }),
-    defineField({
-      name: 'title',
-      title: 'Title',
-      type: 'text',
-      description: 'Title can span multiple lines. Press Enter to create a new line.',
-      validation: (rule) => rule.required().error('Title is required'),
+      initialValue: 'right',
+      validation: (rule) => rule.required().error('Logo Position is required'),
     }),
     defineField({
       name: 'bodyText',
-      title: 'Body Text',
+      title: 'Text Content',
       type: 'array',
       of: [
         {
@@ -64,49 +57,45 @@ export default defineType({
               { title: 'Strong', value: 'strong' },
               { title: 'Emphasis', value: 'em' },
             ],
-            annotations: [],
+            annotations: [
+              {
+                name: 'link',
+                type: 'object',
+                title: 'Link',
+                fields: [
+                  {
+                    name: 'href',
+                    type: 'url',
+                    title: 'URL',
+                    validation: (rule) =>
+                      rule.uri({
+                        allowRelative: true,
+                        scheme: ['http', 'https', 'mailto', 'tel'],
+                      }),
+                  },
+                  {
+                    name: 'blank',
+                    type: 'boolean',
+                    title: 'Open in new tab',
+                    initialValue: false,
+                  },
+                ],
+              },
+            ],
           },
         },
       ],
+      validation: (rule) => rule.required().error('Text Content is required'),
     }),
     defineField({
-      name: 'hyperlinkLabel',
-      title: 'Hyperlink Label',
+      name: 'backgroundColor',
+      title: 'Background Color',
       type: 'string',
-      description: 'The text displayed for the hyperlink',
-    }),
-    defineField({
-      name: 'hyperlinkUrl',
-      title: 'Hyperlink URL',
-      type: 'url',
-      description: 'The URL the hyperlink points to',
-      validation: (rule) =>
-        rule.custom((value, context) => {
-          const { parent } = context as { parent?: { hyperlinkLabel?: string; hyperlinkUrl?: string } };
-          const hasLabel = !!parent?.hyperlinkLabel;
-          const hasUrl = !!value;
-
-          // If one is provided, both must be provided
-          if (hasLabel && !hasUrl) {
-            return 'Hyperlink URL is required when Hyperlink Label is provided';
-          }
-          if (hasUrl && !hasLabel) {
-            return 'Hyperlink Label is required when Hyperlink URL is provided';
-          }
-          return true;
-        }),
-    }),
-    defineField({
-      name: 'textBackgroundColor',
-      title: 'Text Block Background Color',
-      type: 'string',
-      description: 'Enter a hex color code (e.g., #FBFAF7) or rgba (e.g., rgba(251, 250, 247, 1)). Leave empty for default Light Beige',
+      description: 'Enter a hex color code (e.g., #FBFAF7) or rgba (e.g., rgba(251, 250, 247, 0.9)). Leave empty for default',
       validation: (rule) =>
         rule.custom((value) => {
-          if (!value) return true // Optional field
-          // Validate hex color format
+          if (!value) return true
           const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/
-          // Validate rgba format: rgba(r, g, b, a) where r,g,b are 0-255 and a is 0-1
           const rgbaColorRegex = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*([\d.]+))?\s*\)$/
           
           if (hexColorRegex.test(value)) {
@@ -127,7 +116,7 @@ export default defineType({
             }
           }
           
-          return 'Please enter a valid hex color code (e.g., #FBFAF7) or rgba (e.g., rgba(251, 250, 247, 1))'
+          return 'Please enter a valid hex color code (e.g., #FBFAF7) or rgba (e.g., rgba(251, 250, 247, 0.9))'
         }),
     }),
     defineField({
@@ -139,29 +128,24 @@ export default defineType({
   ],
   preview: {
     select: {
-      title: 'title',
-      imagePosition: 'imagePosition',
-      image: 'image',
+      logo: 'logo',
       bodyText: 'bodyText',
     },
-    prepare({ title, imagePosition, image, bodyText }) {
+    prepare({ logo, bodyText }) {
       const block = (bodyText || []).find((block: any) => block._type === 'block');
       const text = block
         ? block.children
             .filter((child: any) => child._type === 'span')
             .map((span: any) => span.text)
             .join('')
-        : 'No body text';
-      
-      const positionLabel = imagePosition === 'left' ? 'Left' : imagePosition === 'right' ? 'Right' : 'Unknown';
+        : 'No text content';
       
       return {
-        title: title || 'Untitled Image + Text',
-        subtitle: `Image: ${positionLabel} | ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`,
-        media: image,
+        title: 'Logo and Text',
+        subtitle: text.substring(0, 50) + (text.length > 50 ? '...' : ''),
+        media: logo,
       };
     },
   },
 });
-
 

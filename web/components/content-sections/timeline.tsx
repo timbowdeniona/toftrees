@@ -10,6 +10,16 @@ interface TimelineItem {
 interface TimelineProps {
   title?: string
   timelineItems?: TimelineItem[]
+  spacing?: {
+    mobile?: {
+      top?: number
+      bottom?: number
+    }
+    web?: {
+      top?: number
+      bottom?: number
+    }
+  }
 }
 
 // Timeline separator graphic component (SVG pattern)
@@ -64,13 +74,34 @@ function TimelineSeparator() {
   )
 }
 
-export function TimelineSection({ title, timelineItems }: TimelineProps) {
+export function TimelineSection({ title, timelineItems, spacing }: TimelineProps) {
   if (!timelineItems || timelineItems.length === 0) {
     return null
   }
 
+  const spacingStyle = spacing
+    ? {
+        pt:
+          spacing.mobile?.top !== undefined && spacing.web?.top !== undefined
+            ? { base: `${spacing.mobile.top}px`, md: `${spacing.web.top}px` }
+            : spacing.mobile?.top !== undefined
+            ? `${spacing.mobile.top}px`
+            : spacing.web?.top !== undefined
+            ? `${spacing.web.top}px`
+            : undefined,
+        pb:
+          spacing.mobile?.bottom !== undefined && spacing.web?.bottom !== undefined
+            ? { base: `${spacing.mobile.bottom}px`, md: `${spacing.web.bottom}px` }
+            : spacing.mobile?.bottom !== undefined
+            ? `${spacing.mobile.bottom}px`
+            : spacing.web?.bottom !== undefined
+            ? `${spacing.web.bottom}px`
+            : undefined,
+      }
+    : {}
+
   return (
-    <Box py={{ base: 12, md: '120px' }}>
+    <Box {...spacingStyle}>
       <Container maxW="container.xl" px={0}>
         <VStack spacing={8} align="center">
           {/* Title */}

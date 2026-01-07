@@ -12,6 +12,8 @@ interface ContentSection {
   bodyText?: unknown[]
   image?: unknown
   imageAltText?: string
+  logo?: unknown
+  logoPosition?: 'left' | 'right'
   images?: Array<{
     image: unknown
     imageAltText: string

@@ -7,11 +7,42 @@ import { PortableText } from '@portabletext/react'
 interface HeadingBodyTextProps {
   heading: string
   bodyText: any[]
+  spacing?: {
+    mobile?: {
+      top?: number
+      bottom?: number
+    }
+    web?: {
+      top?: number
+      bottom?: number
+    }
+  }
 }
 
-export function HeadingBodyTextSection({ heading, bodyText }: HeadingBodyTextProps) {
+export function HeadingBodyTextSection({ heading, bodyText, spacing }: HeadingBodyTextProps) {
+  const spacingStyle = spacing
+    ? {
+        pt:
+          spacing.mobile?.top !== undefined && spacing.web?.top !== undefined
+            ? { base: `${spacing.mobile.top}px`, md: `${spacing.web.top}px` }
+            : spacing.mobile?.top !== undefined
+            ? `${spacing.mobile.top}px`
+            : spacing.web?.top !== undefined
+            ? `${spacing.web.top}px`
+            : undefined,
+        pb:
+          spacing.mobile?.bottom !== undefined && spacing.web?.bottom !== undefined
+            ? { base: `${spacing.mobile.bottom}px`, md: `${spacing.web.bottom}px` }
+            : spacing.mobile?.bottom !== undefined
+            ? `${spacing.mobile.bottom}px`
+            : spacing.web?.bottom !== undefined
+            ? `${spacing.web.bottom}px`
+            : undefined,
+      }
+    : {}
+
   return (
-    <Box py={{ base: 8, md: 32 }} px={{ base: 6, md: 0 }}>
+    <Box {...spacingStyle} px={{ base: 6, md: 0 }}>
       <Container maxW="container.xl" px={0}>
         <Flex
           direction={{ base: 'column', md: 'row' }}

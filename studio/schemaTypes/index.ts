@@ -15,6 +15,11 @@ import historyPage from "./historyPage"
 import projectPage from "./projectPage"
 import timeline from "./timeline"
 import multiImage from "./multiImage"
+import logoText from "./logoText"
+import grantsFundingPage from "./grantsFundingPage"
+import freeText from "./freeText"
+import spacing from "./spacing"
+import containerPadding from "./containerPadding"
 
 export const schemaTypes = [
     grave,
@@ -33,5 +38,10 @@ export const schemaTypes = [
     historyPage,
     projectPage,
     timeline,
-    multiImage
+    multiImage,
+    logoText,
+    grantsFundingPage,
+    freeText,
+    spacing,
+    containerPadding
 ]

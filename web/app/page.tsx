@@ -19,7 +19,17 @@ async function getSiteSettings() {
       },
       _type == "headingBodyText" => {
         heading,
-        bodyText
+        bodyText,
+        spacing {
+          mobile {
+            top,
+            bottom
+          },
+          web {
+            top,
+            bottom
+          }
+        }
       },
       _type == "imageText" => {
         image,
@@ -29,7 +39,17 @@ async function getSiteSettings() {
         bodyText,
         hyperlinkLabel,
         hyperlinkUrl,
-        textBackgroundColor
+        textBackgroundColor,
+        spacing {
+          mobile {
+            top,
+            bottom
+          },
+          web {
+            top,
+            bottom
+          }
+        }
       },
       _type == "heroImage" => {
         heroBackgroundImage,
@@ -58,19 +78,89 @@ async function getSiteSettings() {
         },
         backgroundColor,
         ctaLabel,
-        ctaUrl
+        ctaUrl,
+        spacing {
+          mobile {
+            top,
+            bottom
+          },
+          web {
+            top,
+            bottom
+          }
+        },
+        containerPadding {
+          mobile {
+            top,
+            bottom
+          },
+          web {
+            top,
+            bottom
+          }
+        }
       },
       _type == "timeline" => {
         title,
         timelineItems[] {
           year,
           description
+        },
+        spacing {
+          mobile {
+            top,
+            bottom
+          },
+          web {
+            top,
+            bottom
+          }
         }
       },
       _type == "multiImage" => {
         images[] {
           image,
           imageAltText
+        },
+        spacing {
+          mobile {
+            top,
+            bottom
+          },
+          web {
+            top,
+            bottom
+          }
+        }
+      },
+      _type == "logoText" => {
+        logo,
+        imageAltText,
+        logoPosition,
+        bodyText,
+        backgroundColor,
+        spacing {
+          mobile {
+            top,
+            bottom
+          },
+          web {
+            top,
+            bottom
+          }
+        }
+      },
+      _type == "freeText" => {
+        content,
+        spacing {
+          mobile {
+            top,
+            bottom
+          },
+          web {
+            top,
+            bottom
+          }
         }
       }
     },
