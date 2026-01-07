@@ -9,6 +9,10 @@ import heroImage from "./heroImage"
 import graveSearch from "./graveSearch"
 import heroBanner from "./heroBanner"
 import termPage from "./termPage"
+import contactPage from "./contactPage"
+import textComponent2 from "./textComponent2"
+import historyPage from "./historyPage"
+import timeline from "./timeline"
 
 export const schemaTypes = [
     grave,
@@ -21,5 +25,9 @@ export const schemaTypes = [
     heroImage,
     graveSearch,
     heroBanner,
-    termPage
+    termPage,
+    contactPage,
+    textComponent2,
+    historyPage,
+    timeline
 ]

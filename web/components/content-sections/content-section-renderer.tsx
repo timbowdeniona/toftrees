@@ -4,6 +4,9 @@ import { HeadingBodyTextSection } from './heading-body-text'
 import { ImageTextSection } from './image-text'
 import { HeroImageSection } from './hero-image'
 import { GraveSearchSection } from './grave-search'
+import { TextComponent2 } from './text-component-2'
+import { TimelineSection } from './timeline'
+import { Homehero } from './homehero'
 
 interface ContentSection {
   _type: string
@@ -18,10 +21,32 @@ interface ContentSection {
   searchBarPlaceholder?: string
   hyperlinkLabel?: string
   hyperlinkUrl?: string
+  textBackgroundColor?: string
   heroBackgroundImage?: unknown
   heroImageAltText?: string
   overlayIconImage?: unknown
   overlayIconAltText?: string
+  column1?: {
+    columnTitle?: string
+    headingLevel?: string
+    bodyText?: unknown[]
+  }
+  column2?: {
+    columnTitle?: string
+    headingLevel?: string
+    bodyText?: unknown[]
+  }
+  backgroundColor?: 'white' | 'lightGreen'
+  ctaLabel?: string
+  ctaUrl?: string
+  pageBreadcrumb?: string
+  backgroundImage?: unknown
+  backgroundImageAltText?: string
+  bannerColour?: string
+  timelineItems?: Array<{
+    year: string
+    description: string
+  }>
 }
 
 interface ContentSectionRendererProps {
@@ -37,6 +62,23 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
     <>
       {sections.map((section) => {
         switch (section._type) {
+          case 'heroBanner':
+            return (
+              <Homehero
+                key={section._key}
+                pageBreadcrumb={section.pageBreadcrumb}
+                title={section.title as string}
+                bodyText={Array.isArray(section.bodyText) ? (section.bodyText as Array<{
+                  _type: string
+                  _key: string
+                  [key: string]: unknown
+                }>) : undefined}
+                backgroundImage={section.backgroundImage}
+                backgroundImageAltText={section.backgroundImageAltText}
+                bannerColour={section.bannerColour}
+              />
+            )
+
           case 'headingBodyText':
             return (
               <HeadingBodyTextSection
@@ -57,6 +99,7 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
                 bodyText={section.bodyText ?? []}
                 hyperlinkLabel={section.hyperlinkLabel}
                 hyperlinkUrl={section.hyperlinkUrl}
+                textBackgroundColor={section.textBackgroundColor}
               />
             )
 
@@ -84,6 +127,39 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
                 searchBarPlaceholder={section.searchBarPlaceholder ?? ''}
                 hyperlinkLabel={section.hyperlinkLabel}
                 hyperlinkUrl={section.hyperlinkUrl}
+              />
+            )
+
+          case 'textComponent2':
+            return (
+              <TextComponent2
+                key={section._key}
+                title={section.title}
+                column1={section.column1 as {
+                  columnTitle?: string
+                  headingLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+                  bodyText?: unknown[]
+                }}
+                column2={section.column2 as {
+                  columnTitle?: string
+                  headingLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+                  bodyText?: unknown[]
+                }}
+                backgroundColor={section.backgroundColor as 'white' | 'lightGreen' | undefined}
+                ctaLabel={section.ctaLabel}
+                ctaUrl={section.ctaUrl}
+              />
+            )
+
+          case 'timeline':
+            return (
+              <TimelineSection
+                key={section._key}
+                title={section.title}
+                timelineItems={section.timelineItems as Array<{
+                  year: string
+                  description: string
+                }>}
               />
             )
 

@@ -50,10 +50,13 @@ export default  defineType({
       type: 'array',
       description: 'Add content sections to your pages',
       of: [
+        { type: 'heroBanner' },
         { type: 'headingBodyText' },
         { type: 'imageText' },
         { type: 'heroImage' },
         { type: 'graveSearch' },
+        { type: 'textComponent2' },
+        { type: 'timeline' },
       ],
     }),
     defineField({
@@ -73,6 +76,18 @@ export default  defineType({
       title: 'Term Page',
       type: 'termPage',
       description: 'Configure the Terms & Conditions page content and hero banner',
+    }),
+    defineField({
+      name: 'contactPage',
+      title: 'Contact Page',
+      type: 'contactPage',
+      description: 'Configure the Contact page content and hero banner',
+    }),
+    defineField({
+      name: 'historyPage',
+      title: 'History Page',
+      type: 'historyPage',
+      description: 'Configure the History page content and hero banner',
     }),
   ],
 });
