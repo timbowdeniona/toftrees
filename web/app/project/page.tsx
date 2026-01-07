@@ -4,7 +4,6 @@ import ProjectPageClient from './project-page'
 async function getProjectData() {
   const data = await client.fetch(`*[_type == "siteSettings"][0]{
     projectPage {
-      content,
       contentSections[]{
         _type,
         _key,
@@ -14,7 +13,9 @@ async function getProjectData() {
           bodyText,
           backgroundImage,
           backgroundImageAltText,
-          bannerColour
+          bannerColour,
+          enableGraveSearch,
+          searchPlaceholder
         },
         _type == "headingBodyText" => {
           heading,
@@ -180,10 +181,11 @@ async function getProjectData() {
         url
       },
       copyrightText,
-      privacyPolicyLabel,
-      privacyPolicyUrl,
-      termsLabel,
-      termsUrl
+      additionLinks[] {
+        _key,
+        label,
+        url
+      }
     }
   }`)
   return data

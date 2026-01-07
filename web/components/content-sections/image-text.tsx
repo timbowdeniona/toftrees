@@ -116,31 +116,34 @@ export function ImageTextSection({
     : {}
 
   return (
-    <Box {...spacingStyle}>
+    <Box {...spacingStyle} w="full">
       <Flex
         direction={{ base: 'column', md: 'row' }}
-        align={{ base: 'stretch', md: 'center' }}
+        align={{ base: 'stretch', md: 'stretch' }}
+        w="full"
+        gap={0}
       >
         {/* Image */}
         <Box
-          flex="1 0 0"
           order={{ base: 1, md: imagePosition === 'left' ? 1 : 2 }}
           position="relative"
-          height={{ base: '300px', md: '696px' }}
-          minH={{ base: '300px', md: '696px' }}
-          alignSelf={{ base: 'stretch', md: 'center' }}
+          w={{ base: '100%', md: '50%' }}
+          h={{ base: '300px', md: '696px' }}
+          flexShrink={0}
+          flexGrow={0}
+          minW={{ base: '100%', md: '50%' }}
+          maxW={{ base: '100%', md: '50%' }}
         >
           <Image
             src={urlFor(image).url()}
             alt={imageAltText}
             fill
-            style={{ objectFit: 'cover' }}
+            style={{ objectFit: 'cover', objectPosition: '50% 50%' }}
           />
         </Box>
 
         {/* Text Block */}
         <Box
-          flex="1 0 0"
           order={{ base: 2, md: imagePosition === 'left' ? 2 : 1 }}
           bg={bgColor}
           px={{ base: '24px', md: '88px' }}
@@ -148,6 +151,11 @@ export function ImageTextSection({
           display="flex"
           flexDirection="column"
           justifyContent="center"
+          w={{ base: '100%', md: '50%' }}
+          flexShrink={0}
+          flexGrow={0}
+          minW={{ base: '100%', md: '50%' }}
+          maxW={{ base: '100%', md: '50%' }}
         >
           <Box display="flex" flexDirection="column" gap="32px" alignItems="flex-start">
             {/* Timeline Separator */}

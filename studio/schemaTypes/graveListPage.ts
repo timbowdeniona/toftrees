@@ -1,8 +1,8 @@
 import { defineField, defineType } from 'sanity';
 
 export default defineType({
-  name: 'termPage',
-  title: 'Term Page',
+  name: 'graveListPage',
+  title: 'Grave List Page',
   type: 'object',
   fields: [
     defineField({
@@ -26,12 +26,12 @@ export default defineType({
   ],
   preview: {
     select: {
-      title: 'contentSections.0._type',
+      title: 'contentSections',
     },
     prepare({ title }) {
       return {
-        title: title || 'Term Page',
-        subtitle: 'Content sections',
+        title: 'Grave List Page',
+        subtitle: 'Content sections only',
       };
     },
   },

@@ -66,6 +66,20 @@ export default defineType({
       description: 'Hex color code for the banner background (e.g., #e0e6db)',
       validation: (rule) => rule.required().error('Banner Colour is required'),
     }),
+    defineField({
+      name: 'enableGraveSearch',
+      title: 'Enable Grave Search',
+      type: 'boolean',
+      description: 'Show search input for graves in the hero banner',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'searchPlaceholder',
+      title: 'Search Placeholder',
+      type: 'string',
+      description: 'Placeholder text for the search input (e.g., "Enter surname")',
+      hidden: ({ parent }) => !parent?.enableGraveSearch,
+    }),
   ],
   preview: {
     select: {

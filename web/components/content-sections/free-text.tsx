@@ -92,6 +92,56 @@ const components: PortableTextComponents = {
         </Box>
       );
     },
+    fontSize: ({
+      children,
+      value,
+    }: {
+      children: React.ReactNode;
+      value?: { web?: number; mobile?: number };
+    }) => {
+      const sx: Record<string, unknown> = {};
+
+      if (value?.web || value?.mobile) {
+        if (value.web && value.mobile) {
+          sx.fontSize = { base: `${value.mobile}px`, md: `${value.web}px` };
+        } else if (value.web) {
+          sx.fontSize = `${value.web}px`;
+        } else if (value.mobile) {
+          sx.fontSize = `${value.mobile}px`;
+        }
+      }
+
+      return (
+        <Box as="span" sx={sx}>
+          {children}
+        </Box>
+      );
+    },
+    textAlign: ({
+      children,
+      value,
+    }: {
+      children: React.ReactNode;
+      value?: { web?: string; mobile?: string };
+    }) => {
+      const sx: Record<string, unknown> = {};
+
+      if (value?.web || value?.mobile) {
+        if (value.web && value.mobile) {
+          sx.textAlign = { base: value.mobile, md: value.web };
+        } else if (value.web) {
+          sx.textAlign = value.web;
+        } else if (value.mobile) {
+          sx.textAlign = value.mobile;
+        }
+      }
+
+      return (
+        <Box as="span" sx={sx} display="block">
+          {children}
+        </Box>
+      );
+    },
   },
 };
 

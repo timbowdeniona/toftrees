@@ -52,11 +52,17 @@ interface ContentSection {
   backgroundImage?: unknown
   backgroundImageAltText?: string
   bannerColour?: string
+  enableGraveSearch?: boolean
+  searchPlaceholder?: string
   timelineItems?: Array<{
     year: string
     description: string
   }>
   content?: unknown[]
+  moreInfoLink?: {
+    label?: string
+    url?: string
+  }
   spacing?: {
     mobile?: {
       top?: number
@@ -81,9 +87,15 @@ interface ContentSection {
 
 interface ContentSectionRendererProps {
   sections?: ContentSection[]
+  searchQuery?: string
+  setSearchQuery?: (query: string) => void
 }
 
-export function ContentSectionRenderer({ sections }: ContentSectionRendererProps) {
+export function ContentSectionRenderer({
+  sections,
+  searchQuery,
+  setSearchQuery,
+}: ContentSectionRendererProps) {
   if (!sections || sections.length === 0) {
     return null
   }
@@ -106,6 +118,10 @@ export function ContentSectionRenderer({ sections }: ContentSectionRendererProps
                 backgroundImage={section.backgroundImage}
                 backgroundImageAltText={section.backgroundImageAltText}
                 bannerColour={section.bannerColour}
+                enableGraveSearch={section.enableGraveSearch}
+                searchPlaceholder={section.searchPlaceholder}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
               />
             )
 

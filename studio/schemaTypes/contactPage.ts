@@ -6,67 +6,32 @@ export default defineType({
   type: 'object',
   fields: [
     defineField({
-      name: 'heroBanner',
-      title: 'Hero Banner',
-      type: 'heroBanner',
-      description: 'Configure the hero banner for the Contact page',
-    }),
-    defineField({
-      name: 'label',
-      title: 'Label',
-      type: 'string',
-      description: 'Label for the contact content section',
-    }),
-    defineField({
-      name: 'name',
-      title: 'Name',
-      type: 'string',
-      description: 'Name field for contact information',
-    }),
-    defineField({
-      name: 'info',
-      title: 'Info',
+      name: 'contentSections',
+      title: 'Content Sections',
       type: 'array',
+      description: 'Add content sections to your pages',
       of: [
-        {
-          type: 'block',
-          styles: [
-            { title: 'Normal', value: 'normal' },
-            { title: 'H2', value: 'h2' },
-            { title: 'H3', value: 'h3' },
-            { title: 'H4', value: 'h4' },
-          ],
-          lists: [
-            { title: 'Bullet', value: 'bullet' },
-            { title: 'Number', value: 'number' },
-          ],
-          marks: {
-            decorators: [
-              { title: 'Strong', value: 'strong' },
-              { title: 'Emphasis', value: 'em' },
-            ],
-            annotations: [],
-          },
-        },
+        { type: 'heroBanner' },
+        { type: 'headingBodyText' },
+        { type: 'imageText' },
+        { type: 'heroImage' },
+        { type: 'graveSearch' },
+        { type: 'textComponent2' },
+        { type: 'timeline' },
+        { type: 'multiImage' },
+        { type: 'logoText' },
+        { type: 'freeText' },
       ],
-      description: 'Info field for contact information',
-    }),
-    defineField({
-      name: 'email',
-      title: 'Email',
-      type: 'string',
-      description: 'Email field for contact information',
     }),
   ],
   preview: {
     select: {
-      title: 'heroBanner.title',
-      breadcrumb: 'heroBanner.pageBreadcrumb',
+      title: 'contentSections.0._type',
     },
-    prepare({ title, breadcrumb }) {
+    prepare({ title }) {
       return {
         title: title || 'Contact Page',
-        subtitle: breadcrumb || 'No breadcrumb',
+        subtitle: 'Content sections',
       };
     },
   },

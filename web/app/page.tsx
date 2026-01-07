@@ -4,8 +4,6 @@ import { client } from '../sanity/client'
 async function getSiteSettings() {
   const query = `*[_type == "siteSettings"][0] {
     title,
-    churchImage,
-    shortHistory,
     contentSections[]{
       _type,
       _key,
@@ -15,7 +13,9 @@ async function getSiteSettings() {
         bodyText,
         backgroundImage,
         backgroundImageAltText,
-        bannerColour
+        bannerColour,
+        enableGraveSearch,
+        searchPlaceholder
       },
       _type == "headingBodyText" => {
         heading,
@@ -180,10 +180,11 @@ async function getSiteSettings() {
         url
       },
       copyrightText,
-      privacyPolicyLabel,
-      privacyPolicyUrl,
-      termsLabel,
-      termsUrl
+      additionLinks[] {
+        _key,
+        label,
+        url
+      }
     }
   }`
   const data = await client.fetch(query)

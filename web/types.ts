@@ -106,7 +106,22 @@ export interface Hotspot {
   _type: 'hotspot';
   x: number;
   y: number;
-  grave: {
+  grave?: {
+    _id: string;
+    graveNo?: number;
+    familySurname?: string;
+    headstoneImage?: {
+      asset?: {
+        _ref: string;
+        _type: 'reference';
+      };
+      _type: 'image';
+    };
+    persons?: Array<{
+      name?: string;
+      year?: number;
+    }>;
+  } | {
     _ref: string;
     _type: 'reference';
   };
@@ -157,10 +172,11 @@ export interface NavigationLink {
 export interface FooterConfig {
   navigationLinks?: NavigationLink[];
   copyrightText?: string;
-  privacyPolicyLabel?: string;
-  privacyPolicyUrl?: string;
-  termsLabel?: string;
-  termsUrl?: string;
+  additionLinks?: Array<{
+    _key?: string;
+    label: string;
+    url: string;
+  }>;
 }
 
 export interface NavigationBarConfig {

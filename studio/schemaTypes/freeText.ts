@@ -51,6 +51,66 @@ export default defineType({
                   },
                 ],
               },
+              {
+                name: 'fontSize',
+                type: 'object',
+                title: 'Font Size',
+                options: {
+                  columns: 2,
+                },
+                fields: [
+                  {
+                    name: 'web',
+                    type: 'number',
+                    title: 'Web (px)',
+                    validation: (rule) =>
+                      rule.min(8).max(200).error('Font size must be between 8 and 200 pixels'),
+                  },
+                  {
+                    name: 'mobile',
+                    type: 'number',
+                    title: 'Mobile (px)',
+                    validation: (rule) =>
+                      rule.min(8).max(200).error('Font size must be between 8 and 200 pixels'),
+                  },
+                ],
+              },
+              {
+                name: 'textAlign',
+                type: 'object',
+                title: 'Text Align',
+                options: {
+                  columns: 2,
+                },
+                fields: [
+                  {
+                    name: 'web',
+                    type: 'string',
+                    title: 'Web',
+                    options: {
+                      list: [
+                        { title: 'Left', value: 'left' },
+                        { title: 'Center', value: 'center' },
+                        { title: 'Right', value: 'right' },
+                        { title: 'Justify', value: 'justify' },
+                      ],
+                    },
+                  },
+                  {
+                    name: 'mobile',
+                    type: 'string',
+                    title: 'Mobile',
+                    options: {
+                      list: [
+                        { title: 'Left', value: 'left' },
+                        { title: 'Center', value: 'center' },
+                        { title: 'Right', value: 'right' },
+                        { title: 'Justify', value: 'justify' },
+                      ],
+                    },
+                  },
+                ],
+              },
             ],
           },
         },

@@ -5,14 +5,10 @@ import {
   Container,
   Heading,
   VStack,
-  Input,
-  InputGroup,
-  InputRightElement,
   Text,
   Link as ChakraLink,
   List,
   ListItem,
-  IconButton,
   Flex,
 } from "@chakra-ui/react";
 import { PortableText } from "@portabletext/react";
@@ -151,126 +147,132 @@ export function GraveSearchSection({
 
   return (
     <Box
-      py={{ base: 12, md: 20 }}
+      py={{ base: 12, md: "128px" }}
+      px={{ base: 4, md: "10px" }}
       sx={{
         background:
           "linear-gradient(0deg, rgba(255, 255, 255, 0.50) 0%, rgba(255, 255, 255, 0.50) 100%), #A3B18A",
       }}
     >
       <Container maxW="container.lg">
-        <VStack spacing={6} align="center">
-          <VStack spacing={0} align="center" maxW="2xl" mx="auto" mb={6}>
+        <VStack spacing="24px" align="center" justify="center">
+          <VStack spacing="16px" align="center">
             <Heading
               as="h2"
               textAlign="center"
-              fontSize="48px"
-              fontStyle="normal"
-              fontWeight={600}
-              lineHeight="90%"
-              color="var(--Secondary-Dark-Green, #1A1F16)"
-              mb={4}
+              sx={{
+                fontFamily: '"Cormorant Garamond", serif',
+                fontSize: "48px",
+                fontStyle: "normal",
+                fontWeight: 600,
+                lineHeight: "90%",
+                color: "#1A1F16",
+              }}
             >
               {titleText}
             </Heading>
 
             {bodyText && bodyText.length > 0 && (
               <Text
-                fontSize="18px"
-                fontStyle="normal"
-                fontWeight={400}
-                lineHeight="150%"
-                color="var(--Core-Green, #2E4028)"
                 textAlign="center"
-                mb={6}
                 sx={{
-                  "& p": { mb: 2 },
+                  fontFamily: '"Host Grotesk", sans-serif',
+                  fontSize: "18px",
+                  fontStyle: "normal",
+                  fontWeight: 400,
+                  lineHeight: "150%",
+                  color: "#2E4028",
+                  "& p": { mb: 0 },
                 }}
               >
                 <PortableText value={bodyText} />
               </Text>
             )}
+          </VStack>
 
-            <Box as="form" onSubmit={handleSearch} w="full" maxW="520px">
-              <InputGroup size="lg">
-                <Input
+          <Box as="form" onSubmit={handleSearch} w="full" maxW="520px">
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                bg="white"
+                border="1px solid rgba(0, 0, 0, 0.1)"
+                borderRadius="2px"
+                overflow="hidden"
+              >
+                <Box
+                  as="input"
+                  type="text"
                   placeholder={searchBarPlaceholder}
                   value={searchQuery}
                   onChange={handleInputChange}
                   onKeyPress={handleKeyPress}
-                  bg="white"
-                  color="var(--Secondary-Dark-Green, #1A1F16)"
-                  pr="3.5rem"
-                  borderTopRadius="md"
-                  borderBottomRadius={
-                    searchPerformed && filteredGraves.length > 0 ? 0 : "md"
-                  }
-                  borderWidth="1px"
-                  borderColor="gray.300"
-                  borderBottomWidth={
-                    searchPerformed && filteredGraves.length > 0 ? 0 : "1px"
-                  }
-                  fontSize="18px"
-                  fontStyle="normal"
-                  fontWeight={400}
-                  lineHeight="150%"
-                  _dark={{
-                    bg: "white",
-                    borderColor: "gray.300",
-                    color: "var(--Secondary-Dark-Green, #1A1F16)",
-                  }}
-                  _placeholder={{
-                    color: "rgba(0, 0, 0, 0.30)",
+                  flex="1"
+                  px="24px"
+                  py="16px"
+                  border="none"
+                  outline="none"
+                  bg="transparent"
+                  sx={{
+                    fontFamily: '"Host Grotesk", sans-serif',
                     fontSize: "18px",
                     fontStyle: "normal",
                     fontWeight: 400,
                     lineHeight: "150%",
-                  }}
-                  _focus={{
-                    borderColor: "gray.400",
-                    boxShadow: "none",
+                    color: "#1A1F16",
+                    _placeholder: {
+                      color: "rgba(0, 0, 0, 0.3)",
+                    },
+                    "&:focus": {
+                      outline: "none",
+                    },
                   }}
                 />
-                <InputRightElement width="3.5rem" pr={2}>
-                  <IconButton
-                    aria-label="Search"
-                    icon={
-                      <svg
-                        width="19"
-                        height="8"
-                        viewBox="0 0 19 8"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <rect y="3.5" width="16" height="1" fill="#2E4028" />
-                        <path
-                          d="M18.5 4H18.3738M18.3738 4C16.2492 3.89744 12 2.95385 12 0M18.3738 4C16.2492 4.10256 12 5.04615 12 8"
-                          stroke="#2E4028"
-                        />
-                      </svg>
-                    }
-                    onClick={(e) => handleSearch(e)}
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    colorScheme="gray"
-                    _hover={{ bg: "transparent" }}
-                  />
-                </InputRightElement>
-              </InputGroup>
+                <Box
+                  as="button"
+                  onClick={handleSearch}
+                  w="64px"
+                  h="44px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  bg="white"
+                  border="none"
+                  cursor="pointer"
+                  type="button"
+                  _hover={{ bg: "transparent" }}
+                  _active={{ bg: "transparent" }}
+                >
+                  <svg
+                    width="19"
+                    height="8"
+                    viewBox="0 0 19 8"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <rect y="3.5" width="16" height="1" fill="#2E4028" />
+                    <path
+                      d="M18.5 4H18.3738M18.3738 4C16.2492 3.89744 12 2.95385 12 0M18.3738 4C16.2492 4.10256 12 5.04615 12 8"
+                      stroke="#2E4028"
+                      strokeWidth="1"
+                    />
+                  </svg>
+                </Box>
+              </Box>
               {isLoading ? (
                 <Text textAlign="center" color="gray.500" mt={6}>
                   Loading graves...
                 </Text>
               ) : searchPerformed ? (
                 filteredGraves.length > 0 ? (
-                   <Box
-                     w="full"
-                     maxW="520px"
-                     bg="white"
+                  <Box
+                    w="full"
+                    maxW="520px"
+                    bg="white"
                     borderTopRadius={0}
-                    borderRadius="md"
+                    borderRadius="2px"
                     borderTopWidth="1px"
-                    borderTopColor="gray.300"
+                    borderTopColor="rgba(0, 0, 0, 0.1)"
                     overflow="hidden"
                   >
                     <Box
@@ -316,7 +318,7 @@ export function GraveSearchSection({
                                   <Text
                                     fontSize="md"
                                     fontWeight="normal"
-                                    color="var(--Secondary-Dark-Green, #1A1F16)"
+                                    color="#1A1F16"
                                   >
                                     {highlightMatch(
                                       grave.familySurname,
@@ -328,7 +330,7 @@ export function GraveSearchSection({
                                   <Text
                                     fontSize="md"
                                     fontWeight="normal"
-                                    color="var(--Secondary-Dark-Green, #1A1F16)"
+                                    color="#1A1F16"
                                   >
                                     {grave.persons
                                       .map((person) => person.name)
@@ -346,7 +348,7 @@ export function GraveSearchSection({
                                   <Text
                                     fontSize="md"
                                     fontWeight="normal"
-                                    color="var(--Secondary-Dark-Green, #1A1F16)"
+                                    color="#1A1F16"
                                   >
                                     Grave {grave.graveNo}
                                   </Text>
@@ -372,28 +374,34 @@ export function GraveSearchSection({
                   </Text>
                 )
               ) : null}
-            </Box>
-          </VStack>
+          </Box>
 
           {hyperlinkLabel && hyperlinkUrl && (
-            <Box textAlign="center" pt={6}>
+            <VStack spacing="4px" align="center">
               <ChakraLink
                 as={NextLink}
                 href={hyperlinkUrl}
-                color="var(--Core-Green, #2E4028)"
-                fontFamily='"Cormorant Garamond", serif'
-                fontSize="18px"
-                fontStyle="normal"
-                fontWeight={600}
-                lineHeight="normal"
-                letterSpacing="2.16px"
-                textTransform="uppercase"
-                textDecoration="underline"
-                _hover={{ opacity: 0.8 }}
+                sx={{
+                  fontFamily: '"Cormorant Garamond", serif',
+                  fontSize: "18px",
+                  fontStyle: "normal",
+                  fontWeight: 600,
+                  lineHeight: "normal",
+                  letterSpacing: "2.16px",
+                  textTransform: "uppercase",
+                  color: "#2E4028",
+                  textDecoration: "none",
+                  _hover: { opacity: 0.8 },
+                }}
               >
                 {hyperlinkLabel}
               </ChakraLink>
-            </Box>
+              <Box
+                w="full"
+                h="1px"
+                bg="#2E4028"
+              />
+            </VStack>
           )}
         </VStack>
       </Container>

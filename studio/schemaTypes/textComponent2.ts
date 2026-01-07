@@ -84,6 +84,30 @@ export default defineType({
                       },
                     ],
                   },
+                  {
+                    name: 'fontSize',
+                    type: 'object',
+                    title: 'Font Size',
+                    options: {
+                      columns: 2,
+                    },
+                    fields: [
+                      {
+                        name: 'web',
+                        type: 'number',
+                        title: 'Web (px)',
+                        validation: (rule) =>
+                          rule.min(8).max(200).error('Font size must be between 8 and 200 pixels'),
+                      },
+                      {
+                        name: 'mobile',
+                        type: 'number',
+                        title: 'Mobile (px)',
+                        validation: (rule) =>
+                          rule.min(8).max(200).error('Font size must be between 8 and 200 pixels'),
+                      },
+                    ],
+                  },
                 ],
               },
             },
@@ -161,6 +185,30 @@ export default defineType({
                         type: 'boolean',
                         title: 'Open in new tab',
                         initialValue: false,
+                      },
+                    ],
+                  },
+                  {
+                    name: 'fontSize',
+                    type: 'object',
+                    title: 'Font Size',
+                    options: {
+                      columns: 2,
+                    },
+                    fields: [
+                      {
+                        name: 'web',
+                        type: 'number',
+                        title: 'Web (px)',
+                        validation: (rule) =>
+                          rule.min(8).max(200).error('Font size must be between 8 and 200 pixels'),
+                      },
+                      {
+                        name: 'mobile',
+                        type: 'number',
+                        title: 'Mobile (px)',
+                        validation: (rule) =>
+                          rule.min(8).max(200).error('Font size must be between 8 and 200 pixels'),
                       },
                     ],
                   },

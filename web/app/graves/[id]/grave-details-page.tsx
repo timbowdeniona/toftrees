@@ -1,211 +1,184 @@
 'use client'
 
-import { AspectRatio, Box, Container, Heading, SimpleGrid, Text, VStack, Button, Link } from '@chakra-ui/react'
 import { MarketingLayout } from '../../../components/layout/marketing-layout'
-import Image from 'next/image'
-import { urlFor } from '../../../sanity/client'
-import { PortableText } from '@portabletext/react'
+import { Grave, ImageMap } from '../../../types'
+import { ContentSectionRenderer } from '../../../components/content-sections'
+import { GraveHeroBanner } from '../../../components/content-sections/grave-hero-banner'
+import { BurialDetails } from '../../../components/content-sections/burial-details'
+import { OtherPeopleBuried } from '../../../components/content-sections/other-people-buried'
+import { Inscription } from '../../../components/content-sections/inscription'
+import { GraveDetailsSection } from '../../../components/content-sections/grave-details-section'
 
-import { Grave } from '../../../types';
+interface ContentSection {
+  _type: string
+  _key: string
+  heading?: string
+  bodyText?: unknown[]
+  image?: unknown
+  imageAltText?: string
+  logo?: unknown
+  logoPosition?: 'left' | 'right'
+  images?: Array<{
+    image: unknown
+    imageAltText: string
+  }>
+  imagePosition?: 'left' | 'right' | 'centre'
+  title?: string
+  textBackgroundColor?: string
+  titleText?: string
+  searchBarPlaceholder?: string
+  hyperlinkLabel?: string
+  hyperlinkUrl?: string
+  column1?: {
+    columnTitle?: string
+    headingLevel?: string
+    bodyText?: unknown[]
+  }
+  column2?: {
+    columnTitle?: string
+    headingLevel?: string
+    bodyText?: unknown[]
+  }
+  backgroundColor?: 'white' | 'lightGreen' | string
+  ctaLabel?: string
+  ctaUrl?: string
+  heroBackgroundImage?: unknown
+  heroImageAltText?: string
+  overlayIconImage?: unknown
+  overlayIconAltText?: string
+  pageBreadcrumb?: string
+  backgroundImage?: unknown
+  backgroundImageAltText?: string
+  bannerColour?: string
+  timelineItems?: Array<{
+    year: string
+    description: string
+  }>
+}
 
-export default function GraveDetailsPageClient({ grave }: { grave: Grave }) {
-  if (!grave) {
-    return (
-      <MarketingLayout>
-        <Container maxW="container.xl" py="20">
-          <Text textAlign="center">Grave not found.</Text>
-        </Container>
-      </MarketingLayout>
-    )
+interface SiteSettings {
+  graveDetailsPage?: {
+    contentSections?: ContentSection[]
+  }
+  navigationBar?: {
+    logoImage?: {
+      asset: {
+        _ref: string
+        _type: 'reference'
+      }
+      _type: 'image'
+    }
+    titleText?: string
+    navigationLinks?: Array<{ _key?: string; linkText: string; linkUrl: string }>
+  }
+  footer?: {
+    navigationLinks?: Array<{ _key?: string; label: string; url: string }>
+    copyrightText?: string
+    privacyPolicyLabel?: string
+    privacyPolicyUrl?: string
+    termsLabel?: string
+    termsUrl?: string
+  }
+}
+
+export default function GraveDetailsPageClient({
+  grave,
+  siteSettings,
+  imageMap,
+}: {
+  grave: Grave
+  siteSettings?: SiteSettings
+  imageMap?: ImageMap | null
+}) {
+  // Get person name for breadcrumb
+  const getPersonName = (): string => {
+    if (grave.persons && grave.persons.length > 0) {
+      const firstPerson = grave.persons[0]
+      if (firstPerson.name) {
+        const name = firstPerson.name.trim()
+        if (name.includes(',')) {
+          return name
+        }
+        const parts = name.split(/\s+/)
+        if (parts.length > 1) {
+          const lastName = parts[parts.length - 1]
+          const firstName = parts.slice(0, -1).join(' ')
+          return `${lastName}, ${firstName}`
+        }
+        return name
+      }
+    }
+    return grave.familySurname || 'Unknown'
   }
 
+  const personName = getPersonName()
+
+  // Prepare images for carousel (use graveImages if available, otherwise fallback to headstoneImage)
+  const allImages = grave.graveImages && grave.graveImages.length > 0
+    ? grave.graveImages
+        .filter((img) => img.asset?._ref) // Only include images with asset
+        .map((img) => ({
+          image: {
+            asset: {
+              _ref: img.asset!._ref,
+            },
+          },
+          alt: `Grave image for ${personName}`,
+        }))
+    : grave.headstoneImage && grave.headstoneImage.asset?._ref
+    ? [
+        {
+          image: {
+            asset: {
+              _ref: grave.headstoneImage.asset._ref,
+            },
+          },
+          alt: `Headstone for ${personName}`,
+        },
+      ]
+    : []
+
+  // More info link - link to map location if available
+  const moreInfoLink = grave.graveyardLocation
+    ? {
+        label: 'More info',
+        url: `/graves?search=${encodeURIComponent(personName)}`,
+      }
+    : undefined
+
   return (
-    <MarketingLayout>
-      <Container maxW="container.xl" py="20">
-        <VStack spacing="8" textAlign="center" mb="12">
-          <Heading as="h1" size="2xl">
-            Grave No: {grave.graveNo}
-          </Heading>
-          <Text fontSize="xl" color="muted">Family: {grave.familySurname}</Text>
-          <Button as={Link} href={`/map?grave=${grave._id}`} colorScheme="blue">View on Map</Button>
-        </VStack>
+    <MarketingLayout
+      headerProps={{ navigationConfig: siteSettings?.navigationBar }}
+      footerProps={{ config: siteSettings?.footer }}
+    >
+      {/* Hardcoded Grave Hero Banner */}
+      <GraveHeroBanner
+        grave={grave}
+        moreInfoLink={moreInfoLink}
+        images={allImages.map((img) => ({
+          image: img.image,
+          imageAltText: img.alt,
+        }))}
+        bannerColour="#2E4028"
+      />
 
-        {grave.headstoneImage && (
-          <Box w="full" maxW="2xl" mx="auto" mb="12">
-            <AspectRatio ratio={4 / 3} rounded="lg" overflow="hidden">
-              <Image
-                src={urlFor(grave.headstoneImage).url()}
-                alt={`Headstone for grave ${grave.graveNo}`}
-                fill
-                style={{ objectFit: 'contain' }}
-              />
-            </AspectRatio>
-          </Box>
-        )}
+      {/* Burial Details Section */}
+      <BurialDetails grave={grave} />
 
-        {grave.inscription && (
-          <Box mb="12">
-            <Heading as="h2" size="xl" mb="8" textAlign="center">
-              Inscription
-            </Heading>
-            <Box
-              maxH="300px"
-              overflowY="auto"
-              p="4"
-              borderWidth="1px"
-              borderColor="gray.200"
-              rounded="md"
-              _dark={{
-                borderColor: 'gray.700',
-              }}
-            >
-              <PortableText value={grave.inscription} />
-            </Box>
-          </Box>
-        )}
+      {/* Other People Buried Section */}
+      <OtherPeopleBuried grave={grave} />
 
-        {grave.persons && grave.persons.length > 0 && (
-          <Box mb="12">
-            <Heading as="h2" size="xl" mb="8" textAlign="center">
-              Persons Buried
-            </Heading>
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing="6">
-              {grave.persons.map((person, index) => (
-                <Box
-                  key={index}
-                  bg="white"
-                  rounded="lg"
-                  p="6"
-                  shadow="md"
-                  borderWidth="1px"
-                  borderColor="gray.200"
-                  _dark={{ 
-                    bg: 'gray.800',
-                    borderColor: 'gray.700' 
-                  }}
-                >
-                  <Heading as="h3" size="md" mb="2">{person.name}</Heading>
-                  <Text mb="2">Buried: {person.dateBurial}</Text>
-                  <Text mb="2">Age: {person.age}</Text>
-                  {person.official && (
-                    <Box mt="4" borderTopWidth="1px" pt="4">
-                      <Heading as="h4" size="sm" mb="1">Official</Heading>
-                      <Text>{person.official}</Text>
-                    </Box>
-                  )}
-                  {person.dateOfBirth && (
-                    <Box mt="4" borderTopWidth="1px" pt="4">
-                      <Heading as="h4" size="sm" mb="1">Date Of Birth</Heading>
-                      <Text>{person.dateOfBirth.toISOString()}</Text>
-                    </Box>
-                  )}
-                  {person.groReference && (
-                    <Box mt="4" borderTopWidth="1px" pt="4">
-                      <Heading as="h4" size="sm" mb="1">GRO Record</Heading>
-                      <Text>{person.groReference}</Text>
-                    </Box>
-                  )}
-                  {person.baptism && (
-                    <Box mt="4" borderTopWidth="1px" pt="4">
-                      <Heading as="h4" size="sm" mb="1">Baptism</Heading>
-                      <Text>{person.baptism}</Text>
-                    </Box>
-                  )}
-                  {person.parents && (
-                    <Box mt="4" borderTopWidth="1px" pt="4">
-                      <Heading as="h4" size="sm" mb="1">Parents</Heading>
-                      <Text>{person.parents}</Text>
-                    </Box>
-                  )}
-                  {person.brcri && (
-                    <Box mt="4" borderTopWidth="1px" pt="4">
-                      <Heading as="h4" size="sm" mb="1">Birth Record Civil Registration Index</Heading>
-                      <Text>{person.brcri}</Text>
-                    </Box>
-                  )}
-                  {person.notes && (
-                    <Box mt="4" borderTopWidth="1px" pt="4">
-                      <Heading as="h4" size="sm" mb="1">Notes</Heading>
-                      <Text>{person.notes}</Text>
-                    </Box>
-                  )}
-                </Box>
-              ))}
-            </SimpleGrid>
-          </Box>
-        )}
+      {/* Inscription Section */}
+      <Inscription grave={grave} />
 
-        {grave.locationDescription && (
-          <Box>
-            <Heading as="h2" size="xl" mb="4" textAlign="center">
-              Location
-            </Heading>
-            <Text fontSize="lg" textAlign="center">{grave.locationDescription}</Text>
-          </Box>
-        )}
+      {/* Grave Details Section */}
+      <GraveDetailsSection grave={grave} imageMap={imageMap} />
 
-        {grave.headstoneCondition && (
-          <Box mt="12">
-            <Heading as="h2" size="xl" mb="4" textAlign="center">
-              Headstone Condition
-            </Heading>
-            <Text fontSize="lg" textAlign="center">{grave.headstoneCondition}</Text>
-          </Box>
-        )}
-
-        {(grave.footstone || grave.footstoneInscription) && (
-          <Box mt="12">
-            <Heading as="h2" size="xl" mb="4" textAlign="center">
-              Footstone
-            </Heading>
-            {grave.footstone && <Text fontSize="lg" textAlign="center">Footstone present</Text>}
-            {grave.footstoneInscription && <Text fontSize="lg" textAlign="center">Inscription: {grave.footstoneInscription}</Text>}
-          </Box>
-        )}
-
-        {grave.additionalInformation && (
-          <Box mt="12">
-            <Heading as="h2" size="xl" mb="4" textAlign="center">
-              Additional Information
-            </Heading>
-            <Text fontSize="lg" textAlign="center">{grave.additionalInformation}</Text>
-          </Box>
-        )}
-
-        {(grave.scenicGraveImage || grave.graveImages) && (
-          <Box mt="12">
-            <Heading as="h2" size="xl" mb="8" textAlign="center">
-              Images
-            </Heading>
-            <SimpleGrid columns={{ base: 1, md: 2 }} spacing="6">
-              {grave.scenicGraveImage && (
-                <Box w="full" mx="auto">
-                  <AspectRatio ratio={4 / 3} rounded="lg" overflow="hidden">
-                    <Image
-                      src={urlFor(grave.scenicGraveImage).url()}
-                      alt={`Scenic image for grave ${grave.graveNo}`}
-                      fill
-                      style={{ objectFit: 'contain' }}
-                    />
-                  </AspectRatio>
-                </Box>
-              )}
-              {grave.graveImages && grave.graveImages.map((image, index) => (
-                <Box key={index} w="full" mx="auto">
-                  <AspectRatio ratio={4 / 3} rounded="lg" overflow="hidden">
-                    <Image
-                      src={urlFor(image).url()}
-                      alt={`Grave image ${index + 1} for grave ${grave.graveNo}`}
-                      fill
-                      style={{ objectFit: 'contain' }}
-                    />
-                  </AspectRatio>
-                </Box>
-              ))}
-            </SimpleGrid>
-          </Box>
-        )}
-      </Container>
+      {/* Content Sections */}
+      <ContentSectionRenderer
+        sections={siteSettings?.graveDetailsPage?.contentSections}
+      />
     </MarketingLayout>
   )
 }
+
