@@ -28,7 +28,7 @@ import { urlFor, writeClient } from '../../sanity/client'
 import Link from 'next/link'
 import { ImageMap, Hotspot, Grave } from '../../types'
 import { useSearchParams } from 'next/navigation';
-import { useState, useRef, MouseEvent, useMemo, useEffect } from 'react'
+import { useState, useRef, MouseEvent, useMemo } from 'react'
 import { FaFlag } from 'react-icons/fa'
 
 export default function MapPageClient({
@@ -166,7 +166,13 @@ export default function MapPageClient({
               height={1000}
             />
             {imageMap.hotspots?.map((hotspot: Hotspot) => {
-              const grave = graveMap.get(hotspot.grave._ref)
+              // Handle both reference and object types
+              const graveIdFromHotspot = hotspot.grave && '_ref' in hotspot.grave 
+                ? hotspot.grave._ref 
+                : hotspot.grave && '_id' in hotspot.grave 
+                ? hotspot.grave._id 
+                : undefined
+              const grave = graveIdFromHotspot ? graveMap.get(graveIdFromHotspot) : undefined
               const isSelected = grave?._id === graveId
               return (
                 <Tooltip label={grave?.familySurname || ''} aria-label="A tooltip" key={hotspot._key} isOpen={isSelected}>
@@ -183,7 +189,7 @@ export default function MapPageClient({
                   ) : (
                     <Box
                       as={Link}
-                      href={`/graves/${hotspot.grave._ref}`}
+                      href={`/graves/${graveIdFromHotspot || ''}`}
                       onContextMenu={(e: MouseEvent<HTMLDivElement>) => handleHotspotContextMenu(e, hotspot)}
                       position="absolute"
                       top={`${hotspot.y}%`}

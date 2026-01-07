@@ -6,7 +6,6 @@ import {
   Container,
   Flex,
 } from '@chakra-ui/react'
-import { useScroll } from 'framer-motion'
 
 import * as React from 'react'
 
@@ -23,10 +22,18 @@ export const Header = ({ navigationConfig, ...props }: HeaderProps) => {
   const [y, setY] = React.useState(0)
   const { height = 0 } = ref.current?.getBoundingClientRect() ?? {}
 
-  const { scrollY } = useScroll()
   React.useEffect(() => {
-    return scrollY.on('change', () => setY(scrollY.get()))
-  }, [scrollY])
+    const handleScroll = () => {
+      setY(window.scrollY)
+    }
+    
+    window.addEventListener('scroll', handleScroll)
+    handleScroll() // Initial call
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
 
   return (
     <Box

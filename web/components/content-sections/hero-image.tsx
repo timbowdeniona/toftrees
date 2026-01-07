@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { Box, Container } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import Image from 'next/image'
 import { urlFor } from '../../sanity/client'
 
