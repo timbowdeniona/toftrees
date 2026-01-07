@@ -21,6 +21,7 @@ import freeText from "./freeText"
 import spacing from "./spacing"
 import containerPadding from "./containerPadding"
 import graveListPage from "./graveListPage"
+import graveDetailsPage from "./graveDetailsPage"
 
 export const schemaTypes = [
     grave,
@@ -45,5 +46,6 @@ export const schemaTypes = [
     freeText,
     spacing,
     containerPadding,
-    graveListPage
+    graveListPage,
+    graveDetailsPage
 ]

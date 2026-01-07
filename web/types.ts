@@ -172,10 +172,11 @@ export interface NavigationLink {
 export interface FooterConfig {
   navigationLinks?: NavigationLink[];
   copyrightText?: string;
-  privacyPolicyLabel?: string;
-  privacyPolicyUrl?: string;
-  termsLabel?: string;
-  termsUrl?: string;
+  additionLinks?: Array<{
+    _key?: string;
+    label: string;
+    url: string;
+  }>;
 }
 
 export interface NavigationBarConfig {

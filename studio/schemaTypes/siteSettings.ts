@@ -110,5 +110,11 @@ export default  defineType({
       type: 'graveListPage',
       description: 'Configure the Grave List page content sections',
     }),
+    defineField({
+      name: 'graveDetailsPage',
+      title: 'Grave Details Page',
+      type: 'graveDetailsPage',
+      description: 'Configure the Grave Details page content sections',
+    }),
   ],
 });

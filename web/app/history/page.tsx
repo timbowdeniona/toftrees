@@ -191,10 +191,11 @@ async function getHistoryData() {
         url
       },
       copyrightText,
-      privacyPolicyLabel,
-      privacyPolicyUrl,
-      termsLabel,
-      termsUrl
+      additionLinks[] {
+        _key,
+        label,
+        url
+      }
     }
   }`)
   return data

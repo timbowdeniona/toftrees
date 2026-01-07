@@ -92,57 +92,65 @@ export function Homehero({
         zIndex={1}
         py={{ base: 12, sm: '120px' }}
       >
-        <VStack spacing={6} textAlign="center">
+        <VStack spacing="10px" align="center">
           {/* Breadcrumb */}
           {pageBreadcrumb && (
             <Text
-              fontSize="sm"
-              color={textColor}
-              textTransform="uppercase"
-              letterSpacing="wide"
-              fontWeight="medium"
-              fontFamily="sans-serif"
+              sx={{
+                fontFamily: '"Host Grotesk", sans-serif',
+                fontSize: '12px',
+                fontStyle: 'normal',
+                fontWeight: 600,
+                lineHeight: 'normal',
+                letterSpacing: '1.44px',
+                textTransform: 'uppercase',
+                color: isDarkGreen ? '#A3B18A' : textColor,
+              }}
             >
               {pageBreadcrumb}
             </Text>
           )}
 
-          {/* Title */}
-          {title && (
-            <Heading
-              as="h1"
-              maxW="4xl"
-              sx={{
-                color: titleColor,
-                textAlign: 'center',
-                fontFamily: '"Cormorant Garamond"',
-                fontSize: { base: '40px', sm: '64px' },
-                fontStyle: 'normal',
-                fontWeight: 600,
-                lineHeight: '90%',
-              }}
-            >
-              {title}
-            </Heading>
-          )}
+          {/* Title and Body Text Group */}
+          <VStack spacing="16px" align="center" textAlign="center">
+            {/* Title */}
+            {title && (
+              <Heading
+                as="h1"
+                maxW="4xl"
+                sx={{
+                  color: titleColor,
+                  textAlign: 'center',
+                  fontFamily: '"Cormorant Garamond", serif',
+                  fontSize: { base: '40px', sm: '64px' },
+                  fontStyle: 'normal',
+                  fontWeight: 600,
+                  lineHeight: '90%',
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
+                {title}
+              </Heading>
+            )}
 
-          {/* Body Text */}
-          {bodyText && bodyText.length > 0 && (
-            <Box
-              maxW="2xl"
-              sx={{
-                color: bodyTextColor,
-                textAlign: 'center',
-                fontFamily: '"Host Grotesk"',
-                fontSize: '18px',
-                fontStyle: 'normal',
-                fontWeight: 300,
-                lineHeight: '150%',
-              }}
-            >
-              <PortableText value={bodyText} />
-            </Box>
-          )}
+            {/* Body Text */}
+            {bodyText && bodyText.length > 0 && (
+              <Box
+                maxW="800px"
+                sx={{
+                  color: isDarkGreen ? '#A3B18A' : bodyTextColor,
+                  textAlign: 'center',
+                  fontFamily: '"Host Grotesk", sans-serif',
+                  fontSize: '18px',
+                  fontStyle: 'normal',
+                  fontWeight: 300,
+                  lineHeight: '150%',
+                }}
+              >
+                <PortableText value={bodyText} />
+              </Box>
+            )}
+          </VStack>
 
           {/* Grave Search Section */}
           {enableGraveSearch && (

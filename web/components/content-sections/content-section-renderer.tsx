@@ -59,6 +59,10 @@ interface ContentSection {
     description: string
   }>
   content?: unknown[]
+  moreInfoLink?: {
+    label?: string
+    url?: string
+  }
   spacing?: {
     mobile?: {
       top?: number

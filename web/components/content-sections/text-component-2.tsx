@@ -42,7 +42,7 @@ interface TextComponent2Props {
 
 const backgroundColorMap = {
   white: '#FFFFFF',
-  lightGreen: '#A3B18A',
+  lightGreen: '#D2D8C5',
 }
 
 export function TextComponent2({
@@ -127,7 +127,6 @@ export function TextComponent2({
         <VStack spacing={{ base: 4, md: '32px' }} align="stretch">
           {/* Title */}
           {title && (
-            <Box textAlign="center">
               <Box
                 as="h2"
                 sx={{
@@ -140,8 +139,7 @@ export function TextComponent2({
                 }}
               >
                 {title}
-              </Box>
-            </Box>
+              </Box>  
           )}
 
           {/* Two Columns */}
@@ -191,7 +189,41 @@ export function TextComponent2({
                       },
                     }}
                   >
-                    <PortableText value={column1.bodyText} />
+                    <PortableText
+                      value={column1.bodyText}
+                      components={{
+                        marks: {
+                          fontSize: ({
+                            children,
+                            value,
+                          }: {
+                            children: React.ReactNode
+                            value?: { web?: number; mobile?: number }
+                          }) => {
+                            const sx: Record<string, unknown> = {}
+
+                            if (value?.web || value?.mobile) {
+                              if (value.web && value.mobile) {
+                                sx.fontSize = {
+                                  base: `${value.mobile}px`,
+                                  md: `${value.web}px`,
+                                }
+                              } else if (value.web) {
+                                sx.fontSize = `${value.web}px`
+                              } else if (value.mobile) {
+                                sx.fontSize = `${value.mobile}px`
+                              }
+                            }
+
+                            return (
+                              <Box as="span" sx={sx}>
+                                {children}
+                              </Box>
+                            )
+                          },
+                        },
+                      }}
+                    />
                   </Box>
                 </Box>
               )}
@@ -236,7 +268,41 @@ export function TextComponent2({
                       },
                     }}
                   >
-                    <PortableText value={column2.bodyText} />
+                    <PortableText
+                      value={column2.bodyText}
+                      components={{
+                        marks: {
+                          fontSize: ({
+                            children,
+                            value,
+                          }: {
+                            children: React.ReactNode
+                            value?: { web?: number; mobile?: number }
+                          }) => {
+                            const sx: Record<string, unknown> = {}
+
+                            if (value?.web || value?.mobile) {
+                              if (value.web && value.mobile) {
+                                sx.fontSize = {
+                                  base: `${value.mobile}px`,
+                                  md: `${value.web}px`,
+                                }
+                              } else if (value.web) {
+                                sx.fontSize = `${value.web}px`
+                              } else if (value.mobile) {
+                                sx.fontSize = `${value.mobile}px`
+                              }
+                            }
+
+                            return (
+                              <Box as="span" sx={sx}>
+                                {children}
+                              </Box>
+                            )
+                          },
+                        },
+                      }}
+                    />
                   </Box>
                 </Box>
               )}

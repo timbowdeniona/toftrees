@@ -44,63 +44,47 @@ export default defineType({
       validation: (rule) => rule.required().error('Copyright text is required'),
     }),
     defineField({
-      name: 'privacyPolicyLabel',
-      title: 'Privacy Policy Link Label',
-      type: 'string',
-      description: 'e.g., "Privacy Policy"',
-    }),
-    defineField({
-      name: 'privacyPolicyUrl',
-      title: 'Privacy Policy URL',
-      type: 'string',
-      description: 'e.g., "/privacy"',
-      validation: (rule) =>
-        rule.custom((value, context) => {
-          const parent = context.parent as any;
-          const hasLabel = parent?.privacyPolicyLabel;
-          const hasUrl = value;
-
-          // Both must be filled or both must be empty
-          if ((hasLabel && !hasUrl) || (!hasLabel && hasUrl)) {
-            return 'Both Privacy Policy Label and URL must be provided together, or both left empty';
-          }
-          return true;
-        }),
-    }),
-    defineField({
-      name: 'termsLabel',
-      title: 'Terms & Conditions Link Label',
-      type: 'string',
-      description: 'e.g., "Terms & Conditions"',
-    }),
-    defineField({
-      name: 'termsUrl',
-      title: 'Terms & Conditions URL',
-      type: 'string',
-      description: 'e.g., "/terms"',
-      validation: (rule) =>
-        rule.custom((value, context) => {
-          const parent = context.parent as any;
-          const hasLabel = parent?.termsLabel;
-          const hasUrl = value;
-
-          // Both must be filled or both must be empty
-          if ((hasLabel && !hasUrl) || (!hasLabel && hasUrl)) {
-            return 'Both Terms & Conditions Label and URL must be provided together, or both left empty';
-          }
-          return true;
-        }),
+      name: 'additionLinks',
+      title: 'Additional Links',
+      type: 'array',
+      description: 'Additional links to display in the footer (e.g., Privacy Policy, Terms & Conditions, Contact)',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            {
+              name: 'label',
+              title: 'Link Label',
+              type: 'string',
+              validation: (rule) => rule.required().error('Link label is required'),
+            },
+            {
+              name: 'url',
+              title: 'Link URL',
+              type: 'string',
+              validation: (rule) => rule.required().error('Link URL is required'),
+            },
+          ],
+          preview: {
+            select: {
+              title: 'label',
+              subtitle: 'url',
+            },
+          },
+        },
+      ],
     }),
   ],
   preview: {
     select: {
       copyrightText: 'copyrightText',
-      linksCount: 'navigationLinks.length',
+      navLinksCount: 'navigationLinks.length',
+      additionLinksCount: 'additionLinks.length',
     },
-    prepare({ copyrightText, linksCount }) {
+    prepare({ copyrightText, navLinksCount, additionLinksCount }) {
       return {
         title: 'Footer Configuration',
-        subtitle: `${copyrightText || 'No copyright text'} | ${linksCount || 0} navigation links`,
+        subtitle: `${copyrightText || 'No copyright text'} | ${navLinksCount || 0} nav links | ${additionLinksCount || 0} additional links`,
       };
     },
   },

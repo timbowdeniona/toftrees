@@ -46,16 +46,24 @@ export function HeadingBodyTextSection({ heading, bodyText, spacing }: HeadingBo
       <Container maxW="container.xl" px={0}>
         <Flex
           direction={{ base: 'column', md: 'row' }}
-          gap={{ base: 4, md: 16 }}
+          gap={{ base: 4, md: '64px' }}
           align="start"
         >
           {/* Left Column - Heading */}
-          <Box flex="1 0 0" minW={0} w={{ base: 'full', md: 'auto' }}>
+          <Box
+            flex="1 0 0"
+            minW={0}
+            w={{ base: 'full', md: 'auto' }}
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+          >
             <Box
               as="h2"
               sx={{
                 fontFamily: '"Cormorant Garamond", serif',
                 fontSize: { base: '40px', md: '64px' },
+                fontStyle: 'normal',
                 fontWeight: 600,
                 lineHeight: { base: '1.15', md: '0.9' },
                 color: '#2E4028',
@@ -77,9 +85,11 @@ export function HeadingBodyTextSection({ heading, bodyText, spacing }: HeadingBo
             alignSelf={{ md: 'stretch' }}
           >
             <Box
+              flex="1 0 0"
               sx={{
                 fontFamily: '"Host Grotesk", sans-serif',
                 fontSize: { base: '18px', md: '20px' },
+                fontStyle: 'normal',
                 fontWeight: 300,
                 lineHeight: '1.5',
                 color: '#1A1F16',

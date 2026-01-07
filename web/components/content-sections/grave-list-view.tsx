@@ -5,6 +5,8 @@ import { useState, useMemo } from "react";
 import { Grave, ImageMap, Hotspot } from "../../types";
 import Image from "next/image";
 import { urlFor } from "../../sanity/client";
+import Link from "next/link";
+import { AlphabetNavigation } from "./alphabet-navigation";
 
 type ViewType = "list" | "map";
 
@@ -129,7 +131,7 @@ export function GraveListView({
 
   return (
     <Box id="grave-list-view" w="full" py={{ base: "32px", md: "32px" }}>
-      <Container maxW="container.xl" px={{ base: "24px", md: 0 }}>
+      <Container maxW="100%" px={0}>
         <VStack spacing={8} align="stretch">
           {/* Toggle Navigation */}
           <Flex justify="center" gap="64px" align="start" py="32px">
@@ -197,7 +199,24 @@ export function GraveListView({
 
           {/* List View */}
           {viewType === "list" && (
-            <Box w="full" maxW="544px" mx="auto" position="relative" py="128px">
+            <Box
+              w="full"
+              position="relative"
+              py="128px"
+            >
+              {/* Alphabet Navigation - Absolute positioned, 24px from left */}
+              <Box 
+                display={{ base: "none", md: "block" }} 
+                position="absolute"
+                left="24px"
+                top="128px"
+                pt="40px"
+              >
+                <AlphabetNavigation />
+              </Box>
+
+              {/* List - Centered */}
+              <Box position="relative" maxW="544px" mx="auto">
               {/* Sticky Header */}
               <Box
                 position="sticky"
@@ -257,7 +276,7 @@ export function GraveListView({
                 <VStack spacing={0} align="stretch">
                   {Object.entries(groupedGraves).map(
                     ([letter, letterGraves]) => (
-                      <Box key={letter} py="24px">
+                      <Box key={letter} py="24px" id={`letter-section-${letter}`}>
                         {/* Letter Header */}
                         <Box
                           display="flex"
@@ -328,6 +347,13 @@ export function GraveListView({
                                 w="full"
                                 borderBottom="1px solid #D9D9D9"
                                 overflow="hidden"
+                                as={Link}
+                                href={`/graves/${grave._id}`}
+                                _hover={{
+                                  bg: "rgba(46, 64, 40, 0.05)",
+                                }}
+                                transition="background-color 0.2s"
+                                cursor="pointer"
                               >
                                 <Flex
                                   justify="space-between"
@@ -379,6 +405,7 @@ export function GraveListView({
                   )}
                 </VStack>
               )}
+              </Box>
             </Box>
           )}
 

@@ -1,77 +1,112 @@
 'use client'
 
-import { Box, Container, Heading, SimpleGrid, Text, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
 import { MarketingLayout } from '../../components/layout/marketing-layout'
-import Link from 'next/link'
-import { Grave } from '../../types'
-import { useState, useMemo } from 'react'
-import { FaSearch } from 'react-icons/fa'
+import { ContentSectionRenderer, GraveListView } from '../../components/content-sections'
+import { Grave, ImageMap } from '../../types'
+import { useState } from 'react'
 
-export default function GravesPageClient({ graves }: { graves: Grave[] }) {
+interface ContentSection {
+  _type: string
+  _key: string
+  heading?: string
+  bodyText?: unknown[]
+  image?: unknown
+  imageAltText?: string
+  logo?: unknown
+  logoPosition?: 'left' | 'right'
+  images?: Array<{
+    image: unknown
+    imageAltText: string
+  }>
+  imagePosition?: 'left' | 'right' | 'centre'
+  title?: string
+  textBackgroundColor?: string
+  titleText?: string
+  searchBarPlaceholder?: string
+  hyperlinkLabel?: string
+  hyperlinkUrl?: string
+  column1?: {
+    columnTitle?: string
+    headingLevel?: string
+    bodyText?: unknown[]
+  }
+  column2?: {
+    columnTitle?: string
+    headingLevel?: string
+    bodyText?: unknown[]
+  }
+  backgroundColor?: 'white' | 'lightGreen' | string
+  ctaLabel?: string
+  ctaUrl?: string
+  heroBackgroundImage?: unknown
+  heroImageAltText?: string
+  overlayIconImage?: unknown
+  overlayIconAltText?: string
+  pageBreadcrumb?: string
+  backgroundImage?: unknown
+  backgroundImageAltText?: string
+  bannerColour?: string
+  timelineItems?: Array<{
+    year: string
+    description: string
+  }>
+}
+
+interface GraveListData {
+  graveListPage?: {
+    contentSections?: ContentSection[]
+  }
+  navigationBar?: {
+    logoImage?: {
+      asset: {
+        _ref: string
+        _type: 'reference'
+      }
+      _type: 'image'
+    }
+    titleText?: string
+    navigationLinks?: Array<{ _key?: string; linkText: string; linkUrl: string }>
+  }
+  footer?: {
+    navigationLinks?: Array<{ _key?: string; label: string; url: string }>
+    copyrightText?: string
+    privacyPolicyLabel?: string
+    privacyPolicyUrl?: string
+    termsLabel?: string
+    termsUrl?: string
+  }
+}
+
+export default function GravesPageClient({
+  data,
+  graves,
+  imageMap,
+}: {
+  data: GraveListData
+  graves?: Grave[]
+  imageMap?: ImageMap | null
+}) {
   const [searchQuery, setSearchQuery] = useState('')
 
-  const filteredGraves = useMemo(() => {
-    if (!searchQuery) {
-      return graves
-    }
-    return graves.filter((grave) =>
-      grave.familySurname?.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  }, [graves, searchQuery])
-
   return (
-    <MarketingLayout>
-      <Container maxW="container.xl" py="20">
-        <Heading as="h1" size="2xl" textAlign="center" mb="12">
-          Graves
-        </Heading>
-        <Box mb="8">
-          <InputGroup>
-            <InputLeftElement pointerEvents="none">
-              <FaSearch color="gray.300" />
-            </InputLeftElement>
-            <Input
-              placeholder="Search by surname..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              bg="white"
-              _dark={{ bg: 'gray.700' }}
-            />
-          </InputGroup>
-        </Box>
-        {filteredGraves.length > 0 ? (
-          <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4, xl: 5 }} spacing="6">
-            {filteredGraves.map((grave) => (
-              <Link href={`/graves/${grave._id}`} key={grave._id}>
-                <Box
-                  bg="white"
-                  rounded="lg"
-                  p="6"
-                  shadow="md"
-                  _hover={{ shadow: 'xl', bg: 'gray.800', color: 'white', _dark: { bg: 'gray.700' } }}
-                  transition="all 0.2s ease-in-out"
-                  borderWidth="1px"
-                  borderColor="gray.200"
-                  _dark={{ 
-                    bg: 'gray.800',
-                    borderColor: 'gray.700' 
-                  }}
-                  textAlign="center"
-                >
-                  <Heading as="h2" size="md" mb="2">
-                    {`Grave ${grave.graveNo}`}
-                  </Heading>
-                  <Text>{grave.familySurname}</Text>
-                </Box>
-              </Link>
-            ))}
-          </SimpleGrid>
-        ) : (
-          <Text textAlign="center">
-            {searchQuery ? `No graves found for "${searchQuery}".` : 'No graves found.'}
-          </Text>
-        )}
-      </Container>
+    <MarketingLayout
+      headerProps={{ navigationConfig: data?.navigationBar }}
+      footerProps={{ config: data?.footer }}
+    >
+      {/* Content Sections */}
+      <ContentSectionRenderer
+        sections={data?.graveListPage?.contentSections}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+      />
+      
+      {/* Grave List View Component */}
+      <GraveListView
+        graves={graves}
+        imageMap={imageMap || undefined}
+        searchQuery={searchQuery}
+      />
     </MarketingLayout>
   )
 }
+

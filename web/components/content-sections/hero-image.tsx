@@ -21,9 +21,9 @@ export function HeroImageSection({
   if (!heroBackgroundImage) return null
 
   return (
-    <Box position="relative" w="full" bg="gray.50" _dark={{ bg: 'gray.900' }}>
-      <Container maxW="container.2xl" px={{ base: 4, md: 8 }} py={{ base: 6, md: 10 }}>
-        <Box position="relative" overflow="hidden" rounded="xl">
+    <Box position="relative" w="full">
+      <Box maxW="container.2xl">
+        <Box position="relative" overflow="hidden">
           <Image
             src={urlFor(heroBackgroundImage).url()}
             alt={heroImageAltText}
@@ -37,23 +37,20 @@ export function HeroImageSection({
             <Box
               position="absolute"
               bottom={{ base: 4, md: 8 }}
-              left={{ base: 4, md: 8 }}
-              bg="rgba(0,0,0,0.55)"
-              _dark={{ bg: 'rgba(0,0,0,0.7)' }}
-              p={{ base: 3, md: 4 }}
+              right={{ base: 4, md: '88px' }}
               rounded="lg"
             >
               <Image
                 src={urlFor(overlayIconImage).url()}
                 alt={overlayIconAltText || 'Overlay icon'}
-                width={96}
-                height={96}
-                style={{ width: '64px', height: '64px', objectFit: 'contain' }}
+                width={150}
+                height={150}
+                style={{ width: '150px', height: '150px', objectFit: 'contain' }}
               />
             </Box>
           )}
         </Box>
-      </Container>
+      </Box>
     </Box>
   )
 }
