@@ -5,7 +5,58 @@ async function getSiteSettings() {
   const query = `*[_type == "siteSettings"][0] {
     title,
     churchImage,
-    shortHistory
+    shortHistory,
+    contentSections[]{
+      _type,
+      _key,
+      _type == "headingBodyText" => {
+        heading,
+        bodyText
+      },
+      _type == "imageText" => {
+        image,
+        imageAltText,
+        imagePosition,
+        title,
+        bodyText,
+        hyperlinkLabel,
+        hyperlinkUrl
+      },
+      _type == "heroImage" => {
+        heroBackgroundImage,
+        heroImageAltText,
+        overlayIconImage,
+        overlayIconAltText
+      },
+      _type == "graveSearch" => {
+        titleText,
+        bodyText,
+        searchBarPlaceholder,
+        hyperlinkLabel,
+        hyperlinkUrl
+      }
+    },
+    navigationBar {
+      logoImage,
+      titleText,
+      navigationLinks[] {
+        _key,
+        linkText,
+        linkUrl
+      }
+    },
+    footer {
+      navigationLinks[] {
+        _key,
+        label,
+        url
+      },
+      copyrightText,
+      privacyPolicyLabel,
+      privacyPolicyUrl,
+      termsLabel,
+      termsUrl
+    }
   }`
   const data = await client.fetch(query)
   return data

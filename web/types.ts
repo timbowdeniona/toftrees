@@ -147,3 +147,55 @@ export type SanityImageCrop = {
 };
 
 export declare const internalGroqTypeReferenceTo: unique symbol;
+
+export interface NavigationLink {
+  label: string;
+  url: string;
+  _key?: string;
+}
+
+export interface FooterConfig {
+  navigationLinks?: NavigationLink[];
+  copyrightText?: string;
+  privacyPolicyLabel?: string;
+  privacyPolicyUrl?: string;
+  termsLabel?: string;
+  termsUrl?: string;
+}
+
+export interface NavigationBarConfig {
+  logoImage?: {
+    asset: {
+      _ref: string;
+      _type: 'reference';
+    };
+    _type: 'image';
+  };
+  titleText?: string;
+  navigationLinks?: Array<{
+    linkText: string;
+    linkUrl: string;
+    _key?: string;
+  }>;
+}
+
+export interface GraveSearchSection {
+  _type: 'graveSearch';
+  _key: string;
+  titleText: string;
+  bodyText?: Array<{
+    _type: 'block';
+    _key: string;
+    children?: Array<{
+      _type: 'span';
+      _key: string;
+      text?: string;
+      marks?: string[];
+    }>;
+    style?: string;
+    markDefs?: unknown[];
+  }>;
+  searchBarPlaceholder: string;
+  hyperlinkLabel?: string;
+  hyperlinkUrl?: string;
+}

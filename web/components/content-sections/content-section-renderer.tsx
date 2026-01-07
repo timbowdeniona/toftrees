@@ -1,0 +1,98 @@
+'use client'
+
+import { HeadingBodyTextSection } from './heading-body-text'
+import { ImageTextSection } from './image-text'
+import { HeroImageSection } from './hero-image'
+import { GraveSearchSection } from './grave-search'
+
+interface ContentSection {
+  _type: string
+  _key: string
+  heading?: string
+  bodyText?: unknown[]
+  image?: unknown
+  imageAltText?: string
+  imagePosition?: 'left' | 'right'
+  title?: string
+  titleText?: string
+  searchBarPlaceholder?: string
+  hyperlinkLabel?: string
+  hyperlinkUrl?: string
+  heroBackgroundImage?: unknown
+  heroImageAltText?: string
+  overlayIconImage?: unknown
+  overlayIconAltText?: string
+}
+
+interface ContentSectionRendererProps {
+  sections?: ContentSection[]
+}
+
+export function ContentSectionRenderer({ sections }: ContentSectionRendererProps) {
+  if (!sections || sections.length === 0) {
+    return null
+  }
+
+  return (
+    <>
+      {sections.map((section) => {
+        switch (section._type) {
+          case 'headingBodyText':
+            return (
+              <HeadingBodyTextSection
+                key={section._key}
+                heading={section.heading ?? ''}
+                bodyText={section.bodyText ?? []}
+              />
+            )
+
+          case 'imageText':
+            return (
+              <ImageTextSection
+                key={section._key}
+                image={section.image as { asset: { _ref: string } }}
+                imageAltText={section.imageAltText ?? ''}
+                imagePosition={section.imagePosition ?? 'left'}
+                title={section.title ?? ''}
+                bodyText={section.bodyText ?? []}
+                hyperlinkLabel={section.hyperlinkLabel}
+                hyperlinkUrl={section.hyperlinkUrl}
+              />
+            )
+
+          case 'heroImage':
+            return (
+              <HeroImageSection
+                key={section._key}
+                heroBackgroundImage={section.heroBackgroundImage}
+                heroImageAltText={section.heroImageAltText || 'Hero image'}
+                overlayIconImage={section.overlayIconImage}
+                overlayIconAltText={section.overlayIconAltText}
+              />
+            )
+
+          case 'graveSearch':
+            return (
+              <GraveSearchSection
+                key={section._key}
+                titleText={section.titleText ?? ''}
+                bodyText={Array.isArray(section.bodyText) ? (section.bodyText as Array<{
+                  _type: string
+                  _key: string
+                  [key: string]: unknown
+                }>) : undefined}
+                searchBarPlaceholder={section.searchBarPlaceholder ?? ''}
+                hyperlinkLabel={section.hyperlinkLabel}
+                hyperlinkUrl={section.hyperlinkUrl}
+              />
+            )
+
+          default:
+            console.warn(`Unknown content section type: ${section._type}`)
+            return null
+        }
+      })}
+    </>
+  )
+}
+

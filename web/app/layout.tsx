@@ -1,6 +1,7 @@
 import { ColorModeScript } from '@chakra-ui/react'
 import { Provider } from './provider'
 import themeConfig from '../theme/config'
+import './globals.css'
 
 export default function RootLayout({
   children,
