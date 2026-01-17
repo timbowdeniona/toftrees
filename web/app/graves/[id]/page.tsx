@@ -38,8 +38,21 @@ async function getGraveData(id: string) {
       footstoneInscription,
       additionalInformation,
       scenicGraveImage,
+      inscription[] {
+        _key,
+        _type,
+        style,
+        children[] {
+          _key,
+          _type,
+          text,
+          marks
+        },
+        markDefs
+      },
       _createdAt,
-      _updatedAt
+      _updatedAt,
+      _rev
     }`,
     { id }
   )
@@ -165,7 +178,9 @@ async function getGraveData(id: string) {
               top,
               bottom
             }
-          }
+          },
+          maxWidth,
+          iconDecorator
         },
         _type == "timeline" => {
           title,

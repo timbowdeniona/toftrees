@@ -64,32 +64,25 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
                 display={{ base: 'none', md: 'flex' }}
               >
                 {navigationLinks.map((link, index) => (
-                  <VStack
+                  <ChakraLink
                     key={link._key || `${link.url}-${index}`}
-                    spacing="4px"
-                    align="center"
-                    h="24px"
+                    as={Link}
+                    href={link.url}
+                    sx={{
+                      fontFamily: '"Cormorant Garamond", serif',
+                      fontSize: "18px",
+                      fontStyle: "normal",
+                      fontWeight: 600,
+                      lineHeight: "normal",
+                      letterSpacing: "2.16px",
+                      textTransform: "uppercase",
+                      color: "white",
+                      textDecoration: "none",
+                      _hover: { opacity: 0.8 },
+                    }}
                   >
-                    <ChakraLink
-                      as={Link}
-                      href={link.url}
-                      sx={{
-                        fontFamily: '"Cormorant Garamond", serif',
-                        fontSize: "18px",
-                        fontStyle: "normal",
-                        fontWeight: 600,
-                        lineHeight: "normal",
-                        letterSpacing: "2.16px",
-                        textTransform: "uppercase",
-                        color: "white",
-                        textDecoration: "none",
-                        _hover: { opacity: 0.8 },
-                      }}
-                    >
-                      {link.label}
-                    </ChakraLink>
-                    <Box w="0" h="1px" bg="white" />
-                  </VStack>
+                    {link.label}
+                  </ChakraLink>
                 ))}
               </HStack>
             )}
@@ -136,15 +129,18 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
                 </ChakraLink>
               ))}
 
-              <Text
+              <ChakraLink
+                href="https://www.timberyardcommerce.com/"
+                isExternal
                 fontSize="12px"
                 fontWeight={300}
                 lineHeight="150%"
                 color="#A3B18A"
                 textDecoration="underline"
+                _hover={{ opacity: 0.8 }}
               >
                 Website produced by Timberyard
-              </Text>
+              </ChakraLink>
             </VStack>
 
             {/* Desktop: Horizontal layout */}
@@ -177,15 +173,18 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
                 ))}
               </HStack>
 
-              <Text
+              <ChakraLink
+                href="https://www.timberyardcommerce.com/"
+                isExternal
                 fontSize="12px"
                 fontWeight={300}
                 lineHeight="150%"
                 color="#A3B18A"
                 textDecoration="underline"
+                _hover={{ opacity: 0.8 }}
               >
                 Website produced by Timberyard
-              </Text>
+              </ChakraLink>
             </Flex>
           </VStack>
         </Flex>

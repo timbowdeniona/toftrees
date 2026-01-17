@@ -98,7 +98,9 @@ async function getContactData() {
                 top,
                 bottom
               }
-            }
+            },
+            maxWidth,
+            iconDecorator
           },
           _type == "timeline" => {
             title,

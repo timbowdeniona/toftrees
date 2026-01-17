@@ -86,11 +86,20 @@ export default function GrantsFundingPageClient({ data }: { data: GrantsFundingD
       headerProps={{ navigationConfig: data?.navigationBar }}
       footerProps={{ config: data?.footer }}
     >
-      <VStack spacing={{ base: '32px', md: '24px' }} align="stretch" width="100%">
+      <VStack 
+        spacing={0} 
+        align="stretch" 
+        width="100%"
+        sx={{
+          '& > *:not(:nth-child(-n + 2))': {
+            marginTop: { base: '32px', md: '24px' },
+          },
+        }}
+      >
           {sections.map((section) => {
             const isFullWidth = fullWidthSections.includes(section._type)
             
-            const renderedSection = <ContentSectionRenderer key={section._key} sections={[section]} />
+            const renderedSection = <ContentSectionRenderer key={section._key} sections={[section]} name="grantsFundingPage"/>
             
             if (isFullWidth) {
               return <Box key={section._key}>{renderedSection}</Box>
@@ -98,7 +107,7 @@ export default function GrantsFundingPageClient({ data }: { data: GrantsFundingD
             
             return (
               <Container key={section._key} maxW="container.xl" px={0}>
-                <Box maxW="3xl" mx="auto">
+                <Box maxW="800" mx="auto">
                   {renderedSection}
                 </Box>
               </Container>

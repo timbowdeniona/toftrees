@@ -100,7 +100,9 @@ async function getGraveListData() {
               top,
               bottom
             }
-          }
+          },
+          maxWidth,
+          iconDecorator
         },
         _type == "timeline" => {
           title,

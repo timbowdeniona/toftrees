@@ -82,7 +82,7 @@ export default function ProjectPageClient({ data }: { data: ProjectData }) {
       footerProps={{ config: data?.footer }}
     >
       {/* Content Sections */}
-      <ContentSectionRenderer sections={data?.projectPage?.contentSections} />
+      <ContentSectionRenderer sections={data?.projectPage?.contentSections} name="projectPage"/>
     </MarketingLayout>
   )
 }

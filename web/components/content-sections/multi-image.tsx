@@ -106,7 +106,6 @@ export function MultiImageSection({
           width="100%"
           alignItems="center"
           gap="8px"
-          px="48px"
         >
           {images.map((item, index) => {
             const isFirst = index === 0
