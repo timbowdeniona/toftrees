@@ -1,35 +1,35 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use client'
+"use client";
 
-import { Box, Flex, Link as ChakraLink } from '@chakra-ui/react'
-import { PortableText } from '@portabletext/react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { urlFor } from '../../sanity/client'
+import { Box, Flex, Link as ChakraLink } from "@chakra-ui/react";
+import { PortableText } from "@portabletext/react";
+import Image from "next/image";
+import Link from "next/link";
+import { urlFor } from "../../sanity/client";
 
 interface ImageTextProps {
   image: {
     asset: {
-      _ref: string
-    }
-  }
-  imageAltText: string
-  imagePosition: 'left' | 'right'
-  title: string
-  bodyText: any[]
-  hyperlinkLabel?: string
-  hyperlinkUrl?: string
-  textBackgroundColor?: string
+      _ref: string;
+    };
+  };
+  imageAltText: string;
+  imagePosition: "left" | "right";
+  title: string;
+  bodyText: any[];
+  hyperlinkLabel?: string;
+  hyperlinkUrl?: string;
+  textBackgroundColor?: string;
   spacing?: {
     mobile?: {
-      top?: number
-      bottom?: number
-    }
+      top?: number;
+      bottom?: number;
+    };
     web?: {
-      top?: number
-      bottom?: number
-    }
-  }
+      top?: number;
+      bottom?: number;
+    };
+  };
 }
 
 // Timeline separator graphic component (SVG pattern)
@@ -77,7 +77,7 @@ function TimelineSeparator() {
         />
       </svg>
     </Box>
-  )
+  );
 }
 
 export function ImageTextSection({
@@ -92,7 +92,7 @@ export function ImageTextSection({
   spacing,
 }: ImageTextProps) {
   // Use custom color if provided, otherwise default to Light Beige from Figma design
-  const bgColor = textBackgroundColor || '#FBFAF7'
+  const bgColor = textBackgroundColor || "#FBFAF7";
 
   const spacingStyle = spacing
     ? {
@@ -100,64 +100,73 @@ export function ImageTextSection({
           spacing.mobile?.top !== undefined && spacing.web?.top !== undefined
             ? { base: `${spacing.mobile.top}px`, md: `${spacing.web.top}px` }
             : spacing.mobile?.top !== undefined
-            ? `${spacing.mobile.top}px`
-            : spacing.web?.top !== undefined
-            ? `${spacing.web.top}px`
-            : undefined,
+              ? `${spacing.mobile.top}px`
+              : spacing.web?.top !== undefined
+                ? `${spacing.web.top}px`
+                : undefined,
         pb:
-          spacing.mobile?.bottom !== undefined && spacing.web?.bottom !== undefined
-            ? { base: `${spacing.mobile.bottom}px`, md: `${spacing.web.bottom}px` }
+          spacing.mobile?.bottom !== undefined &&
+          spacing.web?.bottom !== undefined
+            ? {
+                base: `${spacing.mobile.bottom}px`,
+                md: `${spacing.web.bottom}px`,
+              }
             : spacing.mobile?.bottom !== undefined
-            ? `${spacing.mobile.bottom}px`
-            : spacing.web?.bottom !== undefined
-            ? `${spacing.web.bottom}px`
-            : undefined,
+              ? `${spacing.mobile.bottom}px`
+              : spacing.web?.bottom !== undefined
+                ? `${spacing.web.bottom}px`
+                : undefined,
       }
-    : {}
+    : {};
 
   return (
     <Box {...spacingStyle} w="full">
       <Flex
-        direction={{ base: 'column', md: 'row' }}
-        align={{ base: 'stretch', md: 'stretch' }}
+        direction={{ base: "column", md: "row" }}
+        align={{ base: "stretch", md: "stretch" }}
         w="full"
         gap={0}
       >
         {/* Image */}
         <Box
-          order={{ base: 1, md: imagePosition === 'left' ? 1 : 2 }}
+          order={{ base: 1, md: imagePosition === "left" ? 1 : 2 }}
           position="relative"
-          w={{ base: '100%', md: '50%' }}
-          h={{ base: '300px', md: '696px' }}
+          w={{ base: "100%", md: "50%" }}
+          h={{ base: "300px", md: "696px" }}
           flexShrink={0}
           flexGrow={0}
-          minW={{ base: '100%', md: '50%' }}
-          maxW={{ base: '100%', md: '50%' }}
+          minW={{ base: "100%", md: "50%" }}
+          maxW={{ base: "100%", md: "50%" }}
         >
           <Image
             src={urlFor(image).url()}
             alt={imageAltText}
             fill
-            style={{ objectFit: 'cover', objectPosition: '50% 50%' }}
+            style={{ objectFit: "cover", objectPosition: "50% 50%" }}
           />
         </Box>
 
         {/* Text Block */}
         <Box
-          order={{ base: 2, md: imagePosition === 'left' ? 2 : 1 }}
+          order={{ base: 2, md: imagePosition === "left" ? 2 : 1 }}
           bg={bgColor}
-          px={{ base: '24px', md: '88px' }}
-          py={{ base: '48px', md: '128px' }}
+          px={{ base: "24px", md: "88px" }}
+          py={{ base: "32px", md: "128px" }}
           display="flex"
           flexDirection="column"
           justifyContent="center"
-          w={{ base: '100%', md: '50%' }}
+          w={{ base: "100%", md: "50%" }}
           flexShrink={0}
           flexGrow={0}
-          minW={{ base: '100%', md: '50%' }}
-          maxW={{ base: '100%', md: '50%' }}
+          minW={{ base: "100%", md: "50%" }}
+          maxW={{ base: "100%", md: "50%" }}
         >
-          <Box display="flex" flexDirection="column" gap="32px" alignItems="flex-start">
+          <Box
+            display="flex"
+            flexDirection="column"
+            gap={{ base: "16px", md: "32px" }}
+            alignItems="flex-start"
+          >
             {/* Timeline Separator */}
             <Box display="flex" justifyContent="flex-start">
               <TimelineSeparator />
@@ -168,13 +177,13 @@ export function ImageTextSection({
               maxW="628px"
               sx={{
                 fontFamily: '"Cormorant Garamond", serif',
-                fontSize: { base: '40px', md: '64px' },
+                fontSize: { base: "32px", md: "64px" },
                 fontWeight: 600,
-                lineHeight: '0.9',
-                color: '#2E4028',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-                overflowWrap: 'break-word',
+                lineHeight: { base: "115%", md: "0.9" },
+                color: "#2E4028",
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+                overflowWrap: "break-word",
               }}
             >
               {title}
@@ -184,14 +193,14 @@ export function ImageTextSection({
             <Box
               sx={{
                 fontFamily: '"Host Grotesk", sans-serif',
-                fontSize: '20px',
+                fontSize: "20px",
                 fontWeight: 300,
-                lineHeight: '1.5',
-                color: '#1A1F16',
-                whiteSpace: 'pre-wrap',
-                '& p': {
-                  mb: '16px',
-                  '&:last-child': {
+                lineHeight: "1.5",
+                color: "#1A1F16",
+                whiteSpace: "pre-wrap",
+                "& p": {
+                  mb: "16px",
+                  "&:last-child": {
                     mb: 0,
                   },
                 },
@@ -199,56 +208,68 @@ export function ImageTextSection({
             >
               <PortableText value={bodyText} />
             </Box>
-
-            {/* CTA */}
-            {hyperlinkLabel && hyperlinkUrl && (
-              <Box>
-                <ChakraLink
-                  as={Link}
-                  href={hyperlinkUrl}
-                  sx={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    fontFamily: '"Cormorant Garamond", serif',
-                    fontSize: '16px',
-                    fontWeight: 600,
-                    color: '#2E4028',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1.92px',
-                    lineHeight: 'normal',
-                    textDecoration: 'none',
-                    _hover: {
-                      textDecoration: 'none',
-                      opacity: 0.8,
+          </Box>
+          {/* CTA */}
+          {hyperlinkLabel && hyperlinkUrl && (
+            <Box mt={{base: '24px', md: '32px'}}>
+              <ChakraLink
+                as={Link}
+                href={hyperlinkUrl}
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  fontFamily: '"Cormorant Garamond", serif',
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  color: "#2E4028",
+                  textTransform: "uppercase",
+                  letterSpacing: "1.92px",
+                  lineHeight: "normal",
+                  textDecoration: "none",
+                  _hover: {
+                    textDecoration: "none",
+                    "& > span:last-child": {
+                      width: "18.5px",
+                      height: "8px"
                     },
+                  },
+                }}
+              >
+                {hyperlinkLabel}
+                <Box
+                  as="span"
+                  display="inline-flex"
+                  alignItems="center"
+                  flexShrink={0}
+                  w="14.5px"
+                  h="8px"
+                  overflow="hidden"
+                  sx={{
+                    transition: "width 0.3s ease",
                   }}
                 >
-                  {hyperlinkLabel}
-                  <Box
-                    as="span"
-                    sx={{
-                      display: 'inline-block',
-                      width: '18.5px',
-                      height: '8px',
-                      position: 'relative',
-                      flexShrink: 0,
-                      '&::after': {
-                        content: '"→"',
-                        fontSize: '16px',
-                        lineHeight: '8px',
-                        display: 'block',
-                        color: '#2E4028',
-                      },
+                  <svg
+                    width="19"
+                    height="8"
+                    viewBox="0 0 19 8"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      display: "block",
                     }}
-                  />
-                </ChakraLink>
-              </Box>
-            )}
-          </Box>
+                  >
+                    <rect y="3.5" width="16" height="1" fill="#2E4028"/>
+                    <path d="M18.5 4H18.3738M18.3738 4C16.2492 3.89744 12 2.95385 12 0M18.3738 4C16.2492 4.10256 12 5.04615 12 8" stroke="#2E4028"/>
+                  </svg>
+                </Box>
+              </ChakraLink>
+            </Box>
+          )}
         </Box>
       </Flex>
     </Box>
-  )
+  );
 }
-

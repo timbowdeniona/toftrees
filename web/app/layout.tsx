@@ -11,7 +11,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head />
-      <body style={{ marginTop: '120px' }}>
+      <body>
         <ColorModeScript initialColorMode={themeConfig.initialColorMode} />
         <Provider>{children}</Provider>
       </body>

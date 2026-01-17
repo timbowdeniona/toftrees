@@ -98,7 +98,9 @@ async function getTermsData() {
               top,
               bottom
             }
-          }
+          },
+          maxWidth,
+          iconDecorator
         },
         _type == "timeline" => {
           title,

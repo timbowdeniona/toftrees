@@ -18,6 +18,29 @@ import { client } from "../../sanity/client";
 import { Grave } from "../../types";
 import NextLink from "next/link";
 
+// SVG Separator Pattern Component - Using background-image with data URI
+function GraveSearchSeparator() {
+  // SVG icon as data URI - maintains original 11x10 size and repeats
+  const svgString = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none"><path d="M0.353554 10L5.35355 5M10.3536 0L5.35355 5M5.35355 5L10.3536 10L0.353554 0" stroke="#A3B18A"/></svg>'
+  const svgPattern = encodeURIComponent(svgString)
+
+  return (
+    <Box 
+      w="full"
+      bg="transparent"
+      overflow="hidden"
+      position="relative"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,${svgPattern}")`,
+        backgroundRepeat: 'repeat-x',
+        backgroundSize: '11px 10px',
+        backgroundPosition: '0 50%',
+        height: '10px',
+      }}
+    />
+  )
+}
+
 interface GraveSearchProps {
   titleText: string;
   bodyText?: Array<{
@@ -81,11 +104,23 @@ export function GraveSearchSection({
         return true;
       }
 
-      // Search by person names
+      // Search by person names (full name, first name, or last name)
       if (grave.persons && Array.isArray(grave.persons)) {
-        return grave.persons.some((person) =>
-          person.name?.toLowerCase().includes(query)
-        );
+        return grave.persons.some((person) => {
+          if (!person.name) return false;
+          const personName = person.name.toLowerCase();
+          // Check if query matches the full name
+          if (personName.includes(query)) {
+            return true;
+          }
+          // Split name into parts (handles formats like "LASTNAME, FIRSTNAME" or "FIRSTNAME LASTNAME")
+          const nameParts = personName
+            .split(/[,\s]+/)
+            .map((part) => part.trim())
+            .filter(Boolean);
+          // Check if query matches any part of the name (first name or last name)
+          return nameParts.some((part) => part.includes(query));
+        });
       }
 
       return false;
@@ -94,29 +129,82 @@ export function GraveSearchSection({
     return results;
   }, [graves, searchQuery]);
 
-  // Helper function to highlight matching text
+  // Helper function to highlight all matching text occurrences
   const highlightMatch = (text: string | undefined, query: string) => {
     if (!text || !query) return text || "";
 
     const lowerText = text.toLowerCase();
     const lowerQuery = query.toLowerCase();
-    const index = lowerText.indexOf(lowerQuery);
+    
+    // Find all occurrences of the query
+    const matches: Array<{ start: number; end: number }> = [];
+    let startIndex = 0;
+    
+    while (true) {
+      const index = lowerText.indexOf(lowerQuery, startIndex);
+      if (index === -1) break;
+      matches.push({ start: index, end: index + query.length });
+      startIndex = index + 1;
+    }
 
-    if (index === -1) return text;
+    if (matches.length === 0) return text;
 
-    const before = text.substring(0, index);
-    const match = text.substring(index, index + query.length);
-    const after = text.substring(index + query.length);
+    // Build the highlighted result
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
 
-    return (
-      <>
-        <Box as="span" fontWeight="normal">{before}</Box>
-        <Box as="span" fontWeight="bold" textDecoration="underline">
-          {match}
+    matches.forEach((match, idx) => {
+      // Add text before the match
+      if (match.start > lastIndex) {
+        parts.push(
+          <Box 
+            key={`before-${idx}`}
+            as="span" 
+            sx={{
+              fontFamily: '"Host Grotesk", sans-serif',
+              fontWeight: 400,
+            }}
+          >
+            {text.substring(lastIndex, match.start)}
+          </Box>
+        );
+      }
+      
+      // Add the highlighted match
+      parts.push(
+        <Box 
+          key={`match-${idx}`}
+          as="span" 
+          sx={{
+            fontFamily: '"Host Grotesk", sans-serif',
+            fontWeight: 600,
+            textDecoration: "underline",
+          }}
+        >
+          {text.substring(match.start, match.end)}
         </Box>
-        <Box as="span" fontWeight="normal">{after}</Box>
-      </>
-    );
+      );
+      
+      lastIndex = match.end;
+    });
+
+    // Add remaining text after the last match
+    if (lastIndex < text.length) {
+      parts.push(
+        <Box 
+          key="after"
+          as="span"
+          sx={{
+            fontFamily: '"Host Grotesk", sans-serif',
+            fontWeight: 400,
+          }}
+        >
+          {text.substring(lastIndex)}
+        </Box>
+      );
+    }
+
+    return <>{parts}</>;
   };
 
   const handleSearch = (e?: React.FormEvent | React.MouseEvent) => {
@@ -145,28 +233,38 @@ export function GraveSearchSection({
     }
   };
 
+  const handleReset = () => {
+    setSearchQuery("");
+    setSearchPerformed(false);
+  };
+
   return (
-    <Box
-      py={{ base: 12, md: "128px" }}
-      px={{ base: 4, md: "10px" }}
-      sx={{
-        background:
-          "linear-gradient(0deg, rgba(255, 255, 255, 0.50) 0%, rgba(255, 255, 255, 0.50) 100%), #A3B18A",
-      }}
-    >
-      <Container maxW="container.lg">
-        <VStack spacing="24px" align="center" justify="center">
-          <VStack spacing="16px" align="center">
+    <Box>
+      {/* Top Separator */}
+      <GraveSearchSeparator />
+      
+      <Box
+        py={{ base: "32px", md: "128px" }}
+        px={{ base: "24px", md: "10px" }}
+        sx={{
+          background:
+            "linear-gradient(0deg, rgba(255, 255, 255, 0.50) 0%, rgba(255, 255, 255, 0.50) 100%), #A3B18A",
+        }}
+      >
+        <Container maxW="container.lg">
+        <VStack spacing={{ base: "24px", md: "32px" }} align="center" justify="center">
+          <VStack spacing={{ base: "12px", md: "16px" }} align="center">
             <Heading
               as="h2"
               textAlign="center"
               sx={{
                 fontFamily: '"Cormorant Garamond", serif',
-                fontSize: "48px",
+                fontSize: { base: "32px", md: "48px" },
                 fontStyle: "normal",
                 fontWeight: 600,
                 lineHeight: "90%",
                 color: "#1A1F16",
+                whiteSpace: "pre-wrap",
               }}
             >
               {titleText}
@@ -175,14 +273,22 @@ export function GraveSearchSection({
             {bodyText && bodyText.length > 0 && (
               <Text
                 textAlign="center"
+                maxW="600px"
                 sx={{
                   fontFamily: '"Host Grotesk", sans-serif',
-                  fontSize: "18px",
+                  fontSize: { base: "16px", md: "18px" },
                   fontStyle: "normal",
                   fontWeight: 400,
                   lineHeight: "150%",
                   color: "#2E4028",
-                  "& p": { mb: 0 },
+                  "& p": { 
+                    mb: 0,
+                    fontFamily: '"Host Grotesk", sans-serif',
+                    fontSize: { base: "16px", md: "18px" },
+                    fontWeight: 400,
+                    lineHeight: "150%",
+                    color: "#2E4028",
+                  },
                 }}
               >
                 <PortableText value={bodyText} />
@@ -215,13 +321,17 @@ export function GraveSearchSection({
                   bg="transparent"
                   sx={{
                     fontFamily: '"Host Grotesk", sans-serif',
-                    fontSize: "18px",
+                    fontSize: { base: "16px", md: "18px" },
                     fontStyle: "normal",
                     fontWeight: 400,
                     lineHeight: "150%",
                     color: "#1A1F16",
                     _placeholder: {
                       color: "rgba(0, 0, 0, 0.3)",
+                      fontFamily: '"Host Grotesk", sans-serif',
+                      fontSize: { base: "16px", md: "18px" },
+                      fontWeight: 400,
+                      lineHeight: "150%",
                     },
                     "&:focus": {
                       outline: "none",
@@ -260,7 +370,17 @@ export function GraveSearchSection({
                 </Box>
               </Box>
               {isLoading ? (
-                <Text textAlign="center" color="gray.500" mt={6}>
+                <Text 
+                  textAlign="center" 
+                  color="gray.500" 
+                  mt={6}
+                  sx={{
+                    fontFamily: '"Host Grotesk", sans-serif',
+                    fontSize: { base: "16px", md: "18px" },
+                    fontWeight: 400,
+                    lineHeight: "150%",
+                  }}
+                >
                   Loading graves...
                 </Text>
               ) : searchPerformed ? (
@@ -309,50 +429,57 @@ export function GraveSearchSection({
                                   ? "1px solid"
                                   : "none"
                               }
-                              borderColor="gray.200"
+                              borderColor="#A3B18A"
                               _hover={{ bg: "gray.50" }}
                               transition="all 0.2s"
                             >
                               <Box flex={1}>
-                                {grave.familySurname ? (
-                                  <Text
-                                    fontSize="md"
-                                    fontWeight="normal"
-                                    color="#1A1F16"
-                                  >
-                                    {highlightMatch(
-                                      grave.familySurname,
-                                      searchQuery
-                                    )}
-                                  </Text>
-                                ) : grave.persons &&
-                                  grave.persons.length > 0 ? (
-                                  <Text
-                                    fontSize="md"
-                                    fontWeight="normal"
-                                    color="#1A1F16"
-                                  >
-                                    {grave.persons
+                                <Text
+                                  sx={{
+                                    fontFamily: '"Host Grotesk", sans-serif',
+                                    fontSize: { base: "16px", md: "18px" },
+                                    fontWeight: 400,
+                                    lineHeight: "150%",
+                                    color: "#1A1F16",
+                                  }}
+                                >
+                                  {/* Display family surname if available */}
+                                  {grave.familySurname && (
+                                    <>
+                                      {highlightMatch(
+                                        grave.familySurname,
+                                        searchQuery
+                                      )}
+                                      {grave.persons &&
+                                        grave.persons.some(
+                                          (p) => p.name
+                                        ) && (
+                                        <span>, </span>
+                                      )}
+                                    </>
+                                  )}
+                                  {/* Display all person names */}
+                                  {grave.persons &&
+                                    grave.persons.length > 0 &&
+                                    grave.persons
                                       .map((person) => person.name)
                                       .filter((name): name is string =>
                                         Boolean(name)
                                       )
-                                      .map((name, idx) => (
+                                      .map((name, idx, arr) => (
                                         <span key={idx}>
-                                          {idx > 0 && ", "}
                                           {highlightMatch(name, searchQuery)}
+                                          {idx < arr.length - 1 && ", "}
                                         </span>
                                       ))}
-                                  </Text>
-                                ) : (
-                                  <Text
-                                    fontSize="md"
-                                    fontWeight="normal"
-                                    color="#1A1F16"
-                                  >
-                                    Grave {grave.graveNo}
-                                  </Text>
-                                )}
+                                  {/* Fallback to grave number if no names */}
+                                  {!grave.familySurname &&
+                                    (!grave.persons ||
+                                      grave.persons.length === 0 ||
+                                      !grave.persons.some((p) => p.name)) && (
+                                    <>Grave {grave.graveNo}</>
+                                  )}
+                                </Text>
                               </Box>
                               <Box ml={4}>
                                 <FaChevronRight color="gray.400" size={14} />
@@ -364,14 +491,57 @@ export function GraveSearchSection({
                     </Box>
                   </Box>
                 ) : (
-                  <Text
-                    textAlign="center"
-                    color="gray.600"
-                    _dark={{ color: "gray.400" }}
-                    mt={6}
+                  <Box
+                    w="full"
+                    maxW="520px"
+                    bg="white"
+                    borderTopRadius={0}
+                    borderRadius="2px"
+                    borderTopWidth="1px"
+                    borderTopColor="rgba(0, 0, 0, 0.1)"
+                    px={{ base: "24px", md: "24px" }}
+                    py={{ base: "16px", md: "16px" }}
                   >
-                    No graves found.
-                  </Text>
+                    <Flex
+                      align="center"
+                      justify="space-between"
+                      w="full"
+                    >
+                      <Text
+                        sx={{
+                          fontFamily: '"Host Grotesk", sans-serif',
+                          fontSize: {base: "16px", md: "18px"},
+                          fontStyle: "normal",
+                          fontWeight: 700,
+                          lineHeight: "150%",
+                          color: "var(--Secondary-Dark-Green, #1A1F16)",
+                        }}
+                      >
+                        No Results
+                      </Text>
+                      <Box
+                        as="button"
+                        onClick={handleReset}
+                        cursor="pointer"
+                        sx={{
+                          fontFamily: '"Host Grotesk", sans-serif',
+                          fontSize: { base: "16px", md: "18px" },
+                          fontStyle: "normal",
+                          fontWeight: 400,
+                          lineHeight: "normal",
+                          color: "rgba(0, 0, 0, 0.3)",
+                          textDecoration: "underline",
+                          bg: "transparent",
+                          border: "none",
+                          _hover: {
+                            opacity: 0.8,
+                          },
+                        }}
+                      >
+                        Reset
+                      </Box>
+                    </Flex>
+                  </Box>
                 )
               ) : null}
           </Box>
@@ -383,7 +553,7 @@ export function GraveSearchSection({
                 href={hyperlinkUrl}
                 sx={{
                   fontFamily: '"Cormorant Garamond", serif',
-                  fontSize: "18px",
+                  fontSize: { base: "16px", md: "18px" },
                   fontStyle: "normal",
                   fontWeight: 600,
                   lineHeight: "normal",
@@ -400,11 +570,16 @@ export function GraveSearchSection({
                 w="full"
                 h="1px"
                 bg="#2E4028"
+                maxW="520px"
               />
             </VStack>
           )}
         </VStack>
       </Container>
+      </Box>
+      
+      {/* Bottom Separator */}
+      <GraveSearchSeparator />
     </Box>
   );
 }

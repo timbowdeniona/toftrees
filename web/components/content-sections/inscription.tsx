@@ -1,7 +1,30 @@
 'use client'
 
-import { Box, Container, Flex, Text, VStack } from '@chakra-ui/react'
+import { Box, Container, Text, VStack } from '@chakra-ui/react'
 import { Grave } from '../../types'
+
+// SVG Separator Pattern Component - Using background-image with data URI
+function InscriptionSeparator() {
+  // SVG icon as data URI - maintains original 11x10 size and repeats
+  const svgString = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none"><path d="M0.353554 10L5.35355 5M10.3536 0L5.35355 5M5.35355 5L10.3536 10L0.353554 0" stroke="#A3B18A"/></svg>'
+  const svgPattern = encodeURIComponent(svgString)
+
+  return (
+    <Box 
+      w="full"
+      bg="transparent"
+      overflow="hidden"
+      position="relative"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,${svgPattern}")`,
+        backgroundRepeat: 'repeat-x',
+        backgroundSize: '11px 10px',
+        backgroundPosition: '0 50%',
+        height: '10px',
+      }}
+    />
+  )
+}
 
 interface InscriptionProps {
   grave: Grave
@@ -27,29 +50,13 @@ export function Inscription({ grave }: InscriptionProps) {
   }
 
   return (
-    <Box w="full" bg="white" position="relative">
-      <Container maxW="container.xl" px={{ base: '24px', md: '88px' }} py={{ base: '32px', md: '64px' }}>
+    <Box w="full" bg="white" px={{base: "24px", md:"88px"}} py={{base:"24px", md:"64px"}} position="relative">
+      <Container maxW="824px">
         <VStack spacing="32px" align="center" w="full" maxW="824px" mx="auto" position="relative">
-          {/* Decorative Top Border */}
-          <Flex w="full" justify="center" align="center" gap="0">
-            {Array.from({ length: 11 }).map((_, i) => (
-              <Box
-                key={`top-${i}`}
-                w="10px"
-                h="10px"
-                position="relative"
-                sx={{
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    inset: '-3.54%',
-                    bg: '#A3B18A',
-                    clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
-                  },
-                }}
-              />
-            ))}
-          </Flex>
+          {/* Top Separator */}
+          <Box w="full">
+            <InscriptionSeparator />
+          </Box>
 
           {/* Content */}
           <VStack spacing="16px" align="center" w="full">
@@ -57,72 +64,48 @@ export function Inscription({ grave }: InscriptionProps) {
             <Text
               sx={{
                 fontFamily: '"Cormorant Garamond", serif',
-                fontSize: { base: '36px', md: '48px' },
+                fontSize: {base: '32px', md: '48px'},
+                fontStyle: 'normal',
                 fontWeight: 600,
-                lineHeight: '0.9',
-                color: '#1A1F16',
+                lineHeight: '90%',
+                color: 'var(--Secondary-Dark-Green, #1A1F16)',
+                textAlign: 'center',
               }}
             >
               Inscription
             </Text>
 
             {/* Inscription Text */}
-            <Box
-              sx={{
-                fontFamily: '"Host Grotesk", sans-serif',
-                fontSize: '18px',
-                fontWeight: 300,
-                lineHeight: '1.5',
-                color: '#1A1F16',
-                textAlign: 'center',
-                w: 'min-content',
-                minW: 'full',
-              }}
-            >
+            <VStack spacing="0" align="center" w="full">
               {inscriptionLines.map((line, index) => (
                 <Text
                   key={index}
-                  mb={0}
                   sx={{
                     fontFamily: '"Host Grotesk", sans-serif',
                     fontSize: '18px',
                     fontWeight: 300,
                     lineHeight: '1.5',
                     color: '#1A1F16',
+                    textAlign: 'center',
                     whiteSpace: 'pre-wrap',
+                    mb: index < inscriptionLines.length - 1 ? '0px' : '0',
                   }}
                 >
                   {line}
                 </Text>
               ))}
-            </Box>
+            </VStack>
           </VStack>
 
-          {/* Decorative Bottom Border */}
-          <Flex w="full" justify="center" align="center" gap="0">
-            {Array.from({ length: 11 }).map((_, i) => (
-              <Box
-                key={`bottom-${i}`}
-                w="10px"
-                h="10px"
-                position="relative"
-                sx={{
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    inset: '-3.54%',
-                    bg: '#A3B18A',
-                    clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
-                  },
-                }}
-              />
-            ))}
-          </Flex>
+          {/* Bottom Separator */}
+          <Box w="full">
+            <InscriptionSeparator />
+          </Box>
 
           {/* Side Borders */}
           <Box
             position="absolute"
-            left={{ base: '-24px', md: '-1px' }}
+            left={{ base: '0px', md: '-1px' }}
             top={0}
             bottom={0}
             w="1px"
@@ -130,7 +113,7 @@ export function Inscription({ grave }: InscriptionProps) {
           />
           <Box
             position="absolute"
-            left={{ base: '-20px', md: '-5px' }}
+            left={{ base: '-4px', md: '-5px' }}
             top={0}
             bottom={0}
             w="1px"
@@ -138,7 +121,7 @@ export function Inscription({ grave }: InscriptionProps) {
           />
           <Box
             position="absolute"
-            right={{ base: '-24px', md: '-1px' }}
+            right={{ base: '0px', md: '-1px' }}
             top={0}
             bottom={0}
             w="1px"
@@ -146,7 +129,7 @@ export function Inscription({ grave }: InscriptionProps) {
           />
           <Box
             position="absolute"
-            right={{ base: '-20px', md: '-5px' }}
+            right={{ base: '-4px', md: '-5px' }}
             top={0}
             bottom={0}
             w="1px"

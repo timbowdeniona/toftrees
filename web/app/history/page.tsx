@@ -108,7 +108,9 @@ async function getHistoryData() {
               top,
               bottom
             }
-          }
+          },
+          maxWidth,
+          iconDecorator
         },
         _type == "timeline" => {
           title,

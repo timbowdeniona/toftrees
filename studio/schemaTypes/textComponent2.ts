@@ -256,6 +256,20 @@ export default defineType({
       type: 'containerPadding',
       description: 'Left and right padding for the container (mobile and web)',
     }),
+    defineField({
+      name: 'maxWidth',
+      title: 'Max Width',
+      type: 'number',
+      description: 'Maximum width of the content in pixels (optional)',
+      validation: (rule) => rule.min(200).max(2000),
+    }),
+    defineField({
+      name: 'iconDecorator',
+      title: 'Show Icon Decorator',
+      type: 'boolean',
+      description: 'Enable to show separator pattern at the bottom of this section',
+      initialValue: false,
+    }),
   ],
   preview: {
     select: {

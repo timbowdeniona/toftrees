@@ -98,7 +98,9 @@ async function getSiteSettings() {
             top,
             bottom
           }
-        }
+        },
+        maxWidth,
+        iconDecorator
       },
       _type == "timeline" => {
         title,

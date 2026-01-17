@@ -5,6 +5,30 @@ import { Box, Container, Flex, Link as ChakraLink, VStack } from '@chakra-ui/rea
 import { PortableText } from '@portabletext/react'
 import Link from 'next/link'
 
+// SVG Separator Pattern Component - Using background-image with data URI
+function TextComponent2Separator() {
+  // SVG icon as data URI - maintains original 11x10 size and repeats
+  const svgString = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none"><path d="M0.353554 10L5.35355 5M10.3536 0L5.35355 5M5.35355 5L10.3536 10L0.353554 0" stroke="#A3B18A"/></svg>'
+  const svgPattern = encodeURIComponent(svgString)
+
+  return (
+    <Box 
+      w="full"
+      bg="transparent"
+      overflow="hidden"
+      position="relative"
+      bottom="-10px"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,${svgPattern}")`,
+        backgroundRepeat: 'repeat-x',
+        backgroundSize: '11px 10px',
+        backgroundPosition: '0 50%',
+        height: '10px',
+      }}
+    />
+  )
+}
+
 interface ColumnData {
   columnTitle?: string
   headingLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
@@ -38,6 +62,8 @@ interface TextComponent2Props {
       bottom?: number
     }
   }
+  maxWidth?: number
+  iconDecorator?: boolean
 }
 
 const backgroundColorMap = {
@@ -54,6 +80,8 @@ export function TextComponent2({
   ctaUrl,
   spacing,
   containerPadding,
+  maxWidth,
+  iconDecorator,
 }: TextComponent2Props) {
   const bgColor = backgroundColorMap[backgroundColor]
 
@@ -118,9 +146,10 @@ export function TextComponent2({
       px={{ base: 6, md: 0 }}
       bg={bgColor}
       {...spacingStyle}
+      position="relative"
     >
       <Container
-        maxW="container.xl"
+        maxW={maxWidth ? `${maxWidth}px` : "container.xl"}
         px={0}
         {...containerPaddingStyle}
       >
@@ -175,7 +204,7 @@ export function TextComponent2({
                       color: '#1A1F16',
                       whiteSpace: 'pre-wrap',
                       '& p': {
-                        mb: '16px',
+                        
                         '&:last-child': {
                           mb: 0,
                         },
@@ -365,6 +394,13 @@ export function TextComponent2({
           )}
         </VStack>
       </Container>
+      
+      {/* Icon Decorator Separator */}
+      {iconDecorator && (
+        <Box position="absolute" bottom="0" left="0" right="0" w="full">
+          <TextComponent2Separator />
+        </Box>
+      )}
     </Box>
   )
 }

@@ -51,7 +51,7 @@ export const Header = ({ navigationConfig, ...props }: HeaderProps) => {
       borderBottomWidth="1px"
       {...props}
     >
-      <Container maxW="container.2xl" px="120px" py="10">
+      <Container maxW="container.2xl" px={{ base: "24px", md: "32px", lg: "120px" }} py={{base: "16px", md: "40px"}}>
         <Flex width="full" align="center" justify="space-between">
           <Logo
             logoImage={navigationConfig?.logoImage}
@@ -67,7 +67,7 @@ export const Header = ({ navigationConfig, ...props }: HeaderProps) => {
               }
             }}
           />
-          <Navigation links={navigationConfig?.navigationLinks} />
+          <Navigation links={navigationConfig?.navigationLinks} navigationConfig={navigationConfig} />
         </Flex>
       </Container>
     </Box>

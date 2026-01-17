@@ -41,11 +41,11 @@ export function Homehero({
   if (!title && !bodyText) return null
 
   const backgroundColor = bannerColour || '#e0e6db' // Default light green
-  // If background is dark green (#2E4028), use white text; otherwise use dark green
+  // If background is dark green (#2E4028), use white text; otherwise use Core Green
   const isDarkGreen = backgroundColor?.toUpperCase().replace('#', '') === '2E4028'
-  const textColor = isDarkGreen ? '#FFFFFF' : '#1a4d3a'
-  const titleColor = isDarkGreen ? '#FFFFFF' : '#2E4028'
-  const bodyTextColor = isDarkGreen ? '#A3B18A' : '#2E4028'
+  const textColor = isDarkGreen ? '#FFFFFF' : 'var(--Core-Green, #2E4028)'
+  const titleColor = isDarkGreen ? '#FFFFFF' : 'var(--Core-Green, #2E4028)'
+  const bodyTextColor = isDarkGreen ? '#A3B18A' : 'var(--Core-Green, #2E4028)'
 
   const handleSearch = () => {
     if (!searchQuery.trim()) return
@@ -59,7 +59,6 @@ export function Homehero({
       position="relative"
       w="full"
       bg={backgroundColor}
-      minH="400px"
       display="flex"
       alignItems="center"
       overflow="hidden"
@@ -90,9 +89,11 @@ export function Homehero({
         maxW="container.xl"
         position="relative"
         zIndex={1}
-        py={{ base: 12, sm: '120px' }}
+        pt={{base: !enableGraveSearch ? '48px': '48px', sm: '120px'}}
+        pb={{ base: !enableGraveSearch ? '48px' : '24px', sm: '120px' }}
+        px={{ base: '24px', sm: 0 }}
       >
-        <VStack spacing="10px" align="center">
+        <VStack spacing={0} align="center">
           {/* Breadcrumb */}
           {pageBreadcrumb && (
             <Text
@@ -105,6 +106,7 @@ export function Homehero({
                 letterSpacing: '1.44px',
                 textTransform: 'uppercase',
                 color: isDarkGreen ? '#A3B18A' : textColor,
+                mb: { base: '20px', sm: '10px' },
               }}
             >
               {pageBreadcrumb}
@@ -112,7 +114,7 @@ export function Homehero({
           )}
 
           {/* Title and Body Text Group */}
-          <VStack spacing="16px" align="center" textAlign="center">
+          <VStack spacing={{ base: '24px', sm: '16px' }} align="center" textAlign="center">
             {/* Title */}
             {title && (
               <Heading
@@ -150,18 +152,17 @@ export function Homehero({
                 <PortableText value={bodyText} />
               </Box>
             )}
-          </VStack>
-
-          {/* Grave Search Section */}
+                {/* Grave Search Section */}
           {enableGraveSearch && (
             <VStack spacing={4} w="full" maxW="520px">
               <Text
                 sx={{
                   fontFamily: '"Host Grotesk", sans-serif',
                   fontSize: '18px',
+                  fontStyle: 'normal',
                   fontWeight: 700,
-                  lineHeight: '1.5',
-                  color: titleColor,
+                  lineHeight: '150%',
+                  color: '#FFF',
                 }}
               >
                 Find a grave
@@ -198,11 +199,17 @@ export function Homehero({
                   sx={{
                     fontFamily: '"Host Grotesk", sans-serif',
                     fontSize: '18px',
+                    fontStyle: 'normal',
                     fontWeight: 400,
-                    lineHeight: '1.5',
+                    lineHeight: '150%',
                     color: '#000',
                     _placeholder: {
-                      color: 'rgba(0, 0, 0, 0.3)',
+                      color: 'rgba(0, 0, 0, 0.30)',
+                      fontFamily: '"Host Grotesk", sans-serif',
+                      fontSize: { base: '16px', sm: '18px' },
+                      fontStyle: 'normal',
+                      fontWeight: 400,
+                      lineHeight: '150%',
                     },
                     '&:focus': {
                       outline: 'none',
@@ -241,6 +248,7 @@ export function Homehero({
               </Box>
             </VStack>
           )}
+          </VStack>
         </VStack>
       </Container>
     </Box>

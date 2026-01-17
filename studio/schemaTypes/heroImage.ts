@@ -31,6 +31,44 @@ export default defineType({
       type: 'string',
       description: 'Optional accessible description for the overlay icon',
     }),
+    defineField({
+      name: 'bottomIcons',
+      title: 'Bottom Icons',
+      type: 'array',
+      description: 'Icons that scroll horizontally at the bottom of the hero image',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            {
+              name: 'image',
+              title: 'Icon Image',
+              type: 'image',
+              options: { hotspot: true },
+              validation: (rule) => rule.required().error('Icon image is required'),
+            },
+            {
+              name: 'altText',
+              title: 'Alt Text',
+              type: 'string',
+              description: 'Accessible description for the icon',
+            },
+          ],
+          preview: {
+            select: {
+              title: 'altText',
+              media: 'image',
+            },
+            prepare({ title, media }) {
+              return {
+                title: title || 'Icon',
+                media,
+              };
+            },
+          },
+        },
+      ],
+    }),
   ],
   preview: {
     select: {

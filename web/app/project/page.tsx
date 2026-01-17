@@ -98,7 +98,9 @@ async function getProjectData() {
               top,
               bottom
             }
-          }
+          },
+          maxWidth,
+          iconDecorator
         },
         _type == "timeline" => {
           title,

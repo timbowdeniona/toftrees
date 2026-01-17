@@ -1,5 +1,6 @@
 'use client'
 
+import { Box } from '@chakra-ui/react'
 import { HeadingBodyTextSection } from './heading-body-text'
 import { ImageTextSection } from './image-text'
 import { HeroImageSection } from './hero-image'
@@ -36,6 +37,10 @@ interface ContentSection {
   heroImageAltText?: string
   overlayIconImage?: unknown
   overlayIconAltText?: string
+  bottomIcons?: Array<{
+    image: unknown
+    altText?: string
+  }>
   column1?: {
     columnTitle?: string
     headingLevel?: string
@@ -83,25 +88,44 @@ interface ContentSection {
       bottom?: number
     }
   }
+  maxWidth?: number
+  iconDecorator?: boolean
 }
 
 interface ContentSectionRendererProps {
   sections?: ContentSection[]
   searchQuery?: string
   setSearchQuery?: (query: string) => void
+  name?: string
 }
 
 export function ContentSectionRenderer({
   sections,
   searchQuery,
   setSearchQuery,
+  name,
 }: ContentSectionRendererProps) {
   if (!sections || sections.length === 0) {
     return null
   }
 
   return (
-    <>
+    <Box
+      sx={
+        name === 'grantsFundingPage'
+          ? {  
+              '& strong': {
+                color: 'var(--Secondary-Dark-Green, #1A1F16)',
+                fontFamily: '"Cormorant Garamond", serif',
+                fontSize: '26px',
+                fontStyle: 'normal',
+                fontWeight: 600,
+                lineHeight: '90%',
+              },
+            }
+          : undefined
+      }
+    >
       {sections.map((section) => {
         switch (section._type) {
           case 'heroBanner':
@@ -163,6 +187,10 @@ export function ContentSectionRenderer({
                 heroImageAltText={section.heroImageAltText || 'Hero image'}
                 overlayIconImage={section.overlayIconImage}
                 overlayIconAltText={section.overlayIconAltText}
+                bottomIcons={(section.bottomIcons as Array<{
+                  image: { asset: { _ref: string } }
+                  altText?: string
+                }>) || undefined}
               />
             )
 
@@ -184,25 +212,39 @@ export function ContentSectionRenderer({
 
           case 'textComponent2':
             return (
-              <TextComponent2
+              <Box
                 key={section._key}
-                title={section.title}
-                column1={section.column1 as {
-                  columnTitle?: string
-                  headingLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
-                  bodyText?: unknown[]
-                }}
-                column2={section.column2 as {
-                  columnTitle?: string
-                  headingLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
-                  bodyText?: unknown[]
-                }}
-                backgroundColor={section.backgroundColor as 'white' | 'lightGreen' | undefined}
-                ctaLabel={section.ctaLabel}
-                ctaUrl={section.ctaUrl}
-                spacing={section.spacing as { mobile?: { top?: number; bottom?: number }; web?: { top?: number; bottom?: number } } | undefined}
-                containerPadding={section.containerPadding as { mobile?: { top?: number; bottom?: number }; web?: { top?: number; bottom?: number } } | undefined}
-              />
+                sx={
+                  name === "projectPage"
+                    ? {
+                        '& div[class*="chakra-stack"]': {
+                          gap: { base: '16px', md: '24px !important' },
+                        },
+                      }
+                    : undefined
+                }
+              >
+                <TextComponent2
+                  title={section.title}
+                  column1={section.column1 as {
+                    columnTitle?: string
+                    headingLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+                    bodyText?: unknown[]
+                  }}
+                  column2={section.column2 as {
+                    columnTitle?: string
+                    headingLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+                    bodyText?: unknown[]
+                  }}
+                  backgroundColor={section.backgroundColor as 'white' | 'lightGreen' | undefined}
+                  ctaLabel={section.ctaLabel}
+                  ctaUrl={section.ctaUrl}
+                  spacing={section.spacing as { mobile?: { top?: number; bottom?: number }; web?: { top?: number; bottom?: number } } | undefined}
+                  containerPadding={section.containerPadding as { mobile?: { top?: number; bottom?: number }; web?: { top?: number; bottom?: number } } | undefined}
+                  maxWidth={section.maxWidth}
+                  iconDecorator={section.iconDecorator}
+                />
+              </Box>
             )
 
           case 'timeline':
@@ -258,7 +300,7 @@ export function ContentSectionRenderer({
             return null
         }
       })}
-    </>
+    </Box>
   )
 }
 

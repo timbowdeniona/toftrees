@@ -1,5 +1,6 @@
 'use client'
 
+import { VStack } from '@chakra-ui/react'
 import { MarketingLayout } from '../../../components/layout/marketing-layout'
 import { Grave, ImageMap } from '../../../types'
 import { ContentSectionRenderer } from '../../../components/content-sections'
@@ -150,34 +151,37 @@ export default function GraveDetailsPageClient({
     <MarketingLayout
       headerProps={{ navigationConfig: siteSettings?.navigationBar }}
       footerProps={{ config: siteSettings?.footer }}
+     
     >
-      {/* Hardcoded Grave Hero Banner */}
-      <GraveHeroBanner
-        grave={grave}
-        moreInfoLink={moreInfoLink}
-        images={allImages.map((img) => ({
-          image: img.image,
-          imageAltText: img.alt,
-        }))}
-        bannerColour="#2E4028"
-      />
+      <VStack spacing="0px" align="stretch" w="full">
+        {/* Hardcoded Grave Hero Banner */}
+        <GraveHeroBanner
+          grave={grave}
+          moreInfoLink={moreInfoLink}
+          images={allImages.map((img) => ({
+            image: img.image,
+            imageAltText: img.alt,
+          }))}
+          bannerColour="#2E4028"
+        />
 
-      {/* Burial Details Section */}
-      <BurialDetails grave={grave} />
+        {/* Burial Details Section */}
+        <BurialDetails grave={grave} />
 
-      {/* Other People Buried Section */}
-      <OtherPeopleBuried grave={grave} />
+        {/* Other People Buried Section */}
+        <OtherPeopleBuried grave={grave} />
 
-      {/* Inscription Section */}
-      <Inscription grave={grave} />
+        {/* Inscription Section */}
+        <Inscription grave={grave} />
 
-      {/* Grave Details Section */}
-      <GraveDetailsSection grave={grave} imageMap={imageMap} />
+        {/* Grave Details Section */}
+        <GraveDetailsSection grave={grave} imageMap={imageMap} />
 
-      {/* Content Sections */}
-      <ContentSectionRenderer
-        sections={siteSettings?.graveDetailsPage?.contentSections}
-      />
+        {/* Content Sections */}
+        <ContentSectionRenderer
+          sections={siteSettings?.graveDetailsPage?.contentSections}
+        />
+      </VStack>
     </MarketingLayout>
   )
 }

@@ -98,7 +98,9 @@ async function getGrantsFundingData() {
               top,
               bottom
             }
-          }
+          },
+          maxWidth,
+          iconDecorator
         },
         _type == "timeline" => {
           title,

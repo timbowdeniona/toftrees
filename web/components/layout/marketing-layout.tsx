@@ -16,10 +16,10 @@ interface LayoutProps {
 export const MarketingLayout: React.FC<LayoutProps> = (props) => {
   const { children, headerProps, footerProps } = props
   return (
-    <Box minH={{ base: "100vh", md: "calc(100vh - 120px)" }} display="flex" flexDirection="column">
+    <Box minH={{ base: "0px", md:"calc(100vh - 120px)" }} display="flex" flexDirection="column">
       <SkipNavLink>Skip to content</SkipNavLink>
       <Header {...headerProps} />
-      <Box as="main" flex="1" px={{base: "24px", md: "32px"}}>
+      <Box as="main" flex="1" px={{base: "0px", md: "32px"}}>
         <SkipNavContent />
         {children}
       </Box>

@@ -29,22 +29,22 @@ export function GraveDetailsSection({ grave, imageMap }: GraveDetailsSectionProp
 
   return (
     <Box w="full" bg="#FBFAF7">
-      <Container maxW="container.xl" px={{ base: '24px', md: '88px' }} py={{ base: '32px', md: '64px' }}>
+      <Container maxW="full" px={{ base: '24px', md: '88px' }} py={{ base: '24px', md: '64px' }}>
         <Flex
           direction={{ base: 'column', md: 'row' }}
           gap={{ base: '32px', md: '120px' }}
           align="stretch"
         >
           {/* Left Side - Text Content */}
-          <Flex flex="1" direction="column" gap="48px" align="start">
+          <Flex flex="1" direction="column" gap={{base: '24px', md: '48px'}} align="start">
             {/* Title */}
             <Text
               sx={{
                 fontFamily: '"Cormorant Garamond", serif',
-                fontSize: { base: '36px', md: '48px' },
+                fontSize: {base: '32px', md:'48px'},
                 fontWeight: 600,
-                lineHeight: '0.9',
-                color: '#1A1F16',
+                lineHeight: '90%',
+                color: 'var(--Secondary-Dark-Green, #1A1F16)',
               }}
             >
               Grave Details
@@ -66,9 +66,10 @@ export function GraveDetailsSection({ grave, imageMap }: GraveDetailsSectionProp
                       fontFamily: '"Host Grotesk", sans-serif',
                       fontSize: '16px',
                       fontWeight: 600,
-                      color: '#2E4028',
+                      lineHeight: 'normal',
                       letterSpacing: '1.92px',
                       textTransform: 'uppercase',
+                      color: 'var(--Core-Green, #2E4028)',
                     }}
                   >
                     Location
@@ -78,8 +79,8 @@ export function GraveDetailsSection({ grave, imageMap }: GraveDetailsSectionProp
                       fontFamily: '"Host Grotesk", sans-serif',
                       fontSize: '18px',
                       fontWeight: 300,
-                      lineHeight: '1.5',
-                      color: '#1A1F16',
+                      lineHeight: '150%',
+                      color: 'var(--Secondary-Dark-Green, #1A1F16)',
                     }}
                   >
                     {grave.locationDescription || 'Not specified'}
@@ -93,9 +94,10 @@ export function GraveDetailsSection({ grave, imageMap }: GraveDetailsSectionProp
                       fontFamily: '"Host Grotesk", sans-serif',
                       fontSize: '16px',
                       fontWeight: 600,
-                      color: '#2E4028',
+                      lineHeight: 'normal',
                       letterSpacing: '1.92px',
                       textTransform: 'uppercase',
+                      color: 'var(--Core-Green, #2E4028)',
                     }}
                   >
                     Headstone Condition
@@ -105,8 +107,8 @@ export function GraveDetailsSection({ grave, imageMap }: GraveDetailsSectionProp
                       fontFamily: '"Host Grotesk", sans-serif',
                       fontSize: '18px',
                       fontWeight: 300,
-                      lineHeight: '1.5',
-                      color: '#1A1F16',
+                      lineHeight: '150%',
+                      color: 'var(--Secondary-Dark-Green, #1A1F16)',
                     }}
                   >
                     {grave.headstoneCondition || 'Not specified'}
@@ -128,9 +130,10 @@ export function GraveDetailsSection({ grave, imageMap }: GraveDetailsSectionProp
                       fontFamily: '"Host Grotesk", sans-serif',
                       fontSize: '16px',
                       fontWeight: 600,
-                      color: '#2E4028',
+                      lineHeight: 'normal',
                       letterSpacing: '1.92px',
                       textTransform: 'uppercase',
+                      color: 'var(--Core-Green, #2E4028)',
                     }}
                   >
                     FootStone
@@ -140,8 +143,8 @@ export function GraveDetailsSection({ grave, imageMap }: GraveDetailsSectionProp
                       fontFamily: '"Host Grotesk", sans-serif',
                       fontSize: '18px',
                       fontWeight: 300,
-                      lineHeight: '1.5',
-                      color: '#1A1F16',
+                      lineHeight: '150%',
+                      color: 'var(--Secondary-Dark-Green, #1A1F16)',
                     }}
                   >
                     {grave.footstoneInscription || (grave.footstone ? 'Yes' : 'No')}
@@ -155,9 +158,10 @@ export function GraveDetailsSection({ grave, imageMap }: GraveDetailsSectionProp
                       fontFamily: '"Host Grotesk", sans-serif',
                       fontSize: '16px',
                       fontWeight: 600,
-                      color: '#2E4028',
+                      lineHeight: 'normal',
                       letterSpacing: '1.92px',
                       textTransform: 'uppercase',
+                      color: 'var(--Core-Green, #2E4028)',
                     }}
                   >
                     Type of Grave
@@ -167,8 +171,8 @@ export function GraveDetailsSection({ grave, imageMap }: GraveDetailsSectionProp
                       fontFamily: '"Host Grotesk", sans-serif',
                       fontSize: '18px',
                       fontWeight: 300,
-                      lineHeight: '1.5',
-                      color: '#1A1F16',
+                      lineHeight: '150%',
+                      color: 'var(--Secondary-Dark-Green, #1A1F16)',
                     }}
                   >
                     Upright
@@ -184,9 +188,10 @@ export function GraveDetailsSection({ grave, imageMap }: GraveDetailsSectionProp
                       fontFamily: '"Host Grotesk", sans-serif',
                       fontSize: '16px',
                       fontWeight: 600,
-                      color: '#2E4028',
+                      lineHeight: 'normal',
                       letterSpacing: '1.92px',
                       textTransform: 'uppercase',
+                      color: 'var(--Core-Green, #2E4028)',
                     }}
                   >
                     Additional Information
@@ -194,10 +199,10 @@ export function GraveDetailsSection({ grave, imageMap }: GraveDetailsSectionProp
                   <Text
                     sx={{
                       fontFamily: '"Host Grotesk", sans-serif',
-                      fontSize: '18px',
+                      fontSize: '16px',
                       fontWeight: 300,
-                      lineHeight: '1.5',
-                      color: '#1A1F16',
+                      lineHeight: '150%',
+                      color: 'var(--Secondary-Dark-Green, #1A1F16)',
                       whiteSpace: 'pre-wrap',
                     }}
                   >

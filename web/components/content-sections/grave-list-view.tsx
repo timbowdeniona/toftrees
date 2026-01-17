@@ -119,6 +119,8 @@ export function GraveListView({
       );
   }, [filteredGraves]);
 
+  console.log('groupedGraves', groupedGraves)
+
   // Get earliest year from persons for each grave
   const getEarliestYear = (grave: Grave): string => {
     if (!grave.persons || grave.persons.length === 0) return "";
@@ -130,11 +132,11 @@ export function GraveListView({
   };
 
   return (
-    <Box id="grave-list-view" w="full" py={{ base: "32px", md: "32px" }}>
-      <Container maxW="100%" px={0}>
-        <VStack spacing={8} align="stretch">
+    <Box id="grave-list-view" w="full" pt={{ base: "24px", md: "0px" }}>
+      <Container maxW="100%" px={{base: viewType === "list" ? '24px': '0px', md: '0px'}}>
+        <VStack spacing={{base: "24px", md:viewType === "map" ? 0: 8}} align="stretch">
           {/* Toggle Navigation */}
-          <Flex justify="center" gap="64px" align="start" py="32px">
+          <Flex justify="center" gap="64px" align="start" py={{base: '0px', md: "32px"}}>
             <Box
               as="button"
               onClick={() => setViewType("list")}
@@ -148,12 +150,13 @@ export function GraveListView({
               <Text
                 sx={{
                   fontFamily: '"Cormorant Garamond", serif',
-                  fontSize: "18px",
+                  fontSize: { base: "16px", md: "18px" },
+                  fontStyle: "normal",
                   fontWeight: 600,
                   lineHeight: "normal",
-                  color: "#2E4028",
+                  letterSpacing: { base: "1.92px", md: "2.16px" },
                   textTransform: "uppercase",
-                  letterSpacing: "2.16px",
+                  color: "var(--Core-Green, #2E4028)",
                 }}
               >
                 List View
@@ -161,7 +164,7 @@ export function GraveListView({
               <Box
                 h="1px"
                 w="full"
-                bg={viewType === "list" ? "#2E4028" : "transparent"}
+                bg={viewType === "list" ? "var(--Core-Green, #2E4028)" : "transparent"}
                 flexShrink={0}
               />
             </Box>
@@ -178,12 +181,13 @@ export function GraveListView({
               <Text
                 sx={{
                   fontFamily: '"Cormorant Garamond", serif',
-                  fontSize: "18px",
+                  fontSize: { base: "16px", md: "18px" },
+                  fontStyle: "normal",
                   fontWeight: 600,
                   lineHeight: "normal",
-                  color: "#2E4028",
+                  letterSpacing: { base: "1.92px", md: "2.16px" },
                   textTransform: "uppercase",
-                  letterSpacing: "2.16px",
+                  color: "var(--Core-Green, #2E4028)",
                 }}
               >
                 Map View
@@ -191,7 +195,7 @@ export function GraveListView({
               <Box
                 h="1px"
                 w="full"
-                bg={viewType === "map" ? "#2E4028" : "transparent"}
+                bg={viewType === "map" ? "var(--Core-Green, #2E4028)" : "transparent"}
                 flexShrink={0}
               />
             </Box>
@@ -202,15 +206,17 @@ export function GraveListView({
             <Box
               w="full"
               position="relative"
-              py="128px"
             >
-              {/* Alphabet Navigation - Absolute positioned, 24px from left */}
+              {/* Alphabet Navigation - Sticky positioned, 24px from left */}
               <Box 
                 display={{ base: "none", md: "block" }} 
-                position="absolute"
-                left="24px"
-                top="128px"
+                position="sticky"
+                top="50vh"
                 pt="40px"
+                pl="24px"
+                alignSelf="flex-start"
+                zIndex={5}
+                w="fit-content"
               >
                 <AlphabetNavigation />
               </Box>
@@ -220,7 +226,7 @@ export function GraveListView({
               {/* Sticky Header */}
               <Box
                 position="sticky"
-                top="0"
+                top={{ base: "64px", md: "120px" }}
                 bg="white"
                 zIndex={10}
                 py="8px"
@@ -308,10 +314,10 @@ export function GraveListView({
                         <VStack spacing={0} align="stretch" w="full">
                           {letterGraves.map((grave) => {
                             const earliestYear = getEarliestYear(grave);
-                            // Format name as "LASTNAME, FIRSTNAME" or just surname if no persons
-                            let displayName = "";
+                            // Format names as "LASTNAME, FIRSTNAME" or just surname if no persons
+                            let names: string[] = [];
                             if (grave.persons && grave.persons.length > 0) {
-                              const names = grave.persons
+                              names = grave.persons
                                 .map((p) => {
                                   const name = p.name || "";
                                   if (!name) return "";
@@ -329,13 +335,11 @@ export function GraveListView({
                                   return name.toUpperCase();
                                 })
                                 .filter(Boolean);
-                              displayName =
-                                names.join(", ") ||
-                                grave.familySurname?.toUpperCase() ||
-                                "";
-                            } else {
-                              displayName =
-                                grave.familySurname?.toUpperCase() || "";
+                              if (names.length === 0 && grave.familySurname) {
+                                names = [grave.familySurname.toUpperCase()];
+                              }
+                            } else if (grave.familySurname) {
+                              names = [grave.familySurname.toUpperCase()];
                             }
 
                             return (
@@ -362,23 +366,46 @@ export function GraveListView({
                                   gap="16px"
                                   w="full"
                                 >
-                                  <Text
-                                    flex="1"
-                                    minW={0}
-                                    sx={{
-                                      fontFamily: '"Cormorant Garamond", serif',
-                                      fontSize: "16px",
-                                      fontWeight: 600,
-                                      lineHeight: "normal",
-                                      color: "#2E4028",
-                                      textTransform: "uppercase",
-                                      letterSpacing: "1.92px",
-                                      wordBreak: "break-word",
-                                      overflowWrap: "break-word",
-                                    }}
-                                  >
-                                    {displayName}
-                                  </Text>
+                                  <Box flex="1" minW={0}>
+                                    {names.length > 0 ? (
+                                      <VStack spacing={0} align="flex-start">
+                                        {names.map((name, idx) => (
+                                          <Text
+                                            key={idx}
+                                            sx={{
+                                              fontFamily: '"Cormorant Garamond", serif',
+                                              fontSize: "16px",
+                                              fontWeight: 600,
+                                              lineHeight: "normal",
+                                              color: "#2E4028",
+                                              textTransform: "uppercase",
+                                              letterSpacing: "1.92px",
+                                              wordBreak: "break-word",
+                                              overflowWrap: "break-word",
+                                            }}
+                                          >
+                                            {name}
+                                          </Text>
+                                        ))}
+                                      </VStack>
+                                    ) : (
+                                      <Text
+                                        sx={{
+                                          fontFamily: '"Cormorant Garamond", serif',
+                                          fontSize: "16px",
+                                          fontWeight: 600,
+                                          lineHeight: "normal",
+                                          color: "#2E4028",
+                                          textTransform: "uppercase",
+                                          letterSpacing: "1.92px",
+                                          wordBreak: "break-word",
+                                          overflowWrap: "break-word",
+                                        }}
+                                      >
+                                        Grave {grave.graveNo}
+                                      </Text>
+                                    )}
+                                  </Box>
                                   {earliestYear && (
                                     <Text
                                       flexShrink={0}
@@ -418,6 +445,7 @@ export function GraveListView({
               overflow="hidden"
               bg="#f5f5f5"
               borderRadius="4px"
+              mb={{ base: "0px", sm: "32px" }}
             >
               {imageMap ? (
                 <Box
