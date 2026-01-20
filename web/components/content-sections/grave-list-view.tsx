@@ -119,6 +119,8 @@ export function GraveListView({
       );
   }, [filteredGraves]);
 
+  console.log('groupedGraves', groupedGraves)
+
   // Get earliest year from persons for each grave
   const getEarliestYear = (grave: Grave): string => {
     if (!grave.persons || grave.persons.length === 0) return "";
