@@ -29,23 +29,22 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
       bg="#1A1F16"
       color="white"
     >
-      <Container maxW="container.2xl" px={{ base: 6, md: "120px" }} py={{ base: 12, md: "120px" }}>
+      <Container maxW="container.2xl" px={{ base: 6, lg: "120px" }} py={{ base: 12, lg: "120px" }}>
         <Flex
           direction="column"
-          gap={{ base: "24px", md: "48px" }}
+          gap={{ base: "24px", lg: "48px" }}
           align="center"
           justify="center"
         >
           {/* Main Section: Logo and Navigation */}
           <Flex
-            direction={{ base: 'column', md: 'row' }}
+            direction={{ base: 'column', lg: 'row' }}
             align="center"
             justify="space-between"
             w="full"
-            maxW="1680px"
           >
             {/* Logo */}
-            <Box flexShrink={0} h={{ base: "32px", md: "72px" }} w={{ base: "147px", md: "324px" }} position="relative">
+            <Box flexShrink={0} h={{ base: "32px", lg: "72px" }} w={{ base: "147px", lg: "324px" }} position="relative">
               <Image
                 src="/logo-footer.svg"
                 alt="All Saints Church Toftrees"
@@ -61,7 +60,7 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
               <HStack
                 spacing="64px"
                 align="center"
-                display={{ base: 'none', md: 'flex' }}
+                display={{ base: 'none', lg: 'flex' }}
               >
                 {navigationLinks.map((link, index) => (
                   <ChakraLink
@@ -90,7 +89,7 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
 
           {/* Bottom Section: Copyright and Links */}
           <VStack
-            spacing={{ base: "8px", md: 0 }}
+            spacing={{ base: "8px", lg: 0 }}
             align="center"
             justify="center"
             w="full"
@@ -106,7 +105,7 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
             <VStack
               spacing="8px"
               align="center"
-              display={{ base: 'flex', md: 'none' }}
+              display={{ base: 'flex', lg: 'none' }}
               w="full"
             >
               <Text fontSize="12px" fontWeight={300} lineHeight="150%" color="white">
@@ -149,7 +148,7 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
               align="center"
               justify="space-between"
               w="full"
-              display={{ base: 'none', md: 'flex' }}
+              display={{ base: 'none', lg: 'flex' }}
             >
               <HStack spacing="24px" align="center" color="white">
                 <Text fontSize="12px" fontWeight={300} lineHeight="150%">

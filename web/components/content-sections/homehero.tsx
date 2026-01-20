@@ -192,7 +192,7 @@ export function Homehero({
                   }}
                   flex="1"
                   px="24px"
-                  py="16px"
+                  py="24px"
                   border="none"
                   outline="none"
                   bg="transparent"

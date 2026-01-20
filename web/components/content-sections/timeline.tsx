@@ -169,10 +169,10 @@ export function TimelineSection({ title, timelineItems, spacing }: TimelineProps
               {index < timelineItems.length - 1 && (
                 <Box
                   bg="#A3B18A"
-                  h={{ base: '60px', md: 25 }}
+                  h={{ base: '60px', md: '100px' }}
+                  mt={{base: '32px', md: '32px'}}
                   w="1px"
                   mx="auto"
-                  mt={0}
                 />
               )}
             </Box>

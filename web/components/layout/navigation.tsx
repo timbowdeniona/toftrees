@@ -15,6 +15,7 @@ import { NavLink } from '../nav-link'
 import siteConfig from '../../data/config'
 import { NavigationBarConfig } from '../../types'
 import { Logo } from './logo'
+import { useEffect, useRef, useState } from 'react'
 
 interface NavigationProps {
   links?: NavigationBarConfig['navigationLinks'];
@@ -24,57 +25,185 @@ interface NavigationProps {
 const Navigation: React.FC<NavigationProps> = ({ links, navigationConfig }) => {
   const path = usePathname()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const desktopNavRef = useRef<HTMLDivElement>(null)
+  const [showHamburger, setShowHamburger] = useState(false)
+  const [navSpacing, setNavSpacing] = useState(64) // Start with 64px spacing
   
   // Use CMS links if provided, otherwise fallback to siteConfig
-  const navigationLinks = links && links.length > 0
+  const cmsLinks = links && links.length > 0
     ? links.map(link => ({
         href: link.linkUrl,
         label: link.linkText,
         id: link.linkUrl.replace(/^\//, '').replace(/\//g, '-'),
       }))
     : siteConfig.header.links
+  
+  // Desktop links (without Home)
+  const desktopLinks = cmsLinks
+  
+  // Mobile/Hamburger links (with Home at the beginning)
+  const mobileLinks = [
+    { href: '/', label: 'Home', id: 'home' },
+    ...cmsLinks
+  ]
+
+  // Adjust spacing based on overflow (only on xl breakpoint and above)
+  useEffect(() => {
+    const adjustSpacing = () => {
+      // Only check on xl breakpoint (1280px) and above
+      const isXlBreakpoint = window.innerWidth >= 1280
+      
+      if (!isXlBreakpoint) {
+        // Below xl, always show hamburger and reset spacing
+        setShowHamburger(true)
+        setNavSpacing(64)
+        return
+      }
+
+      if (desktopNavRef.current) {
+        const container = desktopNavRef.current
+        const hasOverflow = container.scrollWidth > container.clientWidth
+        
+        // Adjust spacing based on overflow
+        setNavSpacing((currentSpacing) => {
+          if (hasOverflow && currentSpacing > 16) {
+            // Reduce spacing by 8px increments when overflow
+            return Math.max(16, currentSpacing - 8)
+          } else if (!hasOverflow && currentSpacing < 64) {
+            // Increase spacing back up when no overflow
+            return Math.min(64, currentSpacing + 8)
+          }
+          return currentSpacing
+        })
+        
+        // Only show hamburger if spacing is at minimum (16px) and still overflow
+        setShowHamburger(hasOverflow && navSpacing <= 16)
+      }
+    }
+
+    // Delay to ensure DOM is ready
+    const timeoutId = setTimeout(() => {
+      adjustSpacing()
+    }, 100)
+
+    // Check on resize with debounce
+    let resizeTimeout: NodeJS.Timeout
+    const handleResize = () => {
+      clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(adjustSpacing, 150)
+    }
+    
+    window.addEventListener('resize', handleResize)
+    
+    // Use ResizeObserver for more accurate detection
+    let resizeObserver: ResizeObserver | null = null
+    if (desktopNavRef.current && typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        setTimeout(adjustSpacing, 50)
+      })
+      resizeObserver.observe(desktopNavRef.current)
+    }
+
+    return () => {
+      clearTimeout(timeoutId)
+      clearTimeout(resizeTimeout)
+      window.removeEventListener('resize', handleResize)
+      if (resizeObserver) {
+        resizeObserver.disconnect()
+      }
+    }
+  }, [desktopLinks])
+  
+  // Recheck overflow when spacing changes
+  useEffect(() => {
+    if (desktopNavRef.current && window.innerWidth >= 1280) {
+      const timeoutId = setTimeout(() => {
+        if (desktopNavRef.current) {
+          const hasOverflow = desktopNavRef.current.scrollWidth > desktopNavRef.current.clientWidth
+          setShowHamburger(hasOverflow && navSpacing <= 16)
+        }
+      }, 50)
+      return () => clearTimeout(timeoutId)
+    }
+  }, [navSpacing])
 
   return (
     <>
-      {/* Desktop Navigation - Hidden on md and below */}
-      <HStack spacing="64px" flexShrink={0} display={{ base: 'none', lg: 'flex' }}>
-        {navigationLinks.map(({ href, id, ...props }, i) => {
+      {/* Desktop Navigation - Hidden on md and below, or when overflow */}
+      <HStack 
+        ref={desktopNavRef}
+        spacing={`${navSpacing}px`}
+        flexShrink={0} 
+        display={{ base: 'none', xl: 'flex' }}
+        visibility={{ base: 'hidden', xl: showHamburger ? 'hidden' : 'visible' }}
+        overflow="hidden"
+        position={{ xl: showHamburger ? 'absolute' : 'relative' }}
+      >
+        {desktopLinks.map(({ href, id, ...props }, i) => {
           return (
-            <NavLink
-              alignItems="center"
-              href={href || `/#${id}`}
+            <Box
               key={i}
-              isActive={!!(href && !!path?.match(new RegExp(href)))}
+              position="relative"
+              display="inline-block"
               sx={{
-                padding: "0px",
-                fontFamily: '"Cormorant Garamond", serif',
-                fontSize: "18px",
-                fontStyle: "normal",
-                fontWeight: 600,
-                lineHeight: "normal",
-                letterSpacing: "2.16px",
-                textTransform: "uppercase",
-                color: "var(--Core-Green, #2E4028)",
-                textDecoration: "none",
-                bg: "transparent",
-                _hover: {
-                  opacity: 0.8,
-                  bg: "transparent",
-                },
-                _active: {
-                  bg: "transparent",
+                "&:hover .nav-link-line": {
+                  width: "100%",
                 },
               }}
-              {...props}
             >
-              {props.label}
-            </NavLink>
+              <NavLink
+                alignItems="center"
+                href={href || `/#${id}`}
+                isActive={!!(href && !!path?.match(new RegExp(href)))}
+                sx={{
+                  padding: "0px",
+                  fontFamily: '"Cormorant Garamond", serif',
+                  fontSize: "18px",
+                  fontStyle: "normal",
+                  fontWeight: 600,
+                  lineHeight: "normal",
+                  letterSpacing: "2.16px",
+                  textTransform: "uppercase",
+                  color: "var(--Core-Green, #2E4028)",
+                  textDecoration: "none",
+                  bg: "transparent",
+                  whiteSpace: "nowrap",
+                  _hover: {
+                    opacity: 0.8,
+                    bg: "transparent",
+                  },
+                  _active: {
+                    bg: "transparent",
+                  },
+                }}
+                {...props}
+              >
+                {props.label}
+              </NavLink>
+              <Box
+                className="nav-link-line"
+                position="absolute"
+                bottom="0"
+                left="50%"
+                transform="translateX(-50%)"
+                w="0"
+                h="1px"
+                bg="var(--Core-Green, #2E4028)"
+                transition="width 0.3s ease"
+                zIndex={1}
+              />
+            </Box>
           )
         })}
       </HStack>
 
-      {/* Mobile/Tablet Hamburger Menu Button - Visible on md and below */}
-      <Box display={{ base: 'flex', lg: 'none' }} flexShrink={0}>
+      {/* Mobile/Tablet Hamburger Menu Button - Visible on md and below, or when overflow */}
+      <Box 
+        display={{ base: 'flex', xl: showHamburger ? 'flex' : 'none' }} 
+        flexShrink={0} 
+        h={{ base: "32px", xl: "60px" }} 
+        alignItems="flex-end"
+      >
         <Button
           onClick={onOpen}
           variant="ghost"
@@ -96,15 +225,17 @@ const Navigation: React.FC<NavigationProps> = ({ links, navigationConfig }) => {
           }}
         >
           <HStack spacing="8px" align="center">
-            <Box as="span">MENU</Box>
+            <Text>MENU</Text>
             {/* Hamburger Icon */}
             <Box
-              display="flex"
-              flexDirection="column"
-              gap="4px"
+              position="relative"
               w="20px"
               h="16px"
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
               justifyContent="center"
+              gap="4px"
             >
               <Box
                 w="100%"
@@ -140,14 +271,24 @@ const Navigation: React.FC<NavigationProps> = ({ links, navigationConfig }) => {
           bg="white"
           zIndex={9999}
           overflowY="auto"
+          sx={{
+            animation: "slideInFromRight 0.3s ease-out",
+            "@keyframes slideInFromRight": {
+              "0%": {
+                transform: "translateX(100%)",
+              },
+              "100%": {
+                transform: "translateX(0)",
+              },
+            },
+          }}
         >
           {/* Header with Logo and Close Button */}
           <Flex
             justify="space-between"
-            align="flex-start"
-            px={{ base: "24px", md: "32px" }}
-            pt={{ base: "24px", md: "32px" }}
-            pb="0"
+            align="flex-end"
+            px={{ base: "24px", md: "32px", lg: "120px" }}
+            py={{ base: "16px", md: "40px" }}
           >
             {/* Logo */}
             <Box>
@@ -175,12 +316,12 @@ const Navigation: React.FC<NavigationProps> = ({ links, navigationConfig }) => {
               _hover={{ bg: 'transparent', opacity: 0.8 }}
               _active={{ bg: 'transparent' }}
               sx={{
-                fontFamily: '"Host Grotesk", sans-serif',
-                fontSize: "14px",
+                fontFamily: 'Cormorant Garamond, sans-serif',
+                fontSize: "16px",
                 fontStyle: "normal",
-                fontWeight: 600,
+                fontWeight: 400,
                 lineHeight: "normal",
-                letterSpacing: "1.44px",
+                letterSpacing: "1.92px",
                 textTransform: "uppercase",
                 color: "var(--Core-Green, #2E4028)",
               }}
@@ -218,14 +359,14 @@ const Navigation: React.FC<NavigationProps> = ({ links, navigationConfig }) => {
           <VStack
             spacing={{ base: "32px", md: "40px" }}
             align="flex-start"
-            px={{ base: "24px", md: "32px" }}
+            px={{ base: "24px", md: "32px", lg: "120px" }}
             pt={{ base: 0, md: "80px" }}
             pb={{ base: 0, md: "64px" }}
             minH={{ base: "calc(100vh - 120px)", md: "calc(100vh - 120px)" }}
-            justify={{ base: "center", md: "flex-start" }}
+            justify="center"
             h={{ base: "calc(100vh - 120px)", md: "auto" }}
           >
-            {navigationLinks.map(({ href, id, ...props }, i) => {
+            {mobileLinks.map(({ href, id, ...props }, i) => {
               const isActive = !!(href && !!path?.match(new RegExp(href)))
               return (
                 <NavLink
@@ -236,7 +377,7 @@ const Navigation: React.FC<NavigationProps> = ({ links, navigationConfig }) => {
                   sx={{
                     padding: "0px",
                     fontFamily: '"Cormorant Garamond", serif',
-                    fontSize: { base: "40px", md: "40px" },
+                    fontSize: { base: "40px", xl: "40px" },
                     fontStyle: "normal",
                     fontWeight: 600,
                     lineHeight: "115%",

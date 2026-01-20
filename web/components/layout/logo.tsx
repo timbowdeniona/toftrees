@@ -21,7 +21,7 @@ export const Logo = ({ href = '/', onClick, logoImage, titleText }: LogoProps) =
   const displayTitle = titleText || siteConfig.seo?.title || 'Toftrees'
   
   return (
-    <Flex h="8" flexShrink="0" alignItems="center">
+    <Flex h={{ base: "32px", md: "60px" }} flexShrink="0" alignItems="center">
       <ChakraLink
         as={Link}
         href={href}
@@ -34,24 +34,34 @@ export const Logo = ({ href = '/', onClick, logoImage, titleText }: LogoProps) =
       >
         {/* Always use logo-navigation.svg for header, or CMS logo if provided */}
         {logoImage ? (
-          <Box height="32px" position="relative" flexShrink={0}>
+          <Box 
+            w={{ base: "140px", md: "268px" }}
+            h={{ base: "32px", md: "60px" }}
+            position="relative" 
+            flexShrink={0}
+          >
             <Image
               src={urlFor(logoImage).url()}
               alt={displayTitle}
-              width={134}
-              height={31}
-              style={{ height: '100%', width: 'auto' }}
+              width={268}
+              height={60}
+              style={{ height: '100%', width: '100%', objectFit: 'contain' }}
               priority
             />
           </Box>
         ) : (
-          <Box height="32px" position="relative" flexShrink={0}>
+          <Box 
+            w={{ base: "140px", md: "268px" }}
+            h={{ base: "32px", md: "60px" }}
+            position="relative" 
+            flexShrink={0}
+          >
             <Image
               src="/logo-navigation.svg"
               alt="All Saints Church Toftrees"
-              width={134}
-              height={31}
-              style={{ height: '100%', width: 'auto' }}
+              width={268}
+              height={60}
+              style={{ height: '100%', width: '100%', objectFit: 'contain' }}
               priority
             />
           </Box>
