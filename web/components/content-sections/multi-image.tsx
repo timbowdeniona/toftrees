@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Box, Flex, IconButton } from '@chakra-ui/react'
 import Image from 'next/image'
 import { urlFor } from '../../sanity/client'
@@ -51,31 +51,64 @@ export function MultiImageSection({
   images,
   spacing,
 }: MultiImageProps) {
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [dragOffset, setDragOffset] = useState(0) // Current drag offset in pixels
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [startY, setStartY] = useState(0)
+  const [dragStartOffset, setDragStartOffset] = useState(0) // Offset when drag started
+  const carouselRef = useRef<HTMLDivElement>(null)
 
   if (!images || images.length === 0) {
     return null
   }
 
+  // Calculate total width: first image 149px, others 260px, gap 8px
+  const firstImageWidth = 149
+  const otherImageWidth = 260
+  const gap = 8
+  const totalWidth = firstImageWidth + (images.length - 1) * (otherImageWidth + gap)
+  const maxOffset = Math.max(0, totalWidth - (typeof window !== 'undefined' ? window.innerWidth - 16 : 400)) // Subtract container padding
+
   const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
+    const newOffset = Math.max(0, dragOffset - (otherImageWidth + gap))
+    setDragOffset(newOffset)
   }
 
   const goToNext = () => {
-    if (currentIndex < images.length - 1) {
-      setCurrentIndex((prev) => prev + 1)
-    }
+    const newOffset = Math.min(maxOffset, dragOffset + (otherImageWidth + gap))
+    setDragOffset(newOffset)
   }
 
-  // Calculate scroll position for mobile carousel
-  // First image: 149px, others: 260px, gap: 8px
-  const calculateScrollPosition = () => {
-    if (currentIndex === 0) return 0
-    // First image width + gap + (currentIndex - 1) * (other image width + gap)
-    return 149 + 8 + (currentIndex - 1) * (260 + 8)
+  // Touch handlers for free dragging
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0]
+    setIsDragging(true)
+    setStartX(touch.clientX)
+    setStartY(touch.clientY)
+    setDragStartOffset(dragOffset) // Save current offset when starting drag
   }
-  
-  const scrollPosition = calculateScrollPosition()
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging) return
+    const touch = e.touches[0]
+    const diffX = Math.abs(touch.clientX - startX)
+    const diffY = Math.abs(touch.clientY - startY)
+    
+    // Only prevent default if horizontal swipe is dominant
+    if (diffX > diffY && diffX > 10) {
+      e.preventDefault()
+    }
+    
+    // Calculate new offset: start offset + (startX - currentX)
+    const deltaX = startX - touch.clientX
+    const newOffset = Math.max(0, Math.min(maxOffset, dragStartOffset + deltaX))
+    setDragOffset(newOffset)
+  }
+
+  const handleTouchEnd = () => {
+    // Just stop dragging, keep the current position
+    setIsDragging(false)
+  }
 
   const spacingStyle = spacing
     ? {
@@ -139,17 +172,22 @@ export function MultiImageSection({
       <Box display={{ base: 'block', md: 'none' }}>
         {/* Image Carousel */}
         <Box
+          ref={carouselRef}
           position="relative"
           width="100%"
           overflow="hidden"
           px="8px"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           <Flex
             gap="8px"
             alignItems="center"
             style={{
-              transform: `translateX(-${scrollPosition}px)`,
-              transition: 'transform 0.3s ease-in-out',
+              transform: `translateX(-${dragOffset}px)`,
+              transition: isDragging ? 'none' : 'transform 0.2s ease-out',
+              willChange: isDragging ? 'transform' : 'auto',
             }}
           >
             {images.map((item, index) => {
@@ -208,10 +246,10 @@ export function MultiImageSection({
             minW="44px"
             h="44px"
             borderRadius="0"
-            opacity={currentIndex === images.length - 1 ? 0.5 : 1}
-            isDisabled={currentIndex === images.length - 1}
-            _hover={{ bg: 'white', opacity: currentIndex === images.length - 1 ? 0.5 : 0.8 }}
-            _active={{ bg: 'white', opacity: currentIndex === images.length - 1 ? 0.5 : 0.6 }}
+            opacity={dragOffset >= maxOffset ? 0.5 : 1}
+            isDisabled={dragOffset >= maxOffset}
+            _hover={{ bg: 'white', opacity: dragOffset >= maxOffset ? 0.5 : 0.8 }}
+            _active={{ bg: 'white', opacity: dragOffset >= maxOffset ? 0.5 : 0.6 }}
           />
         </Flex>
       </Box>

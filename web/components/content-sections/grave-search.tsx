@@ -252,7 +252,7 @@ export function GraveSearchSection({
         }}
       >
         <Container maxW="container.lg">
-        <VStack spacing={{ base: "24px", md: "32px" }} align="center" justify="center">
+        <VStack spacing={{ base: "24px", md: "24px" }} align="center" justify="center">
           <VStack spacing={{ base: "12px", md: "16px" }} align="center">
             <Heading
               as="h2"

@@ -209,7 +209,7 @@ export function GraveListView({
             >
               {/* Alphabet Navigation - Sticky positioned, 24px from left */}
               <Box 
-                display={{ base: "none", md: "block" }} 
+                display={{ base: "none", lg: "block" }} 
                 position="sticky"
                 top="50vh"
                 pt="40px"
@@ -226,7 +226,7 @@ export function GraveListView({
               {/* Sticky Header */}
               <Box
                 position="sticky"
-                top={{ base: "64px", md: "120px" }}
+                top={{ base: "64px", md: "140px" }}
                 bg="white"
                 zIndex={10}
                 py="8px"
