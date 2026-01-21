@@ -251,6 +251,26 @@ export function Homehero({
           </VStack>
         </VStack>
       </Container>
+      
+      {/* SVG Separator - only show when enableGraveSearch is true */}
+      {enableGraveSearch && (
+        <Box 
+          w="full"
+          bg="transparent"
+          overflow="hidden"
+          position="absolute"
+          bottom="-5px"
+          left="0"
+          right="0"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none"><path d="M0.353554 10L5.35355 5M10.3536 0L5.35355 5M5.35355 5L10.3536 10L0.353554 0" stroke="#FFFFFF"/></svg>')}")`,
+            backgroundRepeat: 'repeat-x',
+            backgroundSize: '11px 10px',
+            backgroundPosition: '0 50%',
+            height: '10px',
+          }}
+        />
+      )}
     </Box>
   )
 }

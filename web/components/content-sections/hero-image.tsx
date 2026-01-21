@@ -57,6 +57,29 @@ export function HeroImageSection({
     }
   }, [bottomIcons])
 
+  // SVG Separator component
+  const HeroImageSeparator = () => {
+    const svgString = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none"><path d="M0.353554 10L5.35355 5M10.3536 0L5.35355 5M5.35355 5L10.3536 10L0.353554 0" stroke="#FFFFFF"/></svg>'
+    const svgPattern = encodeURIComponent(svgString)
+
+    return (
+      <Box 
+        w="full"
+        bg="transparent"
+        overflow="hidden"
+        position="relative"
+        bottom="5px"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,${svgPattern}")`,
+          backgroundRepeat: 'repeat-x',
+          backgroundSize: '11px 10px',
+          backgroundPosition: '0 50%',
+          height: '10px',
+        }}
+      />
+    )
+  }
+
   return (
     <VStack spacing={0} align="stretch" w="full">
       <Box position="relative" w="full">
@@ -65,12 +88,12 @@ export function HeroImageSection({
             position="relative" 
             overflow="hidden"
             w="full"
-            h={{ base: '281px', sm: 'auto' }}
+            h={{ base: '281px', sm: '618px' }}
           >
             <Box
               position="relative"
               w="full"
-              h={{ base: '281px', sm: 'auto' }}
+              h={{ base: '281px', sm: '618px' }}
             >
               <Image
                 src={urlFor(heroBackgroundImage).url()}
@@ -102,6 +125,7 @@ export function HeroImageSection({
       </Box>
       
       {/* SVG Separator */}
+      <HeroImageSeparator />
       
       {/* Bottom Icons Carousel */}
       {bottomIcons && bottomIcons.length > 0 && (
