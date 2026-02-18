@@ -28,7 +28,7 @@ const siteConfig = {
       },
       {
         id: 'map',
-        label: 'Map',
+        label: 'Map Admin',
         href: '/map',
       },
     ],
