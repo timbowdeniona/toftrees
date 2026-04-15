@@ -1,10 +1,12 @@
-import { client } from "../../sanity/client";
-import GravesPageClient from "./graves-page";
-import { Grave, ImageMap } from "../../types";
+import { getClient } from '../../sanity/client'
+import GravesPageClient from './graves-page'
+import { Grave, ImageMap } from '../../types'
+import { draftMode } from 'next/headers'
 
-async function getGraveListData() {
+async function getGraveListData(isDraftMode: boolean) {
+  const sanityClient = getClient(isDraftMode)
   const [siteSettings, graves, imageMap] = await Promise.all([
-    client.fetch(`*[_type == "siteSettings"][0]{
+    sanityClient.fetch(`*[_type == "siteSettings"][0]{
     graveListPage {
       contentSections[]{
         _type,
@@ -193,8 +195,8 @@ async function getGraveListData() {
       }
     }
   }`),
-    client.fetch<Grave[]>(`*[_type == "grave"] | order(familySurname asc)`),
-    client.fetch<ImageMap>(`*[_type == "imageMap"][0]{
+  sanityClient.fetch<Grave[]>(`*[_type == "grave"] | order(familySurname asc)`),
+    sanityClient.fetch<ImageMap>(`*[_type == "imageMap"][0]{
       _id,
       title,
       image {
@@ -229,8 +231,7 @@ async function getGraveListData() {
 }
 
 export default async function GravesPage() {
-  const { siteSettings, graves, imageMap } = await getGraveListData();
-  return (
-    <GravesPageClient data={siteSettings} graves={graves} imageMap={imageMap} />
-  );
+  const mode = await draftMode()
+  const { siteSettings, graves, imageMap } = await getGraveListData(mode.isEnabled)
+  return <GravesPageClient data={siteSettings} graves={graves} imageMap={imageMap} />
 }

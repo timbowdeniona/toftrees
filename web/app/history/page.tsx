@@ -1,8 +1,10 @@
-import { client } from "../../sanity/client";
-import HistoryPageClient from "./history-page";
+import { getClient } from '../../sanity/client'
+import HistoryPageClient from './history-page'
+import { draftMode } from 'next/headers'
 
-async function getHistoryData() {
-  const data = await client.fetch(`*[_type == "siteSettings"][0]{
+async function getHistoryData(isDraftMode: boolean) {
+  const sanityClient = getClient(isDraftMode)
+  const data = await sanityClient.fetch(`*[_type == "siteSettings"][0]{
     historyPage {
       heroBanner {
         pageBreadcrumb,
@@ -205,6 +207,7 @@ async function getHistoryData() {
 }
 
 export default async function HistoryPage() {
-  const data = await getHistoryData();
-  return <HistoryPageClient data={data} />;
+  const mode = await draftMode()
+  const data = await getHistoryData(mode.isEnabled)
+  return <HistoryPageClient data={data} />
 }

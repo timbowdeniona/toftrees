@@ -1,8 +1,10 @@
-import { client } from "../../sanity/client";
-import ProjectPageClient from "./project-page";
+import { getClient } from '../../sanity/client'
+import ProjectPageClient from './project-page'
+import { draftMode } from 'next/headers'
 
-async function getProjectData() {
-  const data = await client.fetch(`*[_type == "siteSettings"][0]{
+async function getProjectData(isDraftMode: boolean) {
+  const sanityClient = getClient(isDraftMode)
+  const data = await sanityClient.fetch(`*[_type == "siteSettings"][0]{
     projectPage {
       contentSections[]{
         _type,
@@ -195,6 +197,7 @@ async function getProjectData() {
 }
 
 export default async function ProjectPage() {
-  const data = await getProjectData();
-  return <ProjectPageClient data={data} />;
+  const mode = await draftMode()
+  const data = await getProjectData(mode.isEnabled)
+  return <ProjectPageClient data={data} />
 }
