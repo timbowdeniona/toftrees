@@ -1,5 +1,5 @@
-import { client } from '../../sanity/client'
-import ProjectPageClient from './project-page'
+import { client } from "../../sanity/client";
+import ProjectPageClient from "./project-page";
 
 async function getProjectData() {
   const data = await client.fetch(`*[_type == "siteSettings"][0]{
@@ -139,6 +139,7 @@ async function getProjectData() {
           logo,
           imageAltText,
           logoPosition,
+          logoLink,
           bodyText,
           backgroundColor,
           spacing {
@@ -189,11 +190,11 @@ async function getProjectData() {
         url
       }
     }
-  }`)
-  return data
+  }`);
+  return data;
 }
 
 export default async function ProjectPage() {
-  const data = await getProjectData()
-  return <ProjectPageClient data={data} />
+  const data = await getProjectData();
+  return <ProjectPageClient data={data} />;
 }

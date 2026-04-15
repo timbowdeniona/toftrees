@@ -1,5 +1,5 @@
-import { client } from '../../sanity/client'
-import TermsPageClient from './terms-page'
+import { client } from "../../sanity/client";
+import TermsPageClient from "./terms-page";
 
 async function getTermsData() {
   const data = await client.fetch(`*[_type == "siteSettings"][0]{
@@ -139,6 +139,7 @@ async function getTermsData() {
           logo,
           imageAltText,
           logoPosition,
+          logoLink,
           bodyText,
           backgroundColor,
           spacing {
@@ -189,12 +190,11 @@ async function getTermsData() {
         url
       }
     }
-  }`)
-  return data
+  }`);
+  return data;
 }
 
 export default async function TermsPage() {
-  const data = await getTermsData()
-  return <TermsPageClient data={data} />
+  const data = await getTermsData();
+  return <TermsPageClient data={data} />;
 }
-

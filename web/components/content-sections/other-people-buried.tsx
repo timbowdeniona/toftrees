@@ -61,6 +61,15 @@ export function OtherPeopleBuried({ grave }: OtherPeopleBuriedProps) {
     if (person.groReference) {
       items.push({ label: "GRO Record", value: person.groReference });
     }
+    const refParts = [
+      person.ref,
+      person.page ? `p.${person.page}` : null,
+      person.folio ? `f.${person.folio}` : null,
+    ].filter(Boolean);
+
+    if (refParts.length > 0) {
+      items.push({ label: "Ref", value: refParts.join(" ") });
+    }
     if (person.baptism) {
       items.push({ label: "Baptised", value: person.baptism });
     }
@@ -84,19 +93,16 @@ export function OtherPeopleBuried({ grave }: OtherPeopleBuriedProps) {
       sx={{
         backgroundImage:
           "linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 100%), linear-gradient(90deg, rgba(163, 177, 138, 1) 0%, rgba(163, 177, 138, 1) 100%)",
-      }}
-    >
+      }}>
       <Container
         maxW="container.xl"
         px={{ base: "24px", md: "32px" }}
-        py={{ base: "24px", md: "128px" }}
-      >
+        py={{ base: "24px", md: "128px" }}>
         <Box maxW="800px" mx="auto">
           <VStack
             spacing={{ base: "24px", md: "48px" }}
             align="stretch"
-            w="full"
-          >
+            w="full">
             {/* Title */}
             <Text
               sx={{
@@ -106,8 +112,7 @@ export function OtherPeopleBuried({ grave }: OtherPeopleBuriedProps) {
                 lineHeight: "90%",
                 color: "var(--Secondary-Dark-Green, #1A1F16)",
                 textAlign: "center",
-              }}
-            >
+              }}>
               Other People Buried in this Grave
             </Text>
 
@@ -133,8 +138,7 @@ export function OtherPeopleBuried({ grave }: OtherPeopleBuriedProps) {
                       alignItems="center"
                       position="relative"
                       _hover={{ bg: "transparent" }}
-                      _active={{ bg: "transparent" }}
-                    >
+                      _active={{ bg: "transparent" }}>
                       <Flex align="center" gap="8px" flex="1">
                         {/* Plus Icon */}
                         <Box
@@ -143,8 +147,7 @@ export function OtherPeopleBuried({ grave }: OtherPeopleBuriedProps) {
                           display="flex"
                           alignItems="center"
                           justifyContent="center"
-                          flexShrink={0}
-                        >
+                          flexShrink={0}>
                           <Text
                             sx={{
                               fontFamily: '"Host Grotesk", sans-serif',
@@ -152,8 +155,7 @@ export function OtherPeopleBuried({ grave }: OtherPeopleBuriedProps) {
                               fontWeight: 400,
                               color: "var(--Core-Green, #2E4028)",
                               lineHeight: "1",
-                            }}
-                          >
+                            }}>
                             {isExpanded ? "−" : "+"}
                           </Text>
                         </Box>
@@ -167,8 +169,7 @@ export function OtherPeopleBuried({ grave }: OtherPeopleBuriedProps) {
                             lineHeight: "90%",
                             color: "var(--Secondary-Dark-Green, #1A1F16)",
                             textAlign: "left",
-                          }}
-                        >
+                          }}>
                           {personName}
                         </Text>
                       </Flex>
@@ -183,8 +184,7 @@ export function OtherPeopleBuried({ grave }: OtherPeopleBuriedProps) {
                             lineHeight: "150%",
                             color: "var(--Secondary-Dark-Green, #1A1F16)",
                             textAlign: "center",
-                          }}
-                        >
+                          }}>
                           {year}
                         </Text>
                       )}
@@ -210,8 +210,7 @@ export function OtherPeopleBuried({ grave }: OtherPeopleBuriedProps) {
                                   shouldShowBorder
                                     ? "1px solid #B7BEA3"
                                     : "none"
-                                }
-                              >
+                                }>
                                 <Text
                                   sx={{
                                     fontFamily: '"Host Grotesk", sans-serif',
@@ -219,8 +218,7 @@ export function OtherPeopleBuried({ grave }: OtherPeopleBuriedProps) {
                                     fontWeight: 600,
                                     lineHeight: "normal",
                                     color: "var(--Core-Green, #2E4028)",
-                                  }}
-                                >
+                                  }}>
                                   {item.label}
                                 </Text>
                                 <Text
@@ -230,8 +228,7 @@ export function OtherPeopleBuried({ grave }: OtherPeopleBuriedProps) {
                                     fontWeight: 400,
                                     lineHeight: "normal",
                                     color: "var(--Core-Green, #2E4028)",
-                                  }}
-                                >
+                                  }}>
                                   {item.value}
                                 </Text>
                               </Flex>
@@ -249,8 +246,7 @@ export function OtherPeopleBuried({ grave }: OtherPeopleBuriedProps) {
                                     fontWeight: 600,
                                     color:
                                       "var(--Secondary-Dark-Green, #1A1F16)",
-                                  }}
-                                >
+                                  }}>
                                   Notes
                                 </Text>
                                 <Text
@@ -261,8 +257,7 @@ export function OtherPeopleBuried({ grave }: OtherPeopleBuriedProps) {
                                     lineHeight: "normal",
                                     color: "var(--Core-Green, #2E4028)",
                                     whiteSpace: "pre-wrap",
-                                  }}
-                                >
+                                  }}>
                                   {person.notes}
                                 </Text>
                               </VStack>

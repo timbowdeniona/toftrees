@@ -1,5 +1,5 @@
-import HomePage from './home-page'
-import { client } from '../sanity/client'
+import HomePage from "./home-page";
+import { client } from "../sanity/client";
 
 async function getSiteSettings() {
   const query = `*[_type == "siteSettings"][0] {
@@ -139,6 +139,7 @@ async function getSiteSettings() {
         logo,
         imageAltText,
         logoPosition,
+        logoLink,
         bodyText,
         backgroundColor,
         spacing {
@@ -188,12 +189,12 @@ async function getSiteSettings() {
         url
       }
     }
-  }`
-  const data = await client.fetch(query)
-  return data
+  }`;
+  const data = await client.fetch(query);
+  return data;
 }
 
 export default async function Page() {
-  const settings = await getSiteSettings()
-  return <HomePage settings={settings} />
+  const settings = await getSiteSettings();
+  return <HomePage settings={settings} />;
 }

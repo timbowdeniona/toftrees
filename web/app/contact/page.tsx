@@ -1,5 +1,5 @@
-import { client } from '../../sanity/client'
-import ContactPageClient from './contact-page'
+import { client } from "../../sanity/client";
+import ContactPageClient from "./contact-page";
 
 async function getContactData() {
   const data = await client.fetch(`*[_type == "siteSettings"][0]{
@@ -139,6 +139,7 @@ async function getContactData() {
             logo,
             imageAltText,
             logoPosition,
+            logoLink,
             bodyText,
             backgroundColor,
             spacing {
@@ -189,12 +190,11 @@ async function getContactData() {
         url
       }
     }
-  }`)
-  return data
+  }`);
+  return data;
 }
 
 export default async function ContactPage() {
-  const data = await getContactData()
-  return <ContactPageClient data={data} />
+  const data = await getContactData();
+  return <ContactPageClient data={data} />;
 }
-

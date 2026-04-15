@@ -1,6 +1,6 @@
-import { client } from '../../../sanity/client'
-import GraveDetailsPageClient from './grave-details-page'
-import { notFound } from 'next/navigation'
+import { client } from "../../../sanity/client";
+import GraveDetailsPageClient from "./grave-details-page";
+import { notFound } from "next/navigation";
 
 async function getGraveData(id: string) {
   const grave = await client.fetch(
@@ -54,11 +54,11 @@ async function getGraveData(id: string) {
       _updatedAt,
       _rev
     }`,
-    { id }
-  )
+    { id },
+  );
 
   if (!grave) {
-    return null
+    return null;
   }
 
   // Fetch imageMap to get grave location on map
@@ -79,7 +79,7 @@ async function getGraveData(id: string) {
         _id
       }
     }
-  }`)
+  }`);
 
   // Fetch site settings for navigation, footer, and grave details page content
   const siteSettings = await client.fetch(`*[_type == "siteSettings"][0]{
@@ -219,6 +219,7 @@ async function getGraveData(id: string) {
           logo,
           imageAltText,
           logoPosition,
+          logoLink,
           bodyText,
           backgroundColor,
           spacing {
@@ -269,35 +270,35 @@ async function getGraveData(id: string) {
         url
       }
     }
-  }`)
+  }`);
 
   return {
     grave,
     siteSettings,
     imageMap: imageMap || null,
-  }
+  };
 }
 
 export async function generateStaticParams() {
   const graves = await client.fetch<Array<{ _id: string }>>(
-    `*[_type == "grave"]{ _id }`
-  )
+    `*[_type == "grave"]{ _id }`,
+  );
 
   return graves.map((grave) => ({
     id: grave._id,
-  }))
+  }));
 }
 
 export default async function GraveDetailsPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = await params
-  const data = await getGraveData(id)
+  const { id } = await params;
+  const data = await getGraveData(id);
 
   if (!data || !data.grave) {
-    notFound()
+    notFound();
   }
 
   return (
@@ -306,6 +307,5 @@ export default async function GraveDetailsPage({
       siteSettings={data.siteSettings}
       imageMap={data.imageMap}
     />
-  )
+  );
 }
-
