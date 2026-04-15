@@ -22,6 +22,7 @@ export default defineConfig({
           disable: '/api/draft-mode/disable',
         },
       },
+      allowOrigins: ['https://deploy-preview-27--toftreeschurch.netlify.app']
     }),
   ],
 
