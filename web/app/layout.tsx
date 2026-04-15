@@ -2,12 +2,16 @@ import { ColorModeScript } from '@chakra-ui/react'
 import { Provider } from './provider'
 import themeConfig from '../theme/config'
 import './globals.css'
+import { draftMode } from 'next/headers'
+import { VisualEditing } from 'next-sanity'
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const mode = await draftMode()
+
   return (
     <html lang="en">
       <head>
@@ -17,7 +21,10 @@ export default function RootLayout({
       </head>
       <body>
         <ColorModeScript initialColorMode={themeConfig.initialColorMode} />
-        <Provider>{children}</Provider>
+        <Provider>
+          {children}
+          {mode.isEnabled && <VisualEditing />}
+        </Provider>
       </body>
     </html>
   )
