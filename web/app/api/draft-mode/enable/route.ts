@@ -4,11 +4,12 @@ import { NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {
   // Parse query string parameters
-  const secret = request.nextUrl.searchParams.get('secret')
+  const secret = request.nextUrl.searchParams.get('sanity-preview-secret')
   const redirectParams = request.nextUrl.searchParams.get('redirect') || '/'
 
   // Check the secret and next parameters
   if (secret !== process.env.SANITY_PREVIEW_SECRET) {
+    console.error('Invalid Sanity preview secret. Received:', secret)
     return new Response('Invalid secret', { status: 401 })
   }
 
