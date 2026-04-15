@@ -136,15 +136,6 @@ export function GraveListView({
 
   console.log("groupedGraves", groupedGraves);
 
-  // Get earliest year from persons for each grave
-  const getEarliestYear = (grave: Grave): string => {
-    if (!grave.persons || grave.persons.length === 0) return "";
-    const years = grave.persons
-      .map((person) => person.year)
-      .filter((year): year is number => typeof year === "number");
-    if (years.length === 0) return "";
-    return Math.min(...years).toString();
-  };
 
   return (
     <Box
@@ -337,33 +328,40 @@ export function GraveListView({
                           {/* Grave Items */}
                           <VStack spacing={0} align="stretch" w="full">
                             {letterGraves.map((grave) => {
-                              const earliestYear = getEarliestYear(grave);
-                              // Format names as "LASTNAME, FIRSTNAME" or just surname if no persons
-                              let names: string[] = [];
+                              // Format names and years for display
+                              type PersonDisplay = { name: string; year?: number | string };
+                              let personsDisplay: PersonDisplay[] = [];
+                              
                               if (grave.persons && grave.persons.length > 0) {
-                                names = grave.persons
+                                personsDisplay = grave.persons
                                   .map((p) => {
                                     const name = p.name || "";
-                                    if (!name) return "";
-                                    // If name contains comma, assume it's already formatted
-                                    if (name.includes(",")) return name;
-                                    // Otherwise format as "LASTNAME, FIRSTNAME"
-                                    const parts = name.trim().split(/\s+/);
-                                    if (parts.length > 1) {
-                                      const lastName = parts[parts.length - 1];
-                                      const firstName = parts
-                                        .slice(0, -1)
-                                        .join(" ");
-                                      return `${lastName.toUpperCase()}, ${firstName.toUpperCase()}`;
+                                    let formattedName = name;
+                                    if (name && !name.includes(",")) {
+                                      const parts = name.trim().split(/\s+/);
+                                      if (parts.length > 1) {
+                                        const lastName = parts[parts.length - 1];
+                                        const firstName = parts.slice(0, -1).join(" ");
+                                        formattedName = `${lastName.toUpperCase()}, ${firstName.toUpperCase()}`;
+                                      } else {
+                                        formattedName = name.toUpperCase();
+                                      }
+                                    } else if (name) {
+                                      formattedName = name.toUpperCase();
                                     }
-                                    return name.toUpperCase();
+                                    
+                                    return {
+                                      name: formattedName,
+                                      year: p.year
+                                    };
                                   })
-                                  .filter(Boolean);
-                                if (names.length === 0 && grave.familySurname) {
-                                  names = [grave.familySurname.toUpperCase()];
+                                  .filter(p => Boolean(p.name));
+                                
+                                if (personsDisplay.length === 0 && grave.familySurname) {
+                                  personsDisplay = [{ name: grave.familySurname.toUpperCase() }];
                                 }
                               } else if (grave.familySurname) {
-                                names = [grave.familySurname.toUpperCase()];
+                                personsDisplay = [{ name: grave.familySurname.toUpperCase() }];
                               }
 
                               return (
@@ -382,18 +380,18 @@ export function GraveListView({
                                   }}
                                   transition="background-color 0.2s"
                                   cursor="pointer">
-                                  <Flex
-                                    justify="space-between"
-                                    align="start"
-                                    position="relative"
-                                    gap="16px"
-                                    w="full">
-                                    <Box flex="1" minW={0}>
-                                      {names.length > 0 ? (
-                                        <VStack spacing={0} align="flex-start">
-                                          {names.map((name, idx) => (
+                                  <Box flex="1" minW={0} w="full">
+                                    {personsDisplay.length > 0 ? (
+                                      <VStack spacing={0} align="stretch" w="full">
+                                        {personsDisplay.map((person, idx) => (
+                                          <Flex
+                                            key={idx}
+                                            justify="space-between"
+                                            align="start"
+                                            position="relative"
+                                            gap="16px"
+                                            w="full">
                                             <Text
-                                              key={idx}
                                               sx={{
                                                 fontFamily:
                                                   '"Cormorant Garamond", serif',
@@ -406,11 +404,33 @@ export function GraveListView({
                                                 wordBreak: "break-word",
                                                 overflowWrap: "break-word",
                                               }}>
-                                              {name}
+                                              {person.name}
                                             </Text>
-                                          ))}
-                                        </VStack>
-                                      ) : (
+                                            {person.year && (
+                                              <Text
+                                                flexShrink={0}
+                                                sx={{
+                                                  fontFamily:
+                                                    '"Host Grotesk", sans-serif',
+                                                  fontSize: "16px",
+                                                  fontWeight: 600,
+                                                  lineHeight: "normal",
+                                                  color: "#2E4028",
+                                                  textTransform: "uppercase",
+                                                }}>
+                                                {person.year}
+                                              </Text>
+                                            )}
+                                          </Flex>
+                                        ))}
+                                      </VStack>
+                                    ) : (
+                                      <Flex
+                                        justify="space-between"
+                                        align="start"
+                                        position="relative"
+                                        gap="16px"
+                                        w="full">
                                         <Text
                                           sx={{
                                             fontFamily:
@@ -426,24 +446,9 @@ export function GraveListView({
                                           }}>
                                           Grave {grave.graveNo}
                                         </Text>
-                                      )}
-                                    </Box>
-                                    {earliestYear && (
-                                      <Text
-                                        flexShrink={0}
-                                        sx={{
-                                          fontFamily:
-                                            '"Host Grotesk", sans-serif',
-                                          fontSize: "16px",
-                                          fontWeight: 600,
-                                          lineHeight: "normal",
-                                          color: "#2E4028",
-                                          textTransform: "uppercase",
-                                        }}>
-                                        {earliestYear}
-                                      </Text>
+                                      </Flex>
                                     )}
-                                  </Flex>
+                                  </Box>
                                 </Box>
                               );
                             })}
