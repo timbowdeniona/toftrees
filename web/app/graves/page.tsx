@@ -194,7 +194,8 @@ async function getGraveListData(isDraftMode: boolean) {
         url
       }
     }
-    sanityClient.fetch<Grave[]>(`*[_type == "grave"] | order(familySurname asc)`),
+  }`),
+  sanityClient.fetch<Grave[]>(`*[_type == "grave"] | order(familySurname asc)`),
     sanityClient.fetch<ImageMap>(`*[_type == "imageMap"][0]{
       _id,
       title,
