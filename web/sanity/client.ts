@@ -21,8 +21,12 @@ export const previewClient = createClient({
   dataset,
   apiVersion,
   useCdn: false,
-  token: process.env.SANITY_API_READ_TOKEN,
+  token: process.env.SANITY_API_READ_TOKEN || process.env.NEXT_PUBLIC_SANITY_API_TOKEN,
   perspective: 'previewDrafts',
+  stega: {
+    enabled: true,
+    studioUrl: '/studio',
+  },
 })
 
 // Helper to reliably choose correct client based on context
