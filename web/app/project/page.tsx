@@ -141,6 +141,7 @@ async function getProjectData(isDraftMode: boolean) {
           logo,
           imageAltText,
           logoPosition,
+          logoLink,
           bodyText,
           backgroundColor,
           spacing {
@@ -191,8 +192,8 @@ async function getProjectData(isDraftMode: boolean) {
         url
       }
     }
-  }`)
-  return data
+  }`);
+  return data;
 }
 
 export default async function ProjectPage() {

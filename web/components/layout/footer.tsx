@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Box,
@@ -8,50 +8,53 @@ import {
   VStack,
   Text,
   Link as ChakraLink,
-} from '@chakra-ui/react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { FooterConfig } from '../../types'
-import siteConfig from '../../data/config'
+} from "@chakra-ui/react";
+import Image from "next/image";
+import Link from "next/link";
+import { FooterConfig } from "../../types";
+import siteConfig from "../../data/config";
 
 export interface FooterProps {
-  config?: FooterConfig
+  config?: FooterConfig;
 }
 
 export const Footer: React.FC<FooterProps> = ({ config }) => {
   // Fallback to default config if no CMS config is provided
-  const copyrightText = config?.copyrightText || siteConfig.footer.copyright
-  const navigationLinks = config?.navigationLinks || siteConfig.footer?.links || []
-  const additionLinks = config?.additionLinks || []
+  const copyrightText = config?.copyrightText || siteConfig.footer.copyright;
+  const navigationLinks =
+    config?.navigationLinks || siteConfig.footer?.links || [];
+  const additionLinks = config?.additionLinks || [];
 
   return (
-    <Box
-      bg="#1A1F16"
-      color="white"
-    >
-      <Container maxW="container.2xl" px={{ base: 6, lg: "120px" }} py={{ base: 12, lg: "120px" }}>
+    <Box bg="#1A1F16" color="white">
+      <Container
+        maxW="container.2xl"
+        px={{ base: 6, lg: "120px" }}
+        py={{ base: 12, lg: "120px" }}>
         <Flex
           direction="column"
           gap={{ base: "24px", lg: "48px" }}
           align="center"
-          justify="center"
-        >
+          justify="center">
           {/* Main Section: Logo and Navigation */}
           <Flex
-            direction={{ base: 'column', lg: 'row' }}
+            direction={{ base: "column", lg: "row" }}
             align="center"
             justify="space-between"
-            w="full"
-          >
+            w="full">
             {/* Logo */}
-            <Box flexShrink={0} h={{ base: "32px", lg: "72px" }} w={{ base: "147px", lg: "324px" }} position="relative">
+            <Box
+              flexShrink={0}
+              h={{ base: "32px", lg: "72px" }}
+              w={{ base: "147px", lg: "324px" }}
+              position="relative">
               <Image
                 src="/logo-footer.svg"
                 alt="All Saints Church Toftrees"
                 width={324}
                 height={72}
                 priority
-                style={{ height: '100%', width: 'auto' }}
+                style={{ height: "100%", width: "auto" }}
               />
             </Box>
 
@@ -60,8 +63,7 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
               <HStack
                 spacing="64px"
                 align="center"
-                display={{ base: 'none', lg: 'flex' }}
-              >
+                display={{ base: "none", lg: "flex" }}>
                 {navigationLinks.map((link, index) => (
                   <ChakraLink
                     key={link._key || `${link.url}-${index}`}
@@ -78,8 +80,7 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
                       color: "white",
                       textDecoration: "none",
                       _hover: { opacity: 0.8 },
-                    }}
-                  >
+                    }}>
                     {link.label}
                   </ChakraLink>
                 ))}
@@ -99,34 +100,40 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
               fontStyle: "normal",
               fontWeight: 300,
               lineHeight: "150%",
-            }}
-          >
+            }}>
             {/* Mobile: Stack all items vertically, centered */}
             <VStack
               spacing="8px"
               align="center"
-              display={{ base: 'flex', lg: 'none' }}
-              w="full"
-            >
-              <Text fontSize="12px" fontWeight={300} lineHeight="150%" color="white">
+              display={{ base: "flex", lg: "none" }}
+              w="full">
+              <Text
+                fontSize="12px"
+                fontWeight={300}
+                lineHeight="150%"
+                color="white">
                 {copyrightText}
               </Text>
 
-              {additionLinks.map((link: { _key?: string; label: string; url: string }, index: number) => (
-                <ChakraLink
-                  key={link._key || `${link.url}-${index}`}
-                  as={Link}
-                  href={link.url}
-                  fontSize="12px"
-                  fontWeight={300}
-                  lineHeight="150%"
-                  color="white"
-                  textDecoration="none"
-                  _hover={{ textDecoration: 'underline' }}
-                >
-                  {link.label}
-                </ChakraLink>
-              ))}
+              {additionLinks.map(
+                (
+                  link: { _key?: string; label: string; url: string },
+                  index: number,
+                ) => (
+                  <ChakraLink
+                    key={link._key || `${link.url}-${index}`}
+                    as={Link}
+                    href={link.url}
+                    fontSize="12px"
+                    fontWeight={300}
+                    lineHeight="150%"
+                    color="white"
+                    textDecoration="none"
+                    _hover={{ textDecoration: "underline" }}>
+                    {link.label}
+                  </ChakraLink>
+                ),
+              )}
 
               <ChakraLink
                 href="https://www.timberyardcommerce.com/"
@@ -134,10 +141,9 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
                 fontSize="12px"
                 fontWeight={300}
                 lineHeight="150%"
-                color="#A3B18A"
-                textDecoration="underline"
-                _hover={{ opacity: 0.8 }}
-              >
+                color="white"
+                textDecoration="none"
+                _hover={{ textDecoration: "underline" }}>
                 Website produced by Timberyard
               </ChakraLink>
             </VStack>
@@ -148,28 +154,31 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
               align="center"
               justify="space-between"
               w="full"
-              display={{ base: 'none', lg: 'flex' }}
-            >
+              display={{ base: "none", lg: "flex" }}>
               <HStack spacing="24px" align="center" color="white">
                 <Text fontSize="12px" fontWeight={300} lineHeight="150%">
                   {copyrightText}
                 </Text>
 
-                {additionLinks.map((link: { _key?: string; label: string; url: string }, index: number) => (
-                  <ChakraLink
-                    key={link._key || `${link.url}-${index}`}
-                    as={Link}
-                    href={link.url}
-                    fontSize="12px"
-                    fontWeight={300}
-                    lineHeight="150%"
-                    color="white"
-                    textDecoration="none"
-                    _hover={{ textDecoration: 'underline' }}
-                  >
-                    {link.label}
-                  </ChakraLink>
-                ))}
+                {additionLinks.map(
+                  (
+                    link: { _key?: string; label: string; url: string },
+                    index: number,
+                  ) => (
+                    <ChakraLink
+                      key={link._key || `${link.url}-${index}`}
+                      as={Link}
+                      href={link.url}
+                      fontSize="12px"
+                      fontWeight={300}
+                      lineHeight="150%"
+                      color="white"
+                      textDecoration="none"
+                      _hover={{ textDecoration: "underline" }}>
+                      {link.label}
+                    </ChakraLink>
+                  ),
+                )}
               </HStack>
 
               <ChakraLink
@@ -178,10 +187,9 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
                 fontSize="12px"
                 fontWeight={300}
                 lineHeight="150%"
-                color="#A3B18A"
-                textDecoration="underline"
-                _hover={{ opacity: 0.8 }}
-              >
+                color="white"
+                textDecoration="none"
+                _hover={{ textDecoration: "underline" }}>
                 Website produced by Timberyard
               </ChakraLink>
             </Flex>
@@ -189,5 +197,5 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
         </Flex>
       </Container>
     </Box>
-  )
-}
+  );
+};

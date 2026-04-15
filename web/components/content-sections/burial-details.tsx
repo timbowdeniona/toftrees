@@ -64,6 +64,19 @@ export function BurialDetails({ grave }: BurialDetailsProps) {
     });
   }
 
+  const refParts = [
+    firstPerson?.ref,
+    firstPerson?.page ? `p.${firstPerson.page}` : null,
+    firstPerson?.folio ? `f.${firstPerson.folio}` : null,
+  ].filter(Boolean);
+
+  if (refParts.length > 0) {
+    detailItems.push({
+      label: "Ref",
+      value: refParts.join(" "),
+    });
+  }
+
   if (firstPerson?.baptism) {
     detailItems.push({
       label: "Baptised",
@@ -90,8 +103,7 @@ export function BurialDetails({ grave }: BurialDetailsProps) {
       <Container
         maxW="container.xl"
         px={{ base: "24px", md: "64px" }}
-        py={{ base: "24px", md: "64px" }}
-      >
+        py={{ base: "24px", md: "64px" }}>
         <Box maxW="800px" mx="auto">
           <VStack spacing="24px" align="stretch" w="full">
             {/* Header */}
@@ -99,13 +111,12 @@ export function BurialDetails({ grave }: BurialDetailsProps) {
               <Text
                 sx={{
                   fontFamily: '"Cormorant Garamond", serif',
-                  fontSize: {base: '32px', md: '48px'},
+                  fontSize: { base: "32px", md: "48px" },
                   fontWeight: 600,
                   lineHeight: "90%",
                   color: "var(--Core-Green, #2E4028)",
                   whiteSpace: "pre-wrap",
-                }}
-              >
+                }}>
                 Burial Details
               </Text>
               <Text
@@ -115,8 +126,7 @@ export function BurialDetails({ grave }: BurialDetailsProps) {
                   fontWeight: 400,
                   color: "var(--Core-Green, #2E4028)",
                   lineHeight: "normal",
-                }}
-              >
+                }}>
                 Please see below for the details on {personName}.
               </Text>
             </VStack>
@@ -129,8 +139,7 @@ export function BurialDetails({ grave }: BurialDetailsProps) {
                   justify="space-between"
                   align="start"
                   py="12px"
-                  borderBottom="1px solid #D3D3D3"
-                >
+                  borderBottom="1px solid #D3D3D3">
                   <Text
                     sx={{
                       fontFamily: '"Host Grotesk", sans-serif',
@@ -139,8 +148,7 @@ export function BurialDetails({ grave }: BurialDetailsProps) {
                       color: "var(--Core-Green, #2E4028)",
                       lineHeight: "normal",
                       textAlign: "left",
-                    }}
-                  >
+                    }}>
                     {item.label}
                   </Text>
                   <Text
@@ -151,8 +159,7 @@ export function BurialDetails({ grave }: BurialDetailsProps) {
                       color: "var(--Core-Green, #2E4028)",
                       lineHeight: "normal",
                       textAlign: "right",
-                    }}
-                  >
+                    }}>
                     {item.value}
                   </Text>
                 </Flex>
@@ -164,23 +171,21 @@ export function BurialDetails({ grave }: BurialDetailsProps) {
                     <Text
                       sx={{
                         fontFamily: '"Host Grotesk", sans-serif',
-                        fontSize: {base: '16px', md: '20px'},
+                        fontSize: { base: "16px", md: "20px" },
                         fontWeight: 600,
                         color: "var(--Secondary-Dark-Green, #1A1F16)",
-                      }}
-                    >
+                      }}>
                       Notes
                     </Text>
                     <Text
                       sx={{
                         fontFamily: '"Host Grotesk", sans-serif',
-                        fontSize: {base: '16px', md: '18px'},
+                        fontSize: { base: "16px", md: "18px" },
                         fontWeight: 400,
                         color: "var(--Secondary-Dark-Green, #1A1F16)",
                         lineHeight: "1.5",
                         whiteSpace: "pre-wrap",
-                      }}
-                    >
+                      }}>
                       {firstPerson.notes}
                     </Text>
                   </VStack>

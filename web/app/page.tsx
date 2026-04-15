@@ -141,6 +141,7 @@ async function getSiteSettings(isDraftMode: boolean) {
         logo,
         imageAltText,
         logoPosition,
+        logoLink,
         bodyText,
         backgroundColor,
         spacing {
@@ -190,9 +191,9 @@ async function getSiteSettings(isDraftMode: boolean) {
         url
       }
     }
-  }`
-  const data = await sanityClient.fetch(query)
-  return data
+  }`;
+  const data = await sanityClient.fetch(query);
+  return data;
 }
 
 export default async function Page() {

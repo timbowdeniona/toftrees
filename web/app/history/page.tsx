@@ -151,6 +151,7 @@ async function getHistoryData(isDraftMode: boolean) {
           logo,
           imageAltText,
           logoPosition,
+          logoLink,
           bodyText,
           backgroundColor,
           spacing {
@@ -201,8 +202,8 @@ async function getHistoryData(isDraftMode: boolean) {
         url
       }
     }
-  }`)
-  return data
+  }`);
+  return data;
 }
 
 export default async function HistoryPage() {

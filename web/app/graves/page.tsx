@@ -143,6 +143,7 @@ async function getGraveListData(isDraftMode: boolean) {
           logo,
           imageAltText,
           logoPosition,
+          logoLink,
           bodyText,
           backgroundColor,
           spacing {
@@ -219,13 +220,13 @@ async function getGraveListData(isDraftMode: boolean) {
         }
       }
     }`),
-  ])
+  ]);
 
   return {
     siteSettings,
     graves: graves || [],
     imageMap: imageMap || null,
-  }
+  };
 }
 
 export default async function GravesPage() {
@@ -233,4 +234,3 @@ export default async function GravesPage() {
   const { siteSettings, graves, imageMap } = await getGraveListData(mode.isEnabled)
   return <GravesPageClient data={siteSettings} graves={graves} imageMap={imageMap} />
 }
-

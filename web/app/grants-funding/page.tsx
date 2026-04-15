@@ -1,5 +1,5 @@
-import { client } from '../../sanity/client'
-import GrantsFundingPageClient from './grants-funding-page'
+import { client } from "../../sanity/client";
+import GrantsFundingPageClient from "./grants-funding-page";
 
 async function getGrantsFundingData() {
   const data = await client.fetch(`*[_type == "siteSettings"][0]{
@@ -139,6 +139,7 @@ async function getGrantsFundingData() {
           logo,
           imageAltText,
           logoPosition,
+          logoLink,
           bodyText,
           backgroundColor,
           spacing {
@@ -189,12 +190,11 @@ async function getGrantsFundingData() {
         url
       }
     }
-  }`)
-  return data
+  }`);
+  return data;
 }
 
 export default async function GrantsFundingPage() {
-  const data = await getGrantsFundingData()
-  return <GrantsFundingPageClient data={data} />
+  const data = await getGrantsFundingData();
+  return <GrantsFundingPageClient data={data} />;
 }
-
