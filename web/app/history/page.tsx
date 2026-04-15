@@ -1,5 +1,5 @@
-import { client } from '../../sanity/client'
-import HistoryPageClient from './history-page'
+import { client } from "../../sanity/client";
+import HistoryPageClient from "./history-page";
 
 async function getHistoryData() {
   const data = await client.fetch(`*[_type == "siteSettings"][0]{
@@ -149,6 +149,7 @@ async function getHistoryData() {
           logo,
           imageAltText,
           logoPosition,
+          logoLink,
           bodyText,
           backgroundColor,
           spacing {
@@ -199,11 +200,11 @@ async function getHistoryData() {
         url
       }
     }
-  }`)
-  return data
+  }`);
+  return data;
 }
 
 export default async function HistoryPage() {
-  const data = await getHistoryData()
-  return <HistoryPageClient data={data} />
+  const data = await getHistoryData();
+  return <HistoryPageClient data={data} />;
 }

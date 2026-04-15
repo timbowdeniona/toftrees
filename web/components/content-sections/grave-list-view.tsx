@@ -1,6 +1,17 @@
 "use client";
 
-import { Box, Container, Flex, Text, VStack, Popover, PopoverTrigger, PopoverContent, PopoverArrow, IconButton } from "@chakra-ui/react";
+import {
+  Box,
+  Container,
+  Flex,
+  Text,
+  VStack,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  IconButton,
+} from "@chakra-ui/react";
 import { useState, useMemo } from "react";
 import { Grave, ImageMap, Hotspot } from "../../types";
 import Image from "next/image";
@@ -31,7 +42,12 @@ export function GraveListView({
 
     const query = searchQuery.toLowerCase().trim();
     return imageMap.hotspots.filter((hotspot) => {
-      const grave = hotspot.grave && typeof hotspot.grave === 'object' && '_id' in hotspot.grave ? hotspot.grave : null;
+      const grave =
+        hotspot.grave &&
+        typeof hotspot.grave === "object" &&
+        "_id" in hotspot.grave
+          ? hotspot.grave
+          : null;
       if (!grave) return false;
 
       // Search by family surname
@@ -42,7 +58,7 @@ export function GraveListView({
       // Search by person names
       if (grave.persons && grave.persons.length > 0) {
         return grave.persons.some((person) =>
-          person.name?.toLowerCase().includes(query)
+          person.name?.toLowerCase().includes(query),
         );
       }
 
@@ -54,7 +70,6 @@ export function GraveListView({
       return false;
     });
   }, [imageMap, searchQuery]);
-
 
   // Filter graves based on search query
   const filteredGraves = useMemo(() => {
@@ -70,7 +85,7 @@ export function GraveListView({
       // Search by person names
       if (grave.persons && grave.persons.length > 0) {
         return grave.persons.some((person) =>
-          person.name?.toLowerCase().includes(query)
+          person.name?.toLowerCase().includes(query),
         );
       }
 
@@ -115,11 +130,11 @@ export function GraveListView({
           acc[letter] = groups[letter];
           return acc;
         },
-        {} as Record<string, Grave[]>
+        {} as Record<string, Grave[]>,
       );
   }, [filteredGraves]);
 
-  console.log('groupedGraves', groupedGraves)
+  console.log("groupedGraves", groupedGraves);
 
   // Get earliest year from persons for each grave
   const getEarliestYear = (grave: Grave): string => {
@@ -132,11 +147,23 @@ export function GraveListView({
   };
 
   return (
-    <Box id="grave-list-view" w="full" pt={{ base: "24px", md: "0px" }}>
-      <Container maxW="100%" px={{base: viewType === "list" ? '24px': '0px', md: '0px'}}>
-        <VStack spacing={{base: "24px", md:viewType === "map" ? 0: 8}} align="stretch">
+    <Box
+      id="grave-list-view"
+      w="full"
+      pt={{ base: "24px", md: "0px" }}
+      pb={{ base: "48px", md: "96px" }}>
+      <Container
+        maxW="100%"
+        px={{ base: viewType === "list" ? "24px" : "0px", md: "0px" }}>
+        <VStack
+          spacing={{ base: "24px", md: viewType === "map" ? 0 : 8 }}
+          align="stretch">
           {/* Toggle Navigation */}
-          <Flex justify="center" gap="64px" align="start" py={{base: '0px', md: "32px"}}>
+          <Flex
+            justify="center"
+            gap="64px"
+            align="start"
+            py={{ base: "0px", md: "32px" }}>
             <Box
               as="button"
               onClick={() => setViewType("list")}
@@ -145,8 +172,7 @@ export function GraveListView({
               flexDirection="column"
               gap="4px"
               alignItems="center"
-              position="relative"
-            >
+              position="relative">
               <Text
                 sx={{
                   fontFamily: '"Cormorant Garamond", serif',
@@ -157,14 +183,17 @@ export function GraveListView({
                   letterSpacing: { base: "1.92px", md: "2.16px" },
                   textTransform: "uppercase",
                   color: "var(--Core-Green, #2E4028)",
-                }}
-              >
+                }}>
                 List View
               </Text>
               <Box
                 h="1px"
                 w="full"
-                bg={viewType === "list" ? "var(--Core-Green, #2E4028)" : "transparent"}
+                bg={
+                  viewType === "list"
+                    ? "var(--Core-Green, #2E4028)"
+                    : "transparent"
+                }
                 flexShrink={0}
               />
             </Box>
@@ -176,8 +205,7 @@ export function GraveListView({
               flexDirection="column"
               gap="4px"
               alignItems="center"
-              position="relative"
-            >
+              position="relative">
               <Text
                 sx={{
                   fontFamily: '"Cormorant Garamond", serif',
@@ -188,14 +216,17 @@ export function GraveListView({
                   letterSpacing: { base: "1.92px", md: "2.16px" },
                   textTransform: "uppercase",
                   color: "var(--Core-Green, #2E4028)",
-                }}
-              >
+                }}>
                 Map View
               </Text>
               <Box
                 h="1px"
                 w="full"
-                bg={viewType === "map" ? "var(--Core-Green, #2E4028)" : "transparent"}
+                bg={
+                  viewType === "map"
+                    ? "var(--Core-Green, #2E4028)"
+                    : "transparent"
+                }
                 flexShrink={0}
               />
             </Box>
@@ -203,235 +234,225 @@ export function GraveListView({
 
           {/* List View */}
           {viewType === "list" && (
-            <Box
-              w="full"
-              position="relative"
-            >
+            <Box w="full" position="relative">
               {/* Alphabet Navigation - Sticky positioned, 24px from left */}
-              <Box 
-                display={{ base: "none", lg: "block" }} 
+              <Box
+                display={{ base: "none", lg: "block" }}
                 position="sticky"
                 top="50vh"
                 pt="40px"
                 pl="24px"
                 alignSelf="flex-start"
                 zIndex={5}
-                w="fit-content"
-              >
+                w="fit-content">
                 <AlphabetNavigation />
               </Box>
 
               {/* List - Centered */}
               <Box position="relative" maxW="544px" mx="auto">
-              {/* Sticky Header */}
-              <Box
-                position="sticky"
-                top={{ base: "64px", md: "140px" }}
-                bg="white"
-                zIndex={10}
-                py="8px"
-                borderBottom="1px solid #2E4028"
-                mb="24px"
-              >
-                <Flex justify="space-between" align="end">
-                  <Text
-                    sx={{
-                      fontFamily: '"Host Grotesk", sans-serif',
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      lineHeight: "normal",
-                      color: "#6B7A52",
-                      textTransform: "uppercase",
-                      letterSpacing: "2.24px",
-                    }}
-                  >
-                    Name
-                  </Text>
-                  <Text
-                    sx={{
-                      fontFamily: '"Host Grotesk", sans-serif',
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      lineHeight: "normal",
-                      color: "#6B7A52",
-                      textTransform: "uppercase",
-                      letterSpacing: "2.24px",
-                    }}
-                  >
-                    Burial Year
-                  </Text>
-                </Flex>
-              </Box>
-
-              {/* Grave List by Letter */}
-              {Object.keys(groupedGraves).length === 0 ? (
-                <Box py="48px" textAlign="center">
-                  <Text
-                    sx={{
-                      fontFamily: '"Host Grotesk", sans-serif',
-                      fontSize: "18px",
-                      color: "#2E4028",
-                    }}
-                  >
-                    {searchQuery
-                      ? `No graves found matching "${searchQuery}"`
-                      : "No graves available"}
-                  </Text>
+                {/* Sticky Header */}
+                <Box
+                  position="sticky"
+                  top={{ base: "64px", md: "140px" }}
+                  bg="white"
+                  zIndex={10}
+                  py="8px"
+                  borderBottom="1px solid #2E4028"
+                  mb="24px">
+                  <Flex justify="space-between" align="end">
+                    <Text
+                      sx={{
+                        fontFamily: '"Host Grotesk", sans-serif',
+                        fontSize: "14px",
+                        fontWeight: 600,
+                        lineHeight: "normal",
+                        color: "#6B7A52",
+                        textTransform: "uppercase",
+                        letterSpacing: "2.24px",
+                      }}>
+                      Name
+                    </Text>
+                    <Text
+                      sx={{
+                        fontFamily: '"Host Grotesk", sans-serif',
+                        fontSize: "14px",
+                        fontWeight: 600,
+                        lineHeight: "normal",
+                        color: "#6B7A52",
+                        textTransform: "uppercase",
+                        letterSpacing: "2.24px",
+                      }}>
+                      Burial Year
+                    </Text>
+                  </Flex>
                 </Box>
-              ) : (
-                <VStack spacing={0} align="stretch">
-                  {Object.entries(groupedGraves).map(
-                    ([letter, letterGraves]) => (
-                      <Box key={letter} py="24px" id={`letter-section-${letter}`}>
-                        {/* Letter Header */}
-                        <Box
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="flex-start"
-                          pb="24px"
-                          pt={0}
-                          px={0}
-                          w="full"
-                        >
-                          <Text
-                            sx={{
-                              fontFamily: '"Cormorant Garamond", serif',
-                              fontSize: "48px",
-                              fontWeight: 600,
-                              lineHeight: "normal",
-                              color: "#2E4028",
-                              textTransform: "uppercase",
-                              letterSpacing: "5.76px",
-                              whiteSpace: "pre-wrap",
-                              textAlign: "left",
-                            }}
-                          >
-                            {letter}
-                          </Text>
-                        </Box>
 
-                        {/* Grave Items */}
-                        <VStack spacing={0} align="stretch" w="full">
-                          {letterGraves.map((grave) => {
-                            const earliestYear = getEarliestYear(grave);
-                            // Format names as "LASTNAME, FIRSTNAME" or just surname if no persons
-                            let names: string[] = [];
-                            if (grave.persons && grave.persons.length > 0) {
-                              names = grave.persons
-                                .map((p) => {
-                                  const name = p.name || "";
-                                  if (!name) return "";
-                                  // If name contains comma, assume it's already formatted
-                                  if (name.includes(",")) return name;
-                                  // Otherwise format as "LASTNAME, FIRSTNAME"
-                                  const parts = name.trim().split(/\s+/);
-                                  if (parts.length > 1) {
-                                    const lastName = parts[parts.length - 1];
-                                    const firstName = parts
-                                      .slice(0, -1)
-                                      .join(" ");
-                                    return `${lastName.toUpperCase()}, ${firstName.toUpperCase()}`;
-                                  }
-                                  return name.toUpperCase();
-                                })
-                                .filter(Boolean);
-                              if (names.length === 0 && grave.familySurname) {
+                {/* Grave List by Letter */}
+                {Object.keys(groupedGraves).length === 0 ? (
+                  <Box py="48px" textAlign="center">
+                    <Text
+                      sx={{
+                        fontFamily: '"Host Grotesk", sans-serif',
+                        fontSize: "18px",
+                        color: "#2E4028",
+                      }}>
+                      {searchQuery
+                        ? `No graves found matching "${searchQuery}"`
+                        : "No graves available"}
+                    </Text>
+                  </Box>
+                ) : (
+                  <VStack spacing={0} align="stretch">
+                    {Object.entries(groupedGraves).map(
+                      ([letter, letterGraves]) => (
+                        <Box
+                          key={letter}
+                          py="24px"
+                          id={`letter-section-${letter}`}>
+                          {/* Letter Header */}
+                          <Box
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="flex-start"
+                            pb="24px"
+                            pt={0}
+                            px={0}
+                            w="full">
+                            <Text
+                              sx={{
+                                fontFamily: '"Cormorant Garamond", serif',
+                                fontSize: "48px",
+                                fontWeight: 600,
+                                lineHeight: "normal",
+                                color: "#2E4028",
+                                textTransform: "uppercase",
+                                letterSpacing: "5.76px",
+                                whiteSpace: "pre-wrap",
+                                textAlign: "left",
+                              }}>
+                              {letter}
+                            </Text>
+                          </Box>
+
+                          {/* Grave Items */}
+                          <VStack spacing={0} align="stretch" w="full">
+                            {letterGraves.map((grave) => {
+                              const earliestYear = getEarliestYear(grave);
+                              // Format names as "LASTNAME, FIRSTNAME" or just surname if no persons
+                              let names: string[] = [];
+                              if (grave.persons && grave.persons.length > 0) {
+                                names = grave.persons
+                                  .map((p) => {
+                                    const name = p.name || "";
+                                    if (!name) return "";
+                                    // If name contains comma, assume it's already formatted
+                                    if (name.includes(",")) return name;
+                                    // Otherwise format as "LASTNAME, FIRSTNAME"
+                                    const parts = name.trim().split(/\s+/);
+                                    if (parts.length > 1) {
+                                      const lastName = parts[parts.length - 1];
+                                      const firstName = parts
+                                        .slice(0, -1)
+                                        .join(" ");
+                                      return `${lastName.toUpperCase()}, ${firstName.toUpperCase()}`;
+                                    }
+                                    return name.toUpperCase();
+                                  })
+                                  .filter(Boolean);
+                                if (names.length === 0 && grave.familySurname) {
+                                  names = [grave.familySurname.toUpperCase()];
+                                }
+                              } else if (grave.familySurname) {
                                 names = [grave.familySurname.toUpperCase()];
                               }
-                            } else if (grave.familySurname) {
-                              names = [grave.familySurname.toUpperCase()];
-                            }
 
-                            return (
-                              <Box
-                                key={grave._id}
-                                position="relative"
-                                py="8px"
-                                px={0}
-                                w="full"
-                                borderBottom="1px solid #D9D9D9"
-                                overflow="hidden"
-                                as={Link}
-                                href={`/graves/${grave._id}`}
-                                _hover={{
-                                  bg: "rgba(46, 64, 40, 0.05)",
-                                }}
-                                transition="background-color 0.2s"
-                                cursor="pointer"
-                              >
-                                <Flex
-                                  justify="space-between"
-                                  align="start"
+                              return (
+                                <Box
+                                  key={grave._id}
                                   position="relative"
-                                  gap="16px"
+                                  py="8px"
+                                  px={0}
                                   w="full"
-                                >
-                                  <Box flex="1" minW={0}>
-                                    {names.length > 0 ? (
-                                      <VStack spacing={0} align="flex-start">
-                                        {names.map((name, idx) => (
-                                          <Text
-                                            key={idx}
-                                            sx={{
-                                              fontFamily: '"Cormorant Garamond", serif',
-                                              fontSize: "16px",
-                                              fontWeight: 600,
-                                              lineHeight: "normal",
-                                              color: "#2E4028",
-                                              textTransform: "uppercase",
-                                              letterSpacing: "1.92px",
-                                              wordBreak: "break-word",
-                                              overflowWrap: "break-word",
-                                            }}
-                                          >
-                                            {name}
-                                          </Text>
-                                        ))}
-                                      </VStack>
-                                    ) : (
+                                  borderBottom="1px solid #D9D9D9"
+                                  overflow="hidden"
+                                  as={Link}
+                                  href={`/graves/${grave._id}`}
+                                  _hover={{
+                                    bg: "rgba(46, 64, 40, 0.05)",
+                                  }}
+                                  transition="background-color 0.2s"
+                                  cursor="pointer">
+                                  <Flex
+                                    justify="space-between"
+                                    align="start"
+                                    position="relative"
+                                    gap="16px"
+                                    w="full">
+                                    <Box flex="1" minW={0}>
+                                      {names.length > 0 ? (
+                                        <VStack spacing={0} align="flex-start">
+                                          {names.map((name, idx) => (
+                                            <Text
+                                              key={idx}
+                                              sx={{
+                                                fontFamily:
+                                                  '"Cormorant Garamond", serif',
+                                                fontSize: "16px",
+                                                fontWeight: 600,
+                                                lineHeight: "normal",
+                                                color: "#2E4028",
+                                                textTransform: "uppercase",
+                                                letterSpacing: "1.92px",
+                                                wordBreak: "break-word",
+                                                overflowWrap: "break-word",
+                                              }}>
+                                              {name}
+                                            </Text>
+                                          ))}
+                                        </VStack>
+                                      ) : (
+                                        <Text
+                                          sx={{
+                                            fontFamily:
+                                              '"Cormorant Garamond", serif',
+                                            fontSize: "16px",
+                                            fontWeight: 600,
+                                            lineHeight: "normal",
+                                            color: "#2E4028",
+                                            textTransform: "uppercase",
+                                            letterSpacing: "1.92px",
+                                            wordBreak: "break-word",
+                                            overflowWrap: "break-word",
+                                          }}>
+                                          Grave {grave.graveNo}
+                                        </Text>
+                                      )}
+                                    </Box>
+                                    {earliestYear && (
                                       <Text
+                                        flexShrink={0}
                                         sx={{
-                                          fontFamily: '"Cormorant Garamond", serif',
+                                          fontFamily:
+                                            '"Host Grotesk", sans-serif',
                                           fontSize: "16px",
                                           fontWeight: 600,
                                           lineHeight: "normal",
                                           color: "#2E4028",
                                           textTransform: "uppercase",
-                                          letterSpacing: "1.92px",
-                                          wordBreak: "break-word",
-                                          overflowWrap: "break-word",
-                                        }}
-                                      >
-                                        Grave {grave.graveNo}
+                                        }}>
+                                        {earliestYear}
                                       </Text>
                                     )}
-                                  </Box>
-                                  {earliestYear && (
-                                    <Text
-                                      flexShrink={0}
-                                      sx={{
-                                        fontFamily:
-                                          '"Host Grotesk", sans-serif',
-                                        fontSize: "16px",
-                                        fontWeight: 600,
-                                        lineHeight: "normal",
-                                        color: "#2E4028",
-                                        textTransform: "uppercase",
-                                      }}
-                                    >
-                                      {earliestYear}
-                                    </Text>
-                                  )}
-                                </Flex>
-                              </Box>
-                            );
-                          })}
-                        </VStack>
-                      </Box>
-                    )
-                  )}
-                </VStack>
-              )}
+                                  </Flex>
+                                </Box>
+                              );
+                            })}
+                          </VStack>
+                        </Box>
+                      ),
+                    )}
+                  </VStack>
+                )}
               </Box>
             </Box>
           )}
@@ -445,14 +466,9 @@ export function GraveListView({
               overflow="hidden"
               bg="#f5f5f5"
               borderRadius="4px"
-              mb={{ base: "0px", sm: "32px" }}
-            >
+              mb={{ base: "0px", sm: "32px" }}>
               {imageMap ? (
-                <Box
-                  position="relative"
-                  w="full"
-                  h="auto"
-                >
+                <Box position="relative" w="full" h="auto">
                   <Image
                     src={urlFor(imageMap.image).url()}
                     alt="Graveyard Map"
@@ -466,261 +482,247 @@ export function GraveListView({
                     }}
                   />
 
-                      {/* Render hotspots as markers */}
-                      {(searchQuery.trim() ? filteredHotspots : imageMap.hotspots || []).map((hotspot) => {
-                        const grave = hotspot.grave && typeof hotspot.grave === 'object' && '_id' in hotspot.grave ? hotspot.grave : null;
-                        const isOpen = selectedHotspot?._key === hotspot._key;
-                        const isHighlighted = searchQuery.trim() && filteredHotspots.some(h => h._key === hotspot._key);
+                  {/* Render hotspots as markers */}
+                  {(searchQuery.trim()
+                    ? filteredHotspots
+                    : imageMap.hotspots || []
+                  ).map((hotspot) => {
+                    const grave =
+                      hotspot.grave &&
+                      typeof hotspot.grave === "object" &&
+                      "_id" in hotspot.grave
+                        ? hotspot.grave
+                        : null;
+                    const isOpen = selectedHotspot?._key === hotspot._key;
+                    const isHighlighted =
+                      searchQuery.trim() &&
+                      filteredHotspots.some((h) => h._key === hotspot._key);
 
-                        return (
-                        <Popover
-                          key={hotspot._key}
-                          isOpen={isOpen}
-                          onOpen={() => setSelectedHotspot(hotspot)}
-                          onClose={() => setSelectedHotspot(null)}
-                          placement="auto"
-                          closeOnBlur={true}
-                          isLazy
-                        >
-                            <PopoverTrigger>
-                              <Box
-                                position="absolute"
-                                left={`${hotspot.x}%`}
-                                top={`${hotspot.y}%`}
-                                transform="translate(-50%, -100%)"
-                                w={isHighlighted ? "60px" : "50px"}
-                                h={isHighlighted ? "60px" : "50px"}
-                                cursor="pointer"
-                                zIndex={isHighlighted ? 6 : 5}
-                                onClick={() => setSelectedHotspot(hotspot)}
-                                transition="all 0.2s ease"
-                                _hover={{
-                                  transform: "translate(-50%, -100%) scale(1.1)",
-                                }}
-                              >
-                                <Image
-                                  src="/pointer.svg"
-                                  alt="Grave location marker"
-                                  width={isHighlighted ? 60 : 50}
-                                  height={isHighlighted ? 60 : 50}
-                                  style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "contain",
-                                  }}
-                                />
-                              </Box>
-                            </PopoverTrigger>
-                            {grave && (
-                              <PopoverContent
-                                w={{ base: "calc(100vw - 48px)", md: "400px" }}
-                                maxW="90vw"
-                                maxH="80vh"
-                                overflowY="auto"
-                                border="none"
-                                borderRadius="4px"
-                                boxShadow="0px 4px 20px 0px rgba(0, 0, 0, 0.25)"
-                                bg="white"
-                                p={0}
-                                pt="64px"
-                                pb={{ base: "24px", md: "44px" }}
-                                px={{ base: "24px", md: "32px" }}
-                                position="relative"
-                                zIndex={9999}
-                                sx={{
-                                  zIndex: "9999 !important",
-                                  position: "fixed",
-                                }}
-                              >
-                                <PopoverArrow bg="white" />
-                                
-                                {/* Close Button - Absolute positioned */}
-                                <IconButton
-                                  aria-label="Close"
-                                  icon={
-                                    <Box position="relative" w="14px" h="11px">
-                                      <Box
-                                        position="absolute"
-                                        left="1.7px"
-                                        top="50%"
-                                        transform="translateY(-50%) rotate(45deg)"
-                                        w="14px"
-                                        h="1px"
-                                        bg="#2E4028"
-                                      />
-                                      <Box
-                                        position="absolute"
-                                        left="1.7px"
-                                        top="50%"
-                                        transform="translateY(-50%) rotate(-45deg)"
-                                        w="14px"
-                                        h="1px"
-                                        bg="#2E4028"
-                                      />
-                                    </Box>
-                                  }
-                                  position="absolute"
-                                  top="0"
-                                  right="0"
-                                  size="44px"
-                                  onClick={() => setSelectedHotspot(null)}
-                                  bg="rgba(217, 203, 176, 0.3)"
-                                  color="#2E4028"
-                                  borderRadius="0"
-                                  borderTopRightRadius="4px"
-                                  _hover={{ bg: "rgba(217, 203, 176, 0.5)" }}
-                                  minW="44px"
-                                  h="44px"
-                                />
+                    return (
+                      <Popover
+                        key={hotspot._key}
+                        isOpen={isOpen}
+                        onOpen={() => setSelectedHotspot(hotspot)}
+                        onClose={() => setSelectedHotspot(null)}
+                        placement="auto"
+                        closeOnBlur={true}
+                        isLazy>
+                        <PopoverTrigger>
+                          <Box
+                            position="absolute"
+                            left={`${hotspot.x}%`}
+                            top={`${hotspot.y}%`}
+                            transform="translate(-50%, -100%)"
+                            w={isHighlighted ? "60px" : "50px"}
+                            h={isHighlighted ? "60px" : "50px"}
+                            cursor="pointer"
+                            zIndex={isHighlighted ? 6 : 5}
+                            onClick={() => setSelectedHotspot(hotspot)}
+                            transition="all 0.2s ease"
+                            _hover={{
+                              transform: "translate(-50%, -100%) scale(1.1)",
+                            }}>
+                            <Image
+                              src="/pointer.svg"
+                              alt="Grave location marker"
+                              width={isHighlighted ? 60 : 50}
+                              height={isHighlighted ? 60 : 50}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "contain",
+                              }}
+                            />
+                          </Box>
+                        </PopoverTrigger>
+                        {grave && (
+                          <PopoverContent
+                            w={{ base: "calc(100vw - 48px)", md: "400px" }}
+                            maxW="90vw"
+                            maxH="80vh"
+                            overflowY="auto"
+                            border="none"
+                            borderRadius="4px"
+                            boxShadow="0px 4px 20px 0px rgba(0, 0, 0, 0.25)"
+                            bg="white"
+                            p={0}
+                            pt="64px"
+                            pb={{ base: "24px", md: "44px" }}
+                            px={{ base: "24px", md: "32px" }}
+                            position="relative"
+                            zIndex={9999}
+                            sx={{
+                              zIndex: "9999 !important",
+                              position: "fixed",
+                            }}>
+                            <PopoverArrow bg="white" />
 
-                                <VStack spacing={{ base: "16px", md: "32px" }} align="stretch">
-                                  {/* Header Section */}
-                                  <Flex justify="space-between" align="start" w="full">
-                                    <Text
-                                      sx={{
-                                        fontFamily: '"Cormorant Garamond", serif',
-                                        fontSize: "16px",
-                                        fontWeight: 600,
-                                        color: "#2E4028",
-                                        textTransform: "uppercase",
-                                        letterSpacing: "1.92px",
-                                      }}
-                                    >
-                                      Grave
-                                    </Text>
-                                    {grave.graveNo && (
-                                      <Text
-                                        sx={{
-                                          fontFamily: '"Host Grotesk", sans-serif',
-                                          fontSize: "16px",
-                                          fontWeight: 600,
-                                          color: "#2E4028",
-                                        }}
-                                      >
-                                        #{grave.graveNo}
-                                      </Text>
-                                    )}
-                                  </Flex>
-
-                                  {/* Table Headers - Sticky */}
+                            {/* Close Button - Absolute positioned */}
+                            <IconButton
+                              aria-label="Close"
+                              icon={
+                                <Box position="relative" w="14px" h="11px">
                                   <Box
-                                    position="sticky"
-                                    top="0"
-                                    bg="white"
-                                    zIndex={10}
-                                    pb="8px"
-                                    borderBottom="1px solid #2E4028"
-                                    w="full"
-                                    overflow="hidden"
-                                  >
-                                    <Flex justify="space-between" align="end" w="full" gap="16px">
-                                      <Text
-                                        flex="1"
-                                        minW={0}
-                                        sx={{
-                                          fontFamily: '"Host Grotesk", sans-serif',
-                                          fontSize: "14px",
-                                          fontWeight: 600,
-                                          color: "#6B7A52",
-                                          textTransform: "uppercase",
-                                          letterSpacing: "2.24px",
-                                        }}
-                                      >
-                                        Name
-                                      </Text>
-                                      <Text
-                                        flexShrink={0}
-                                        sx={{
-                                          fontFamily: '"Host Grotesk", sans-serif',
-                                          fontSize: "14px",
-                                          fontWeight: 600,
-                                          color: "#6B7A52",
-                                          textTransform: "uppercase",
-                                          letterSpacing: "2.24px",
-                                        }}
-                                      >
-                                        Burial Year
-                                      </Text>
-                                    </Flex>
-                                  </Box>
+                                    position="absolute"
+                                    left="1.7px"
+                                    top="50%"
+                                    transform="translateY(-50%) rotate(45deg)"
+                                    w="14px"
+                                    h="1px"
+                                    bg="#2E4028"
+                                  />
+                                  <Box
+                                    position="absolute"
+                                    left="1.7px"
+                                    top="50%"
+                                    transform="translateY(-50%) rotate(-45deg)"
+                                    w="14px"
+                                    h="1px"
+                                    bg="#2E4028"
+                                  />
+                                </Box>
+                              }
+                              position="absolute"
+                              top="0"
+                              right="0"
+                              size="44px"
+                              onClick={() => setSelectedHotspot(null)}
+                              bg="rgba(217, 203, 176, 0.3)"
+                              color="#2E4028"
+                              borderRadius="0"
+                              borderTopRightRadius="4px"
+                              _hover={{ bg: "rgba(217, 203, 176, 0.5)" }}
+                              minW="44px"
+                              h="44px"
+                            />
 
-                                  {/* Table Rows */}
-                                  <VStack spacing={0} align="stretch">
-                                    {grave.persons && grave.persons.length > 0 ? (
-                                      grave.persons.map((person, index) => {
-                                        const totalPersons = grave.persons?.length || 0;
-                                        // Format name as "LASTNAME, FIRSTNAME"
-                                        let displayName = "";
-                                        if (person.name) {
-                                          const name = person.name.trim();
-                                          if (name.includes(",")) {
-                                            displayName = name;
-                                          } else {
-                                            const parts = name.split(/\s+/);
-                                            if (parts.length > 1) {
-                                              const lastName = parts[parts.length - 1];
-                                              const firstName = parts.slice(0, -1).join(" ");
-                                              displayName = `${lastName}, ${firstName}`;
-                                            } else {
-                                              displayName = name;
-                                            }
-                                          }
-                                        } else if (grave.familySurname) {
-                                          displayName = grave.familySurname;
+                            <VStack
+                              spacing={{ base: "16px", md: "32px" }}
+                              align="stretch">
+                              {/* Header Section */}
+                              <Flex
+                                justify="space-between"
+                                align="start"
+                                w="full">
+                                <Text
+                                  sx={{
+                                    fontFamily: '"Cormorant Garamond", serif',
+                                    fontSize: "16px",
+                                    fontWeight: 600,
+                                    color: "#2E4028",
+                                    textTransform: "uppercase",
+                                    letterSpacing: "1.92px",
+                                  }}>
+                                  Grave
+                                </Text>
+                                {grave.graveNo && (
+                                  <Text
+                                    sx={{
+                                      fontFamily: '"Host Grotesk", sans-serif',
+                                      fontSize: "16px",
+                                      fontWeight: 600,
+                                      color: "#2E4028",
+                                    }}>
+                                    #{grave.graveNo}
+                                  </Text>
+                                )}
+                              </Flex>
+
+                              {/* Table Headers - Sticky */}
+                              <Box
+                                position="sticky"
+                                top="0"
+                                bg="white"
+                                zIndex={10}
+                                pb="8px"
+                                borderBottom="1px solid #2E4028"
+                                w="full"
+                                overflow="hidden">
+                                <Flex
+                                  justify="space-between"
+                                  align="end"
+                                  w="full"
+                                  gap="16px">
+                                  <Text
+                                    flex="1"
+                                    minW={0}
+                                    sx={{
+                                      fontFamily: '"Host Grotesk", sans-serif',
+                                      fontSize: "14px",
+                                      fontWeight: 600,
+                                      color: "#6B7A52",
+                                      textTransform: "uppercase",
+                                      letterSpacing: "2.24px",
+                                    }}>
+                                    Name
+                                  </Text>
+                                  <Text
+                                    flexShrink={0}
+                                    sx={{
+                                      fontFamily: '"Host Grotesk", sans-serif',
+                                      fontSize: "14px",
+                                      fontWeight: 600,
+                                      color: "#6B7A52",
+                                      textTransform: "uppercase",
+                                      letterSpacing: "2.24px",
+                                    }}>
+                                    Burial Year
+                                  </Text>
+                                </Flex>
+                              </Box>
+
+                              {/* Table Rows */}
+                              <VStack spacing={0} align="stretch">
+                                {grave.persons && grave.persons.length > 0 ? (
+                                  grave.persons.map((person, index) => {
+                                    const totalPersons =
+                                      grave.persons?.length || 0;
+                                    // Format name as "LASTNAME, FIRSTNAME"
+                                    let displayName = "";
+                                    if (person.name) {
+                                      const name = person.name.trim();
+                                      if (name.includes(",")) {
+                                        displayName = name;
+                                      } else {
+                                        const parts = name.split(/\s+/);
+                                        if (parts.length > 1) {
+                                          const lastName =
+                                            parts[parts.length - 1];
+                                          const firstName = parts
+                                            .slice(0, -1)
+                                            .join(" ");
+                                          displayName = `${lastName}, ${firstName}`;
+                                        } else {
+                                          displayName = name;
                                         }
+                                      }
+                                    } else if (grave.familySurname) {
+                                      displayName = grave.familySurname;
+                                    }
 
-                                        return (
-                                          <Box
-                                            key={index}
-                                            position="relative"
-                                            py="8px"
-                                            borderBottom={index < totalPersons - 1 ? "1px solid #D9D9D9" : "none"}
-                                            w="full"
-                                            overflow="hidden"
-                                          >
-                                            <Flex justify="space-between" align="start" w="full" gap="16px">
-                                              <Text
-                                                flex="1"
-                                                minW={0}
-                                                sx={{
-                                                  fontFamily: '"Cormorant Garamond", serif',
-                                                  fontSize: "16px",
-                                                  fontWeight: 600,
-                                                  color: "#2E4028",
-                                                  textTransform: "uppercase",
-                                                  letterSpacing: "1.92px",
-                                                  wordBreak: "break-word",
-                                                  overflowWrap: "break-word",
-                                                }}
-                                              >
-                                                {displayName || grave.familySurname || ""}
-                                              </Text>
-                                              {person.year && (
-                                                <Text
-                                                  flexShrink={0}
-                                                  sx={{
-                                                    fontFamily: '"Host Grotesk", sans-serif',
-                                                    fontSize: "16px",
-                                                    fontWeight: 600,
-                                                    color: "#2E4028",
-                                                    textTransform: "uppercase",
-                                                  }}
-                                                >
-                                                  {person.year}
-                                                </Text>
-                                              )}
-                                            </Flex>
-                                          </Box>
-                                        );
-                                      })
-                                    ) : (
-                                      <Box py="8px" w="full" overflow="hidden">
-                                        <Flex justify="space-between" align="start" w="full" gap="16px">
+                                    return (
+                                      <Box
+                                        key={index}
+                                        position="relative"
+                                        py="8px"
+                                        borderBottom={
+                                          index < totalPersons - 1
+                                            ? "1px solid #D9D9D9"
+                                            : "none"
+                                        }
+                                        w="full"
+                                        overflow="hidden">
+                                        <Flex
+                                          justify="space-between"
+                                          align="start"
+                                          w="full"
+                                          gap="16px">
                                           <Text
                                             flex="1"
                                             minW={0}
                                             sx={{
-                                              fontFamily: '"Cormorant Garamond", serif',
+                                              fontFamily:
+                                                '"Cormorant Garamond", serif',
                                               fontSize: "16px",
                                               fontWeight: 600,
                                               color: "#2E4028",
@@ -728,20 +730,62 @@ export function GraveListView({
                                               letterSpacing: "1.92px",
                                               wordBreak: "break-word",
                                               overflowWrap: "break-word",
-                                            }}
-                                          >
-                                            {grave.familySurname || ""}
+                                            }}>
+                                            {displayName ||
+                                              grave.familySurname ||
+                                              ""}
                                           </Text>
+                                          {person.year && (
+                                            <Text
+                                              flexShrink={0}
+                                              sx={{
+                                                fontFamily:
+                                                  '"Host Grotesk", sans-serif',
+                                                fontSize: "16px",
+                                                fontWeight: 600,
+                                                color: "#2E4028",
+                                                textTransform: "uppercase",
+                                              }}>
+                                              {person.year}
+                                            </Text>
+                                          )}
                                         </Flex>
                                       </Box>
-                                    )}
-                                  </VStack>
-                                </VStack>
-                              </PopoverContent>
-                            )}
-                          </Popover>
-                        );
-                      })}
+                                    );
+                                  })
+                                ) : (
+                                  <Box py="8px" w="full" overflow="hidden">
+                                    <Flex
+                                      justify="space-between"
+                                      align="start"
+                                      w="full"
+                                      gap="16px">
+                                      <Text
+                                        flex="1"
+                                        minW={0}
+                                        sx={{
+                                          fontFamily:
+                                            '"Cormorant Garamond", serif',
+                                          fontSize: "16px",
+                                          fontWeight: 600,
+                                          color: "#2E4028",
+                                          textTransform: "uppercase",
+                                          letterSpacing: "1.92px",
+                                          wordBreak: "break-word",
+                                          overflowWrap: "break-word",
+                                        }}>
+                                        {grave.familySurname || ""}
+                                      </Text>
+                                    </Flex>
+                                  </Box>
+                                )}
+                              </VStack>
+                            </VStack>
+                          </PopoverContent>
+                        )}
+                      </Popover>
+                    );
+                  })}
                 </Box>
               ) : (
                 <Box
@@ -749,8 +793,7 @@ export function GraveListView({
                   alignItems="center"
                   justifyContent="center"
                   minH="600px"
-                  color="#2E4028"
-                >
+                  color="#2E4028">
                   <Text>Map not available</Text>
                 </Box>
               )}

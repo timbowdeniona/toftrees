@@ -1,6 +1,6 @@
-import { client } from '../../sanity/client'
-import GravesPageClient from './graves-page'
-import { Grave, ImageMap } from '../../types'
+import { client } from "../../sanity/client";
+import GravesPageClient from "./graves-page";
+import { Grave, ImageMap } from "../../types";
 
 async function getGraveListData() {
   const [siteSettings, graves, imageMap] = await Promise.all([
@@ -141,6 +141,7 @@ async function getGraveListData() {
           logo,
           imageAltText,
           logoPosition,
+          logoLink,
           bodyText,
           backgroundColor,
           spacing {
@@ -218,17 +219,18 @@ async function getGraveListData() {
         }
       }
     }`),
-  ])
+  ]);
 
   return {
     siteSettings,
     graves: graves || [],
     imageMap: imageMap || null,
-  }
+  };
 }
 
 export default async function GravesPage() {
-  const { siteSettings, graves, imageMap } = await getGraveListData()
-  return <GravesPageClient data={siteSettings} graves={graves} imageMap={imageMap} />
+  const { siteSettings, graves, imageMap } = await getGraveListData();
+  return (
+    <GravesPageClient data={siteSettings} graves={graves} imageMap={imageMap} />
+  );
 }
-
