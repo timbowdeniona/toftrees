@@ -1,8 +1,10 @@
-import { client } from '../../sanity/client'
+import { getClient } from '../../sanity/client'
 import ContactPageClient from './contact-page'
+import { draftMode } from 'next/headers'
 
-async function getContactData() {
-  const data = await client.fetch(`*[_type == "siteSettings"][0]{
+async function getContactData(isDraftMode: boolean) {
+  const sanityClient = getClient(isDraftMode)
+  const data = await sanityClient.fetch(`*[_type == "siteSettings"][0]{
       contactPage {
         contentSections[]{
           _type,
@@ -194,7 +196,7 @@ async function getContactData() {
 }
 
 export default async function ContactPage() {
-  const data = await getContactData()
+  const mode = await draftMode()
+  const data = await getContactData(mode.isEnabled)
   return <ContactPageClient data={data} />
 }
-

@@ -1,9 +1,11 @@
-import { client } from '../../../sanity/client'
+import { getClient, client } from '../../../sanity/client'
 import GraveDetailsPageClient from './grave-details-page'
 import { notFound } from 'next/navigation'
+import { draftMode } from 'next/headers'
 
-async function getGraveData(id: string) {
-  const grave = await client.fetch(
+async function getGraveData(id: string, isDraftMode: boolean) {
+  const sanityClient = getClient(isDraftMode)
+  const grave = await sanityClient.fetch(
     `*[_type == "grave" && _id == $id][0]{
       _id,
       graveNo,
@@ -62,7 +64,7 @@ async function getGraveData(id: string) {
   }
 
   // Fetch imageMap to get grave location on map
-  const imageMap = await client.fetch(`*[_type == "imageMap"][0]{
+  const imageMap = await sanityClient.fetch(`*[_type == "imageMap"][0]{
     _id,
     title,
     image {
@@ -82,7 +84,7 @@ async function getGraveData(id: string) {
   }`)
 
   // Fetch site settings for navigation, footer, and grave details page content
-  const siteSettings = await client.fetch(`*[_type == "siteSettings"][0]{
+  const siteSettings = await sanityClient.fetch(`*[_type == "siteSettings"][0]{
     graveDetailsPage {
       contentSections[]{
         _type,
@@ -293,8 +295,9 @@ export default async function GraveDetailsPage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  const mode = await draftMode()
   const { id } = await params
-  const data = await getGraveData(id)
+  const data = await getGraveData(id, mode.isEnabled)
 
   if (!data || !data.grave) {
     notFound()

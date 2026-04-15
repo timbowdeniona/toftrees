@@ -16,6 +16,20 @@ export const client = createClient({
   token: process.env.NEXT_PUBLIC_SANITY_API_TOKEN,
 })
 
+export const previewClient = createClient({
+  projectId,
+  dataset,
+  apiVersion,
+  useCdn: false,
+  token: process.env.SANITY_API_READ_TOKEN,
+  perspective: 'previewDrafts',
+})
+
+// Helper to reliably choose correct client based on context
+export const getClient = (isDraftMode: boolean = false) => {
+  return isDraftMode ? previewClient : client
+}
+
 export const writeClient = createClient({
   projectId,
   dataset,

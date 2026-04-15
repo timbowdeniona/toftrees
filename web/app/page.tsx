@@ -1,7 +1,9 @@
 import HomePage from './home-page'
-import { client } from '../sanity/client'
+import { getClient } from '../sanity/client'
+import { draftMode } from 'next/headers'
 
-async function getSiteSettings() {
+async function getSiteSettings(isDraftMode: boolean) {
+  const sanityClient = getClient(isDraftMode)
   const query = `*[_type == "siteSettings"][0] {
     title,
     contentSections[]{
@@ -189,11 +191,12 @@ async function getSiteSettings() {
       }
     }
   }`
-  const data = await client.fetch(query)
+  const data = await sanityClient.fetch(query)
   return data
 }
 
 export default async function Page() {
-  const settings = await getSiteSettings()
+  const mode = await draftMode()
+  const settings = await getSiteSettings(mode.isEnabled)
   return <HomePage settings={settings} />
 }
