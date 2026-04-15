@@ -66,8 +66,8 @@ export function BurialDetails({ grave }: BurialDetailsProps) {
 
   const refParts = [
     firstPerson?.ref,
-    firstPerson?.page ? `p.${firstPerson.page}` : null,
-    firstPerson?.folio ? `f.${firstPerson.folio}` : null,
+    firstPerson?.page || null,
+    firstPerson?.folio || null,
   ].filter(Boolean);
 
   if (refParts.length > 0) {
