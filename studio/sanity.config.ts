@@ -16,7 +16,7 @@ export default defineConfig({
     visionTool(),
     presentationTool({
       previewUrl: {
-        origin: 'https://deploy-preview-27--toftreeschurch.netlify.app',
+        origin: 'https://toftreeschurch.netlify.app',
         previewMode: {
           enable: '/api/draft-mode/enable',
           disable: '/api/draft-mode/disable',
