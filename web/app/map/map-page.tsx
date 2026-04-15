@@ -20,6 +20,7 @@ import {
   ModalOverlay,
   Text,
   Tooltip,
+  useToast,
   VStack,
 } from '@chakra-ui/react'
 import { MarketingLayout } from '../../components/layout/marketing-layout'
@@ -54,6 +55,7 @@ export default function MapPageClient({
   const imageContainerRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
   const [hotspotToDelete, setHotspotToDelete] = useState<Hotspot | null>(null)
+  const toast = useToast()
 
   const searchParams = useSearchParams()
   const graveId = searchParams.get('grave')
@@ -125,27 +127,60 @@ export default function MapPageClient({
         y: newHotspotCoords.y,
         grave: { _ref: grave._id, _type: 'reference' },
       }
-      await writeClient
-        .patch(imageMap._id)
-        .insert('after', 'hotspots[-1]', [newHotspot])
-        .commit()
-      setImageMap({ ...imageMap, hotspots: [...(imageMap.hotspots || []), newHotspot] })
-      setNewHotspotCoords(null)
+      try {
+        await writeClient
+          .patch(imageMap._id)
+          .setIfMissing({ hotspots: [] })
+          .insert('after', 'hotspots[-1]', [newHotspot])
+          .commit()
+        setImageMap({ ...imageMap, hotspots: [...(imageMap.hotspots || []), newHotspot] })
+        setNewHotspotCoords(null)
+        toast({
+          title: 'Hotspot added',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        })
+      } catch (error) {
+        console.error('Failed to add hotspot:', error)
+        toast({
+          title: 'Error adding hotspot',
+          description: error instanceof Error ? error.message : 'Unknown error',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      }
     }
     setIsGraveSelectorOpen(false)
   }
 
   const onConfirmDelete = async () => {
     if (hotspotToDelete) {
-      await writeClient
-        .patch(imageMap._id)
-        .unset([`hotspots[_key=="${hotspotToDelete._key}"]`])
-        .commit()
-      const updatedHotspots = imageMap.hotspots.filter(
-        (h) => h._key !== hotspotToDelete._key,
-      )
-      setImageMap({ ...imageMap, hotspots: updatedHotspots })
-      setHotspotToDelete(null)
+      try {
+        await writeClient
+          .patch(imageMap._id)
+          .unset([`hotspots[_key=="${hotspotToDelete._key}"]`])
+          .commit()
+        const updatedHotspots = imageMap.hotspots.filter((h) => h._key !== hotspotToDelete._key)
+        setImageMap({ ...imageMap, hotspots: updatedHotspots })
+        setHotspotToDelete(null)
+        toast({
+          title: 'Hotspot deleted',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        })
+      } catch (error) {
+        console.error('Failed to delete hotspot:', error)
+        toast({
+          title: 'Error deleting hotspot',
+          description: error instanceof Error ? error.message : 'Unknown error',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      }
     }
     setIsAlertOpen(false)
   }
