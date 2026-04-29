@@ -9,7 +9,7 @@ export default defineConfig({
   title: 'toftrees-next',
 
   projectId: 'pu2m4784',
-  dataset: 'production',
+  dataset: 'sandbox',
 
   plugins: [
     structureTool(),

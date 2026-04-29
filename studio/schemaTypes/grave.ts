@@ -59,6 +59,26 @@ export default defineType({
       type: 'geopoint',
     }),
     defineField({
+      name: 'what3words',
+      title: 'What3Words',
+      type: 'string',
+    }),
+    defineField({
+      name: 'latitude',
+      title: 'Latitude',
+      type: 'number',
+    }),
+    defineField({
+      name: 'longitude',
+      title: 'Longitude',
+      type: 'number',
+    }),
+    defineField({
+      name: 'altitude',
+      title: 'Altitude',
+      type: 'number',
+    }),
+    defineField({
       name: 'headstoneImage',
       title: 'Headstone Image',
       type: 'image',

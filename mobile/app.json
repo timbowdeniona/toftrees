@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "Toftrees Surveyor",
+    "slug": "toftrees-surveyor",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "toftrees-surveyor",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1A1C18"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.toftrees.surveyor",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Camera is used to photograph headstones for grave surveys.",
+        "NSLocationWhenInUseUsageDescription": "Location is used to record the GPS coordinates of graves."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1A1C18"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.toftrees.surveyor",
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-sqlite",
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Camera is used to photograph headstones."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Location is used to record grave GPS coordinates."
+        }
+      ]
+    ]
+  }
+}
