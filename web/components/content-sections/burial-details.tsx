@@ -2,6 +2,7 @@
 
 import { Box, Container, Flex, Text, VStack } from "@chakra-ui/react";
 import { Grave } from "../../types";
+import { formatPersonName } from "../../utils/name-parser";
 
 interface BurialDetailsProps {
   grave: Grave;
@@ -12,19 +13,7 @@ export function BurialDetails({ grave }: BurialDetailsProps) {
   const getPersonName = (): string => {
     if (grave.persons && grave.persons.length > 0) {
       const firstPerson = grave.persons[0];
-      if (firstPerson.name) {
-        const name = firstPerson.name.trim();
-        if (name.includes(",")) {
-          return name;
-        }
-        const parts = name.split(/\s+/);
-        if (parts.length > 1) {
-          const lastName = parts[parts.length - 1];
-          const firstName = parts.slice(0, -1).join(" ");
-          return `${lastName}, ${firstName}`;
-        }
-        return name;
-      }
+      return formatPersonName(firstPerson.name);
     }
     return grave.familySurname || "Unknown";
   };
