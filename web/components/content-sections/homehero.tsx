@@ -165,7 +165,7 @@ export function Homehero({
                   color: '#FFF',
                 }}
               >
-                Find a grave
+                Locate a grave
               </Text>
               <Box
                 w="full"
