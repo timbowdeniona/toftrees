@@ -3,6 +3,7 @@
 import { VStack } from '@chakra-ui/react'
 import { MarketingLayout } from '../../../components/layout/marketing-layout'
 import { Grave, ImageMap } from '../../../types'
+import { formatPersonName } from '../../../utils/name-parser'
 import { ContentSectionRenderer } from '../../../components/content-sections'
 import { GraveHeroBanner } from '../../../components/content-sections/grave-hero-banner'
 import { BurialDetails } from '../../../components/content-sections/burial-details'
@@ -95,19 +96,7 @@ export default function GraveDetailsPageClient({
   const getPersonName = (): string => {
     if (grave.persons && grave.persons.length > 0) {
       const firstPerson = grave.persons[0]
-      if (firstPerson.name) {
-        const name = firstPerson.name.trim()
-        if (name.includes(',')) {
-          return name
-        }
-        const parts = name.split(/\s+/)
-        if (parts.length > 1) {
-          const lastName = parts[parts.length - 1]
-          const firstName = parts.slice(0, -1).join(' ')
-          return `${lastName}, ${firstName}`
-        }
-        return name
-      }
+      return formatPersonName(firstPerson.name)
     }
     return grave.familySurname || 'Unknown'
   }
