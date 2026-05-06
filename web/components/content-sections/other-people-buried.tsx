@@ -10,6 +10,7 @@ import {
   Collapse,
 } from "@chakra-ui/react";
 import { Grave } from "../../types";
+import { formatPersonName } from "../../utils/name-parser";
 import { useState } from "react";
 
 interface OtherPeopleBuriedProps {
@@ -32,18 +33,7 @@ export function OtherPeopleBuried({ grave }: OtherPeopleBuriedProps) {
   };
 
   const getPersonName = (person: { name?: string }): string => {
-    if (!person.name) return "Unknown";
-    const name = person.name.trim();
-    if (name.includes(",")) {
-      return name;
-    }
-    const parts = name.split(/\s+/);
-    if (parts.length > 1) {
-      const lastName = parts[parts.length - 1];
-      const firstName = parts.slice(0, -1).join(" ");
-      return `${lastName}, ${firstName}`;
-    }
-    return name;
+    return formatPersonName(person.name);
   };
 
   const getDetailItems = (person: (typeof otherPeople)[0]) => {

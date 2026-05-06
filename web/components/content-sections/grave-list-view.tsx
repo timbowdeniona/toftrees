@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { useState, useMemo } from "react";
 import { Grave, ImageMap, Hotspot } from "../../types";
+import { formatPersonName } from "../../utils/name-parser";
 import Image from "next/image";
 import { urlFor } from "../../sanity/client";
 import Link from "next/link";
@@ -336,19 +337,7 @@ export function GraveListView({
                                 personsDisplay = grave.persons
                                   .map((p) => {
                                     const name = p.name || "";
-                                    let formattedName = name;
-                                    if (name && !name.includes(",")) {
-                                      const parts = name.trim().split(/\s+/);
-                                      if (parts.length > 1) {
-                                        const lastName = parts[parts.length - 1];
-                                        const firstName = parts.slice(0, -1).join(" ");
-                                        formattedName = `${lastName.toUpperCase()}, ${firstName.toUpperCase()}`;
-                                      } else {
-                                        formattedName = name.toUpperCase();
-                                      }
-                                    } else if (name) {
-                                      formattedName = name.toUpperCase();
-                                    }
+                                    const formattedName = name ? formatPersonName(name) : "";
                                     
                                     return {
                                       name: formattedName,
@@ -682,28 +671,9 @@ export function GraveListView({
                                   grave.persons.map((person, index) => {
                                     const totalPersons =
                                       grave.persons?.length || 0;
-                                    // Format name as "LASTNAME, FIRSTNAME"
-                                    let displayName = "";
-                                    if (person.name) {
-                                      const name = person.name.trim();
-                                      if (name.includes(",")) {
-                                        displayName = name;
-                                      } else {
-                                        const parts = name.split(/\s+/);
-                                        if (parts.length > 1) {
-                                          const lastName =
-                                            parts[parts.length - 1];
-                                          const firstName = parts
-                                            .slice(0, -1)
-                                            .join(" ");
-                                          displayName = `${lastName}, ${firstName}`;
-                                        } else {
-                                          displayName = name;
-                                        }
-                                      }
-                                    } else if (grave.familySurname) {
-                                      displayName = grave.familySurname;
-                                    }
+                                    const displayName = person.name
+                                       ? formatPersonName(person.name)
+                                       : (grave.familySurname || "");
 
                                     return (
                                       <Box
