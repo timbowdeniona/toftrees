@@ -50,8 +50,7 @@ export function GraveHeroBanner({
   images,
   bannerColour = '#2E4028',
 }: GraveHeroBannerProps) {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const carouselRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   // Get person name from grave data
   const getPersonName = (): string => {
@@ -90,28 +89,69 @@ export function GraveHeroBanner({
     return []
   })()
 
+  // Determine aspect ratio helper
+  const getAspectRatio = (ref?: string): number => {
+    if (!ref) return 1
+    const match = ref.match(/-(\d+)x(\d+)-/)
+    if (match) {
+      const width = parseInt(match[1], 10)
+      const height = parseInt(match[2], 10)
+      return width / height
+    }
+    return 1
+  }
+
+  // Pre-process images
+  const allImagesWithAspect = allImages.map((img) => ({
+    ...img,
+    aspect: getAspectRatio(img.image?.asset?._ref),
+  }))
+
+  type ColumnType =
+    | { type: 'portrait'; img: typeof allImagesWithAspect[0] }
+    | { type: 'landscape'; imgs: typeof allImagesWithAspect }
+
+  const columns: ColumnType[] = []
+  let pendingLandscape: typeof allImagesWithAspect[0] | null = null
+
+  allImagesWithAspect.forEach((img) => {
+    const isPortrait = img.aspect < 1
+    if (isPortrait) {
+      if (pendingLandscape) {
+        columns.push({ type: 'landscape', imgs: [pendingLandscape] })
+        pendingLandscape = null
+      }
+      columns.push({ type: 'portrait', img })
+    } else {
+      if (pendingLandscape) {
+        columns.push({ type: 'landscape', imgs: [pendingLandscape, img] })
+        pendingLandscape = null
+      } else {
+        pendingLandscape = img
+      }
+    }
+  })
+
+  if (pendingLandscape) {
+    columns.push({ type: 'landscape', imgs: [pendingLandscape] })
+  }
+
   const personName = getPersonName()
   const personNameLower = personName.toLowerCase()
   const buriedDate = getBuriedDate()
   const graveNo = grave.graveNo
 
-  const handlePrevious = () => {
-    setCurrentImageIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1))
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -300, behavior: 'smooth' })
+    }
   }
 
-  const handleNext = () => {
-    setCurrentImageIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1))
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 300, behavior: 'smooth' })
+    }
   }
-
-  // Calculate scroll position for mobile carousel
-  // First image: 149px, others: 260px, gap: 8px
-  const calculateMobileScrollPosition = () => {
-    if (currentImageIndex === 0) return 0
-    // First image width + gap + (currentIndex - 1) * (other image width + gap)
-    return 149 + 8 + (currentImageIndex - 1) * (260 + 8)
-  }
-  
-  const mobileScrollPosition = calculateMobileScrollPosition()
 
   // Calculate layout based on number of images
   const hasImages = allImages.length > 0
@@ -423,226 +463,97 @@ export function GraveHeroBanner({
               position="relative"
               h="523px"
               w="auto"
+              minW="0"
             >
-              {allImages.length === 1 ? (
-                // Single image - no carousel
-                <Box 
-                  position="relative" 
-                  w="full" 
-                  h="full" 
-                  overflow="hidden"
-                >
-                  <Image
-                    src={urlFor(allImages[0].image).url()}
-                    alt={allImages[0].alt}
-                    fill
-                    priority
-                    style={{
-                      objectFit: 'cover',
-                      objectPosition: 'center',
-                    }}
-                  />
-                </Box>
-              ) : (
-                // Multiple images - carousel
-                <>
-                  <Box
-                    ref={carouselRef}
-                    position="relative"
-                    w="full"
-                    h="full"
-                    overflow="hidden"
-                  >
-                    {allImages.map((img, index) => (
-                      <Box
-                        key={index}
-                        position="absolute"
-                        top={0}
-                        left={0}
-                        w="full"
-                        h="full"
-                        opacity={index === currentImageIndex ? 1 : 0}
-                        transition="opacity 0.3s ease-in-out"
-                        pointerEvents={index === currentImageIndex ? 'auto' : 'none'}
-                        zIndex={index === currentImageIndex ? 1 : 0}
-                      >
-                        {/* Desktop: Multi-image layout */}
-                        <Flex gap="8px" h="full">
-                          {/* Large image on left */}
-                          <Box
-                            flex="1"
-                            position="relative"
-                            h="full"
-                            minW="0"
-                            overflow="hidden"
-                          >
-                            <Image
-                              src={urlFor(img.image).url()}
-                              alt={img.alt}
-                              fill
-                              style={{
-                                objectFit: 'cover',
-                                objectPosition: 'center',
-                              }}
-                            />
-                          </Box>
-                          {/* Two smaller images on right */}
-                          <Flex
-                            direction="column"
-                            gap="8px"
-                            w="394px"
-                            flexShrink={0}
-                            h="full"
-                          >
-                            {/* Top small image */}
-                            <Box
-                              flex="1"
-                              position="relative"
-                              minH="0"
-                              overflow="hidden"
-                            >
-                              <Image
-                                src={urlFor(
-                                  allImages[(index + 1) % allImages.length]?.image || img.image
-                                ).url()}
-                                alt={allImages[(index + 1) % allImages.length]?.alt || img.alt}
-                                fill
-                                style={{
-                                  objectFit: 'cover',
-                                  objectPosition: 'center',
-                                }}
-                              />
-                            </Box>
-                            {/* Bottom small image */}
-                            <Box
-                              flex="1"
-                              position="relative"
-                              minH="0"
-                              overflow="hidden"
-                            >
-                              <Image
-                                src={urlFor(
-                                  allImages[(index + 2) % allImages.length]?.image || img.image
-                                ).url()}
-                                alt={allImages[(index + 2) % allImages.length]?.alt || img.alt}
-                                fill
-                                style={{
-                                  objectFit: 'cover',
-                                  objectPosition: 'center',
-                                }}
-                              />
-                            </Box>
-                          </Flex>
+              <Box
+                ref={scrollRef}
+                w="full"
+                h="full"
+                overflowX="auto"
+                sx={{
+                  '&::-webkit-scrollbar': { display: 'none' },
+                  scrollbarWidth: 'none',
+                }}
+              >
+                <Flex h="full" gap="16px" w="max-content" pr="32px">
+                  {columns.map((col, index) => {
+                    if (col.type === 'portrait') {
+                      const width = 523 * col.img.aspect
+                      return (
+                        <Box key={index} position="relative" h="523px" w={`${width}px`} flexShrink={0}>
+                          <Image
+                            src={urlFor(col.img.image).url()}
+                            alt={col.img.alt}
+                            fill
+                            style={{ objectFit: 'contain' }}
+                            sizes={`${Math.round(width)}px`}
+                          />
+                        </Box>
+                      )
+                    } else {
+                      const isSingle = col.imgs.length === 1
+                      let width: number
+                      if (isSingle) {
+                        width = 523 * col.imgs[0].aspect
+                      } else {
+                        const totalHeight = 523 - 16
+                        const invAspectSum = (1 / col.imgs[0].aspect) + (1 / col.imgs[1].aspect)
+                        width = totalHeight / invAspectSum
+                      }
+                      
+                      return (
+                        <Flex key={index} direction="column" h="523px" w={`${width}px`} gap="16px" flexShrink={0}>
+                          {col.imgs.map((img, jIndex) => {
+                            const itemHeight = isSingle ? 523 : (width / img.aspect)
+                            return (
+                              <Box key={jIndex} position="relative" h={`${itemHeight}px`} w="full">
+                                <Image
+                                  src={urlFor(img.image).url()}
+                                  alt={img.alt}
+                                  fill
+                                  style={{ objectFit: 'cover' }}
+                                  sizes={`${Math.round(width)}px`}
+                                />
+                              </Box>
+                            )
+                          })}
                         </Flex>
-                      </Box>
-                    ))}
-                  </Box>
+                      )
+                    }
+                  })}
+                </Flex>
+              </Box>
 
-                  {/* Desktop Carousel Controls */}
-                  {allImages.length > 1 && (
-                    <Flex
-                      position="absolute"
-                      bottom="16px"
-                      right="16px"
-                      gap={2}
-                      zIndex={10}
-                    >
-                      <IconButton
-                        aria-label="Previous image"
-                        icon={
-                          <Box
-                            w="18.5px"
-                            h="8px"
-                            position="relative"
-                            transform="rotate(180deg)"
-                          >
-                            <Box
-                              position="absolute"
-                              top="50%"
-                              left="50%"
-                              transform="translate(-50%, -50%)"
-                              w="18.5px"
-                              h="1px"
-                              bg="white"
-                              _before={{
-                                content: '""',
-                                position: 'absolute',
-                                right: 0,
-                                top: '50%',
-                                transform: 'translateY(-50%) rotate(45deg)',
-                                w: '6px',
-                                h: '1px',
-                                bg: 'white',
-                              }}
-                              _after={{
-                                content: '""',
-                                position: 'absolute',
-                                right: 0,
-                                top: '50%',
-                                transform: 'translateY(-50%) rotate(-45deg)',
-                                w: '6px',
-                                h: '1px',
-                                bg: 'white',
-                              }}
-                            />
-                          </Box>
-                        }
-                        onClick={handlePrevious}
-                        bg="rgba(255, 255, 255, 0.5)"
-                        _hover={{ bg: 'rgba(255, 255, 255, 0.9)', opacity: 1 }}
-                        size="44px"
-                        borderRadius="0"
-                        transition="all 0.2s ease"
-                      />
-                      <IconButton
-                        aria-label="Next image"
-                        icon={
-                          <Box 
-                            w="18.5px" 
-                            h="8px" 
-                            position="relative"
-                          >
-                            <Box
-                              position="absolute"
-                              top="50%"
-                              left="50%"
-                              transform="translate(-50%, -50%)"
-                              w="18.5px"
-                              h="1px"
-                              bg="white"
-                              _before={{
-                                content: '""',
-                                position: 'absolute',
-                                right: 0,
-                                top: '50%',
-                                transform: 'translateY(-50%) rotate(45deg)',
-                                w: '6px',
-                                h: '1px',
-                                bg: 'white',
-                              }}
-                              _after={{
-                                content: '""',
-                                position: 'absolute',
-                                right: 0,
-                                top: '50%',
-                                transform: 'translateY(-50%) rotate(-45deg)',
-                                w: '6px',
-                                h: '1px',
-                                bg: 'white',
-                              }}
-                            />
-                          </Box>
-                        }
-                        onClick={handleNext}
-                        bg="rgba(255, 255, 255, 0.5)"
-                        _hover={{ bg: 'rgba(255, 255, 255, 0.9)', opacity: 1 }}
-                        size="44px"
-                        borderRadius="0"
-                        transition="all 0.2s ease"
-                      />
-                    </Flex>
-                  )}
-                </>
+              {/* Navigation Buttons */}
+              {columns.length > 1 && (
+                <Flex
+                  position="absolute"
+                  bottom="16px"
+                  right="16px"
+                  gap={2}
+                  zIndex={10}
+                >
+                  <IconButton
+                    aria-label="Scroll left"
+                    icon={<ArrowIcon direction="left" />}
+                    onClick={scrollLeft}
+                    bg="rgba(255, 255, 255, 0.5)"
+                    _hover={{ bg: 'rgba(255, 255, 255, 0.9)', opacity: 1 }}
+                    size="44px"
+                    borderRadius="0"
+                    transition="all 0.2s ease"
+                  />
+                  <IconButton
+                    aria-label="Scroll right"
+                    icon={<ArrowIcon direction="right" />}
+                    onClick={scrollRight}
+                    bg="rgba(255, 255, 255, 0.5)"
+                    _hover={{ bg: 'rgba(255, 255, 255, 0.9)', opacity: 1 }}
+                    size="44px"
+                    borderRadius="0"
+                    transition="all 0.2s ease"
+                  />
+                </Flex>
               )}
             </Box>
           )}
@@ -655,31 +566,28 @@ export function GraveHeroBanner({
           display={{ base: 'block', sm: 'none' }}
           w="full"
           bg="white"
+          py="16px"
         >
-          {/* Image Carousel */}
           <Box
             position="relative"
             w="full"
-            overflow="hidden"
-            px="8px"
-            pt="8px"
+            overflowX="auto"
+            px="16px"
+            sx={{
+              '&::-webkit-scrollbar': { display: 'none' },
+              scrollbarWidth: 'none',
+            }}
           >
-            <Flex
-              gap="8px"
-              alignItems="center"
-              style={{
-                transform: `translateX(-${mobileScrollPosition}px)`,
-                transition: 'transform 0.3s ease-in-out',
-              }}
-            >
-              {allImages.map((img, index) => {
-                const width = index === 0 ? '149px' : '260px'
+            <Flex gap="8px" w="max-content">
+              {allImagesWithAspect.map((img, index) => {
+                const height = 240
+                const width = height * img.aspect
                 return (
                   <Box
                     key={index}
                     position="relative"
-                    width={width}
-                    height="200px"
+                    h={`${height}px`}
+                    w={`${width}px`}
                     flexShrink={0}
                   >
                     <Image
@@ -687,55 +595,14 @@ export function GraveHeroBanner({
                       alt={img.alt}
                       fill
                       priority={index === 0}
-                      style={{
-                        objectFit: 'cover',
-                        objectPosition: 'center',
-                      }}
+                      style={{ objectFit: 'contain' }}
+                      sizes={`${Math.round(width)}px`}
                     />
                   </Box>
                 )
               })}
             </Flex>
           </Box>
-
-          {/* Navigation Buttons */}
-          {allImages.length > 1 && (
-            <Flex
-              w="full"
-              justifyContent="space-between"
-              alignItems="center"
-              px="8px"
-              py="0"
-              h="44px"
-            >
-              <IconButton
-                aria-label="Previous image"
-                icon={<ArrowIcon direction="left" />}
-                onClick={handlePrevious}
-                bg="white"
-                size="44px"
-                minW="44px"
-                h="44px"
-                borderRadius="0"
-                _hover={{ bg: 'white', opacity: 0.8 }}
-                _active={{ bg: 'white', opacity: 0.6 }}
-              />
-              <IconButton
-                aria-label="Next image"
-                icon={<ArrowIcon direction="right" />}
-                onClick={handleNext}
-                bg="white"
-                size="44px"
-                minW="44px"
-                h="44px"
-                borderRadius="0"
-                opacity={currentImageIndex === allImages.length - 1 ? 0.5 : 1}
-                isDisabled={currentImageIndex === allImages.length - 1}
-                _hover={{ bg: 'white', opacity: currentImageIndex === allImages.length - 1 ? 0.5 : 0.8 }}
-                _active={{ bg: 'white', opacity: currentImageIndex === allImages.length - 1 ? 0.5 : 0.6 }}
-              />
-            </Flex>
-          )}
         </Box>
       )}
     </Box>
