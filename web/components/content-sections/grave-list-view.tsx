@@ -13,6 +13,7 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { Grave, ImageMap, Hotspot } from "../../types";
 import { formatPersonName } from "../../utils/name-parser";
 import Image from "next/image";
@@ -33,8 +34,24 @@ export function GraveListView({
   imageMap,
   searchQuery = "",
 }: GraveListViewProps) {
-  const [viewType, setViewType] = useState<ViewType>("list");
-  const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(null);
+  const selectParam = useSearchParams().get("select");
+  const initialHotspot: Hotspot | null =
+    selectParam && imageMap?.hotspots
+      ? (imageMap.hotspots.find(
+          (h) =>
+            typeof h.grave === "object" &&
+            h.grave !== null &&
+            "_id" in h.grave &&
+            h.grave._id === selectParam,
+        ) ?? null)
+      : null;
+
+  const [viewType, setViewType] = useState<ViewType>(() =>
+    initialHotspot ? "map" : "list",
+  );
+  const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(
+    () => initialHotspot,
+  );
 
   // Filter hotspots based on search query for map view
   const filteredHotspots = useMemo(() => {
@@ -136,7 +153,6 @@ export function GraveListView({
   }, [filteredGraves]);
 
   console.log("groupedGraves", groupedGraves);
-
 
   return (
     <Box
@@ -330,27 +346,39 @@ export function GraveListView({
                           <VStack spacing={0} align="stretch" w="full">
                             {letterGraves.map((grave) => {
                               // Format names and years for display
-                              type PersonDisplay = { name: string; year?: number | string };
+                              type PersonDisplay = {
+                                name: string;
+                                year?: number | string;
+                              };
                               let personsDisplay: PersonDisplay[] = [];
-                              
+
                               if (grave.persons && grave.persons.length > 0) {
                                 personsDisplay = grave.persons
                                   .map((p) => {
                                     const name = p.name || "";
-                                    const formattedName = name ? formatPersonName(name) : "";
-                                    
+                                    const formattedName = name
+                                      ? formatPersonName(name)
+                                      : "";
+
                                     return {
                                       name: formattedName,
-                                      year: p.year
+                                      year: p.year,
                                     };
                                   })
-                                  .filter(p => Boolean(p.name));
-                                
-                                if (personsDisplay.length === 0 && grave.familySurname) {
-                                  personsDisplay = [{ name: grave.familySurname.toUpperCase() }];
+                                  .filter((p) => Boolean(p.name));
+
+                                if (
+                                  personsDisplay.length === 0 &&
+                                  grave.familySurname
+                                ) {
+                                  personsDisplay = [
+                                    { name: grave.familySurname.toUpperCase() },
+                                  ];
                                 }
                               } else if (grave.familySurname) {
-                                personsDisplay = [{ name: grave.familySurname.toUpperCase() }];
+                                personsDisplay = [
+                                  { name: grave.familySurname.toUpperCase() },
+                                ];
                               }
 
                               return (
@@ -371,7 +399,10 @@ export function GraveListView({
                                   cursor="pointer">
                                   <Box flex="1" minW={0} w="full">
                                     {personsDisplay.length > 0 ? (
-                                      <VStack spacing={0} align="stretch" w="full">
+                                      <VStack
+                                        spacing={0}
+                                        align="stretch"
+                                        w="full">
                                         {personsDisplay.map((person, idx) => (
                                           <Flex
                                             key={idx}
@@ -672,8 +703,8 @@ export function GraveListView({
                                     const totalPersons =
                                       grave.persons?.length || 0;
                                     const displayName = person.name
-                                       ? formatPersonName(person.name)
-                                       : (grave.familySurname || "");
+                                      ? formatPersonName(person.name)
+                                      : grave.familySurname || "";
 
                                     return (
                                       <Box
