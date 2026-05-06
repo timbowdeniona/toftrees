@@ -557,64 +557,61 @@ export function GraveHeroBanner({
                     ))}
                   </Box>
 
-                  {/* Desktop Carousel Controls - only show when more than 3 images */}
-                  {allImages.length > 3 && (
-                    <Flex
-                      position="absolute"
-                      bottom="16px"
-                      right="16px"
-                      gap="8px"
-                      zIndex={10}>
-                      <IconButton
-                        aria-label="Previous image"
-                        icon={<ArrowIcon direction="left" />}
-                        onClick={handlePrevious}
-                        bg="white"
-                        opacity={currentImageIndex === 0 ? 0.5 : 1}
-                        isDisabled={currentImageIndex === 0}
-                        _hover={{
-                          opacity: currentImageIndex === 0 ? 0.5 : 0.8,
-                        }}
-                        _active={{
-                          opacity: currentImageIndex === 0 ? 0.5 : 0.7,
-                        }}
-                        _disabled={{ opacity: 0.5, cursor: "default" }}
-                        size="44px"
-                        minW="44px"
-                        h="44px"
-                        borderRadius="0"
-                        transition="all 0.2s ease"
-                      />
-                      <IconButton
-                        aria-label="Next image"
-                        icon={<ArrowIcon direction="right" />}
-                        onClick={handleNext}
-                        bg="white"
-                        opacity={
-                          currentImageIndex === allImages.length - 1 ? 0.5 : 1
-                        }
-                        isDisabled={currentImageIndex === allImages.length - 1}
-                        _hover={{
-                          opacity:
-                            currentImageIndex === allImages.length - 1
-                              ? 0.5
-                              : 0.8,
-                        }}
-                        _active={{
-                          opacity:
-                            currentImageIndex === allImages.length - 1
-                              ? 0.5
-                              : 0.7,
-                        }}
-                        _disabled={{ opacity: 0.5, cursor: "default" }}
-                        size="44px"
-                        minW="44px"
-                        h="44px"
-                        borderRadius="0"
-                        transition="all 0.2s ease"
-                      />
-                    </Flex>
-                  )}
+                  <Flex
+                    position="absolute"
+                    bottom="16px"
+                    right="16px"
+                    gap="8px"
+                    zIndex={10}>
+                    <IconButton
+                      aria-label="Previous image"
+                      icon={<ArrowIcon direction="left" />}
+                      onClick={handlePrevious}
+                      bg="white"
+                      opacity={currentImageIndex === 0 ? 0.5 : 1}
+                      isDisabled={currentImageIndex === 0}
+                      _hover={{
+                        opacity: currentImageIndex === 0 ? 0.5 : 0.8,
+                      }}
+                      _active={{
+                        opacity: currentImageIndex === 0 ? 0.5 : 0.7,
+                      }}
+                      _disabled={{ opacity: 0.5, cursor: "default" }}
+                      size="44px"
+                      minW="44px"
+                      h="44px"
+                      borderRadius="0"
+                      transition="all 0.2s ease"
+                    />
+                    <IconButton
+                      aria-label="Next image"
+                      icon={<ArrowIcon direction="right" />}
+                      onClick={handleNext}
+                      bg="white"
+                      opacity={
+                        currentImageIndex === allImages.length - 1 ? 0.5 : 1
+                      }
+                      isDisabled={currentImageIndex === allImages.length - 1}
+                      _hover={{
+                        opacity:
+                          currentImageIndex === allImages.length - 1
+                            ? 0.5
+                            : 0.8,
+                      }}
+                      _active={{
+                        opacity:
+                          currentImageIndex === allImages.length - 1
+                            ? 0.5
+                            : 0.7,
+                      }}
+                      _disabled={{ opacity: 0.5, cursor: "default" }}
+                      size="44px"
+                      minW="44px"
+                      h="44px"
+                      borderRadius="0"
+                      transition="all 0.2s ease"
+                    />
+                  </Flex>
                 </>
               )}
             </Box>
