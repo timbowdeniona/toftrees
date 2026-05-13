@@ -1,0 +1,3757 @@
+
+
+=== app/index.tsx ===
+/**
+ * Home Screen
+ * Lists all survey records with status filtering and FAB for new surveys.
+ */
+import React, { useState, useCallback } from 'react';
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  RefreshControl,
+  Alert,
+} from 'react-native';
+import {
+  FAB,
+  Text,
+  Chip,
+  Icon,
+  Searchbar,
+  IconButton,
+  Snackbar,
+  Surface,
+} from 'react-native-paper';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { toftreesTheme, spacing, radii } from '../theme';
+import { SurveyCard } from '../components/SurveyCard';
+import { getAllSurveys, deleteSurvey } from '../services/storage';
+import type { SurveyRecord, SurveyStatus } from '../types';
+
+type FilterStatus = 'all' | SurveyStatus;
+
+export default function HomeScreen() {
+  const router = useRouter();
+  const [surveys, setSurveys] = useState<SurveyRecord[]>([]);
+  const [filteredSurveys, setFilteredSurveys] = useState<SurveyRecord[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [filter, setFilter] = useState<FilterStatus>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [snackMessage, setSnackMessage] = useState('');
+
+  const loadSurveys = useCallback(async () => {
+    try {
+      const data = await getAllSurveys();
+      setSurveys(data);
+      applyFilters(data, filter, searchQuery);
+    } catch (error) {
+      console.error('Failed to load surveys:', error);
+    }
+  }, [filter, searchQuery]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadSurveys();
+    }, [loadSurveys])
+  );
+
+  const applyFilters = (
+    data: SurveyRecord[],
+    status: FilterStatus,
+    query: string
+  ) => {
+    let result = data;
+    if (status !== 'all') {
+      result = result.filter((s) => s.status === status);
+    }
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      result = result.filter(
+        (s) =>
+          s.familySurname?.toLowerCase().includes(q) ||
+          s.graveNo?.toString().includes(q) ||
+          s.what3words?.toLowerCase().includes(q)
+      );
+    }
+    setFilteredSurveys(result);
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadSurveys();
+    setRefreshing(false);
+  };
+
+  const handleFilterChange = (newFilter: FilterStatus) => {
+    setFilter(newFilter);
+    applyFilters(surveys, newFilter, searchQuery);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    applyFilters(surveys, filter, query);
+  };
+
+  const handleDelete = (id: string) => {
+    const survey = surveys.find((s) => s.id === id);
+    const name = survey?.familySurname || `Grave #${survey?.graveNo || '?'}`;
+
+    Alert.alert(
+      'Delete Survey',
+      `Delete "${name}"? This cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            await deleteSurvey(id);
+            setSnackMessage(`Deleted "${name}"`);
+            await loadSurveys();
+          },
+        },
+      ]
+    );
+  };
+
+  const statusCounts = {
+    all: surveys.length,
+    draft: surveys.filter((s) => s.status === 'draft').length,
+    ready: surveys.filter((s) => s.status === 'ready').length,
+    uploaded: surveys.filter((s) => s.status === 'uploaded').length,
+  };
+
+  return (
+    <View style={styles.container}>
+      {/* Search */}
+      <Searchbar
+        placeholder="Search surveys..."
+        value={searchQuery}
+        onChangeText={handleSearch}
+        style={styles.searchbar}
+        inputStyle={styles.searchInput}
+        iconColor={toftreesTheme.colors.onSurfaceVariant}
+        placeholderTextColor={toftreesTheme.colors.outline}
+        right={() => (
+          <IconButton
+            icon="cog"
+            size={20}
+            onPress={() => router.push('/settings')}
+            accessibilityLabel="Settings"
+          />
+        )}
+      />
+
+      {/* Filters */}
+      <View style={styles.filterRow}>
+        {(
+          [
+            { key: 'all', label: 'All', icon: 'format-list-bulleted' },
+            { key: 'draft', label: 'Draft', icon: 'pencil-outline' },
+            { key: 'ready', label: 'Ready', icon: 'check-circle-outline' },
+            { key: 'uploaded', label: 'Uploaded', icon: 'cloud-check' },
+          ] as const
+        ).map(({ key, label, icon }) => (
+          <Chip
+            key={key}
+            selected={filter === key}
+            onPress={() => handleFilterChange(key)}
+            icon={icon}
+            compact
+            style={[
+              styles.filterChip,
+              filter === key && styles.filterChipActive,
+            ]}
+            textStyle={[
+              styles.filterChipText,
+              filter === key && styles.filterChipTextActive,
+            ]}
+          >
+            {label} ({statusCounts[key]})
+          </Chip>
+        ))}
+      </View>
+
+      {/* Survey List */}
+      <FlatList
+        data={filteredSurveys}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <SurveyCard
+            survey={item}
+            onPress={(id) => router.push(`/survey/${id}`)}
+            onLongPress={handleDelete}
+          />
+        )}
+        contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={toftreesTheme.colors.primary}
+          />
+        }
+        ListEmptyComponent={() => (
+          <Surface style={styles.emptyContainer}>
+            <Icon
+              source="grave-stone"
+              size={64}
+              color={toftreesTheme.colors.outlineVariant}
+            />
+            <Text variant="titleMedium" style={styles.emptyTitle}>
+              No Surveys Yet
+            </Text>
+            <Text variant="bodyMedium" style={styles.emptyText}>
+              Tap the + button to start surveying graves in the churchyard
+            </Text>
+          </Surface>
+        )}
+      />
+
+      {/* FAB */}
+      <FAB
+        icon="plus"
+        label="New Survey"
+        onPress={() => router.push('/survey/new')}
+        style={styles.fab}
+        color={toftreesTheme.colors.onPrimary}
+        customSize={56}
+        accessibilityLabel="Start new survey"
+      />
+
+      {/* Snackbar */}
+      <Snackbar
+        visible={Boolean(snackMessage)}
+        onDismiss={() => setSnackMessage('')}
+        duration={3000}
+        style={styles.snackbar}
+      >
+        {snackMessage}
+      </Snackbar>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: toftreesTheme.colors.background,
+  },
+  searchbar: {
+    margin: spacing.md,
+    backgroundColor: toftreesTheme.colors.elevation.level2,
+    borderRadius: radii.lg,
+  },
+  searchInput: {
+    color: toftreesTheme.colors.onSurface,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.md,
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  filterChip: {
+    backgroundColor: toftreesTheme.colors.elevation.level1,
+  },
+  filterChipActive: {
+    backgroundColor: toftreesTheme.colors.primaryContainer,
+  },
+  filterChipText: {
+    fontSize: 11,
+    color: toftreesTheme.colors.onSurfaceVariant,
+  },
+  filterChipTextActive: {
+    color: toftreesTheme.colors.onPrimaryContainer,
+  },
+  list: {
+    paddingHorizontal: spacing.md,
+    paddingBottom: 100,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing.xxl * 2,
+    gap: spacing.md,
+    backgroundColor: 'transparent',
+  },
+  emptyTitle: {
+    color: toftreesTheme.colors.onSurfaceVariant,
+  },
+  emptyText: {
+    color: toftreesTheme.colors.outline,
+    textAlign: 'center',
+    maxWidth: 280,
+  },
+  fab: {
+    position: 'absolute',
+    right: spacing.md,
+    bottom: spacing.xl,
+    backgroundColor: toftreesTheme.colors.primary,
+    borderRadius: radii.lg,
+  },
+  snackbar: {
+    backgroundColor: toftreesTheme.colors.inverseSurface,
+  },
+});
+
+
+=== app/survey/new.tsx ===
+/**
+ * New Survey Screen
+ * Multi-step capture wizard: Photo → Location → OCR → Details → Save
+ */
+import React, { useState, useCallback } from 'react';
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Image,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import {
+  Button,
+  Text,
+  ProgressBar,
+  Surface,
+  Snackbar,
+  Icon,
+  IconButton,
+} from 'react-native-paper';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { toftreesTheme, spacing, radii } from '../../theme';
+import { CameraCapture } from '../../components/CameraCapture';
+import { LocationDisplay } from '../../components/LocationDisplay';
+import { InscriptionEditor } from '../../components/InscriptionEditor';
+import { GraveForm } from '../../components/GraveForm';
+import { getCurrentLocation } from '../../services/location';
+import { recognizeText, extractPersonsFromText } from '../../services/ocr';
+import { createSurvey } from '../../services/storage';
+import { uploadSurvey } from '../../services/sanity';
+import type { SurveyRecord, LocationResult, PersonRecord } from '../../types';
+
+type Step = 'photo' | 'location' | 'inscription' | 'details' | 'review';
+
+const STEPS: Step[] = ['photo', 'location', 'inscription', 'details', 'review'];
+const STEP_LABELS: Record<Step, string> = {
+  photo: '📸 Photo',
+  location: '📍 Location',
+  inscription: '📝 Inscription',
+  details: '📋 Details',
+  review: '✅ Review',
+};
+
+export default function NewSurveyScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const [currentStep, setCurrentStep] = useState<Step>('photo');
+  const [showCamera, setShowCamera] = useState(false);
+  const [snackMessage, setSnackMessage] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  // Survey data
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [additionalPhotos, setAdditionalPhotos] = useState<string[]>([]);
+  const [location, setLocation] = useState<LocationResult | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState('');
+  const [rawOcrText, setRawOcrText] = useState('');
+  const [editedInscription, setEditedInscription] = useState('');
+  const [isOcrProcessing, setIsOcrProcessing] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
+  const [surveyData, setSurveyData] = useState<Partial<SurveyRecord>>({});
+
+  const currentStepIndex = STEPS.indexOf(currentStep);
+  const progress = (currentStepIndex + 1) / STEPS.length;
+
+  // Navigation
+  const goNext = () => {
+    const idx = STEPS.indexOf(currentStep);
+    if (idx < STEPS.length - 1) {
+      setCurrentStep(STEPS[idx + 1]);
+    }
+  };
+
+  const goBack = () => {
+    const idx = STEPS.indexOf(currentStep);
+    if (idx > 0) {
+      setCurrentStep(STEPS[idx - 1]);
+    }
+  };
+
+  // Photo capture
+  const handlePhotoCapture = (uri: string) => {
+    setPhotoUri(uri);
+    setShowCamera(false);
+    setSnackMessage('Photo captured!');
+  };
+
+  // Location capture
+  const handleGetLocation = async () => {
+    setLocationLoading(true);
+    setLocationError('');
+    try {
+      const loc = await getCurrentLocation();
+      setLocation(loc);
+      setSnackMessage(
+        loc.what3words
+          ? `Location: ///${loc.what3words}`
+          : 'GPS position acquired'
+      );
+    } catch (error) {
+      setLocationError(
+        error instanceof Error ? error.message : 'Failed to get location'
+      );
+    } finally {
+      setLocationLoading(false);
+    }
+  };
+
+  // OCR
+  const handleRunOcr = async () => {
+    if (!photoUri) {
+      setSnackMessage('Take a photo first');
+      return;
+    }
+    setIsOcrProcessing(true);
+    try {
+      const result = await recognizeText(photoUri);
+      setRawOcrText(result.fullText);
+      setEditedInscription(result.fullText);
+
+      // Try to extract person data from inscription
+      if (result.fullText) {
+        const extractedPersons = extractPersonsFromText(result.fullText);
+        if (extractedPersons.length > 0) {
+          const persons: PersonRecord[] = extractedPersons.map((p) => ({
+            key: Math.random().toString(36).substring(2, 10),
+            name: p.name,
+            year: p.year,
+            age: p.age,
+          }));
+          setSurveyData((prev) => ({
+            ...prev,
+            persons: [...(prev.persons || []), ...persons],
+          }));
+          setSnackMessage(
+            `Found ${extractedPersons.length} person(s) in inscription`
+          );
+        } else {
+          setSnackMessage('Inscription transcribed — no persons auto-detected');
+        }
+      } else {
+        setSnackMessage('No text detected in photo');
+      }
+    } catch (error) {
+      Alert.alert(
+        'OCR Error',
+        error instanceof Error
+          ? error.message
+          : 'Failed to recognise text. Check your Cloud Vision API key in Settings.'
+      );
+    } finally {
+      setIsOcrProcessing(false);
+    }
+  };
+
+  // Save
+  const handleSave = async (status: 'draft' | 'ready' = 'draft') => {
+    setSaving(true);
+    try {
+      const record: Partial<SurveyRecord> = {
+        ...surveyData,
+        status,
+        headstonePhotoUri: photoUri || undefined,
+        additionalPhotoUris:
+          additionalPhotos.length > 0 ? additionalPhotos : undefined,
+        latitude: location?.latitude,
+        longitude: location?.longitude,
+        altitude: location?.altitude,
+        what3words: location?.what3words,
+        rawOcrText: rawOcrText || undefined,
+        editedInscription: editedInscription || undefined,
+      };
+
+      await createSurvey(record);
+      setSnackMessage('Survey saved!');
+      router.back();
+    } catch (error) {
+      Alert.alert(
+        'Save Error',
+        error instanceof Error ? error.message : 'Failed to save survey'
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDirectUpload = async () => {
+    setUploading(true);
+    try {
+      const record: SurveyRecord = {
+        id: Math.random().toString(36).substring(2, 10),
+        status: 'uploaded',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        ...surveyData,
+        headstonePhotoUri: photoUri || undefined,
+        additionalPhotoUris:
+          additionalPhotos.length > 0 ? additionalPhotos : undefined,
+        latitude: location?.latitude,
+        longitude: location?.longitude,
+        altitude: location?.altitude,
+        what3words: location?.what3words,
+        rawOcrText: rawOcrText || undefined,
+        editedInscription: editedInscription || undefined,
+      };
+
+      const sanityId = await uploadSurvey(record, setUploadProgress);
+      
+      // Save locally as well
+      record.sanityId = sanityId;
+      await createSurvey(record);
+      
+      setSnackMessage('Successfully uploaded to Sanity!');
+      router.back();
+    } catch (error) {
+      Alert.alert(
+        'Upload Error',
+        error instanceof Error
+          ? error.message
+          : 'Failed to upload. Check your token.'
+      );
+    } finally {
+      setUploading(false);
+      setUploadProgress('');
+    }
+  };
+
+  // Camera view
+  if (showCamera) {
+    return (
+      <CameraCapture
+        onCapture={handlePhotoCapture}
+        onCancel={() => setShowCamera(false)}
+      />
+    );
+  }
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      {/* Progress */}
+      <Surface style={styles.progressContainer}>
+        <View style={styles.stepRow}>
+          {STEPS.map((step, i) => (
+            <Text
+              key={step}
+              variant="labelSmall"
+              style={[
+                styles.stepLabel,
+                i === currentStepIndex && styles.stepLabelActive,
+                i < currentStepIndex && styles.stepLabelDone,
+              ]}
+            >
+              {STEP_LABELS[step]}
+            </Text>
+          ))}
+        </View>
+        <ProgressBar
+          progress={progress}
+          color={toftreesTheme.colors.primary}
+          style={styles.progressBar}
+        />
+      </Surface>
+
+      {/* Content */}
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* STEP: Photo */}
+        {currentStep === 'photo' && (
+          <View style={styles.stepContent}>
+            <Text variant="headlineSmall" style={styles.stepTitle}>
+              Photograph the Headstone
+            </Text>
+
+            {photoUri ? (
+              <View style={styles.photoContainer}>
+                <Image
+                  source={{ uri: photoUri }}
+                  style={styles.photoPreview}
+                  resizeMode="contain"
+                />
+                <View style={styles.photoActions}>
+                  <Button
+                    mode="outlined"
+                    icon="camera"
+                    onPress={() => setShowCamera(true)}
+                    style={styles.actionButton}
+                  >
+                    Retake
+                  </Button>
+                </View>
+              </View>
+            ) : (
+              <Surface style={styles.photoPlaceholder}>
+                <Icon
+                  source="camera-plus"
+                  size={64}
+                  color={toftreesTheme.colors.outlineVariant}
+                />
+                <Text variant="bodyMedium" style={styles.placeholderText}>
+                  Tap to take a photo of the headstone
+                </Text>
+                <Button
+                  mode="contained"
+                  icon="camera"
+                  onPress={() => setShowCamera(true)}
+                  style={styles.captureButton}
+                >
+                  Open Camera
+                </Button>
+              </Surface>
+            )}
+          </View>
+        )}
+
+        {/* STEP: Location */}
+        {currentStep === 'location' && (
+          <View style={styles.stepContent}>
+            <Text variant="headlineSmall" style={styles.stepTitle}>
+              Record Location
+            </Text>
+            <Text variant="bodyMedium" style={styles.stepDescription}>
+              Capture the GPS coordinates and What3Words address of this grave.
+            </Text>
+
+            <LocationDisplay
+              location={location}
+              loading={locationLoading}
+              error={locationError}
+            />
+
+            <Button
+              mode="contained"
+              icon="crosshairs-gps"
+              onPress={handleGetLocation}
+              loading={locationLoading}
+              disabled={locationLoading}
+              style={styles.actionButton}
+            >
+              {location ? 'Update Location' : 'Capture Location'}
+            </Button>
+          </View>
+        )}
+
+        {/* STEP: Inscription */}
+        {currentStep === 'inscription' && (
+          <View style={styles.stepContent}>
+            <Text variant="headlineSmall" style={styles.stepTitle}>
+              Transcribe Inscription
+            </Text>
+
+            {photoUri && (
+              <Image
+                source={{ uri: photoUri }}
+                style={styles.photoThumb}
+                resizeMode="cover"
+              />
+            )}
+
+            <InscriptionEditor
+              rawText={rawOcrText}
+              editedText={editedInscription}
+              onTextChange={setEditedInscription}
+              onRunOcr={handleRunOcr}
+              isProcessing={isOcrProcessing}
+            />
+          </View>
+        )}
+
+        {/* STEP: Details */}
+        {currentStep === 'details' && (
+          <View style={styles.stepContent}>
+            <Text variant="headlineSmall" style={styles.stepTitle}>
+              Enter Details
+            </Text>
+
+            <GraveForm
+              survey={surveyData}
+              onUpdate={(updates) =>
+                setSurveyData((prev) => ({ ...prev, ...updates }))
+              }
+            />
+          </View>
+        )}
+
+        {/* STEP: Review */}
+        {currentStep === 'review' && (
+          <View style={styles.stepContent}>
+            <Text variant="headlineSmall" style={styles.stepTitle}>
+              Review & Save
+            </Text>
+
+            {/* Summary */}
+            <Surface style={styles.reviewCard}>
+              {photoUri && (
+                <Image
+                  source={{ uri: photoUri }}
+                  style={styles.reviewPhoto}
+                  resizeMode="cover"
+                />
+              )}
+
+              <View style={styles.reviewRow}>
+                <Icon source="grave-stone" size={18} color={toftreesTheme.colors.primary} />
+                <Text variant="bodyMedium" style={styles.reviewText}>
+                  {surveyData.familySurname || 'No surname'}
+                  {surveyData.graveNo ? ` (#${surveyData.graveNo})` : ''}
+                </Text>
+              </View>
+
+              {location && (
+                <View style={styles.reviewRow}>
+                  <Icon source="map-marker" size={18} color={toftreesTheme.colors.primary} />
+                  <Text variant="bodyMedium" style={styles.reviewText}>
+                    {location.what3words
+                      ? `///${location.what3words}`
+                      : `${location.latitude.toFixed(5)}, ${location.longitude.toFixed(5)}`}
+                  </Text>
+                </View>
+              )}
+
+              {(rawOcrText || editedInscription) && (
+                <View style={styles.reviewRow}>
+                  <Icon source="text-recognition" size={18} color={toftreesTheme.colors.primary} />
+                  <Text
+                    variant="bodyMedium"
+                    style={styles.reviewText}
+                    numberOfLines={2}
+                  >
+                    {(editedInscription || rawOcrText).slice(0, 100)}...
+                  </Text>
+                </View>
+              )}
+
+              {(surveyData.persons?.length ?? 0) > 0 && (
+                <View style={styles.reviewRow}>
+                  <Icon source="account-group" size={18} color={toftreesTheme.colors.primary} />
+                  <Text variant="bodyMedium" style={styles.reviewText}>
+                    {surveyData.persons?.length} person(s) recorded
+                  </Text>
+                </View>
+              )}
+            </Surface>
+
+            <View style={styles.saveActions}>
+              <Button
+                mode="contained"
+                icon="cloud-upload"
+                onPress={handleDirectUpload}
+                loading={uploading}
+                disabled={saving || uploading}
+                style={[styles.saveButton, { flex: 2, backgroundColor: toftreesTheme.colors.tertiary }]}
+                textColor={toftreesTheme.colors.onTertiary}
+              >
+                {uploadProgress || 'Upload to Sanity'}
+              </Button>
+            </View>
+
+            <View style={[styles.saveActions, { marginTop: spacing.sm }]}>
+              <Button
+                mode="outlined"
+                icon="content-save-outline"
+                onPress={() => handleSave('draft')}
+                loading={saving}
+                disabled={saving || uploading}
+                style={styles.saveButton}
+              >
+                Save Draft
+              </Button>
+              <Button
+                mode="contained-tonal"
+                icon="check-circle-outline"
+                onPress={() => handleSave('ready')}
+                loading={saving}
+                disabled={saving || uploading}
+                style={styles.saveButton}
+              >
+                Mark Ready
+              </Button>
+            </View>
+          </View>
+        )}
+      </ScrollView>
+
+      {/* Navigation */}
+      <Surface style={[styles.navBar, { paddingBottom: Math.max(insets.bottom, spacing.sm) }]}>
+        <Button
+          mode="text"
+          icon="arrow-left"
+          onPress={currentStepIndex === 0 ? () => router.back() : goBack}
+          textColor={toftreesTheme.colors.onSurface}
+        >
+          {currentStepIndex === 0 ? 'Cancel' : 'Back'}
+        </Button>
+
+        {currentStep !== 'review' && (
+          <Button
+            mode="contained"
+            icon="arrow-right"
+            onPress={goNext}
+            contentStyle={{ flexDirection: 'row-reverse' }}
+          >
+            Next
+          </Button>
+        )}
+      </Surface>
+
+      <Snackbar
+        visible={Boolean(snackMessage)}
+        onDismiss={() => setSnackMessage('')}
+        duration={3000}
+        style={styles.snackbar}
+      >
+        {snackMessage}
+      </Snackbar>
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: toftreesTheme.colors.background,
+  },
+  progressContainer: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.xs,
+    backgroundColor: toftreesTheme.colors.elevation.level1,
+  },
+  stepRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: spacing.xs,
+  },
+  stepLabel: {
+    color: toftreesTheme.colors.outline,
+    fontSize: 10,
+  },
+  stepLabelActive: {
+    color: toftreesTheme.colors.primary,
+    fontWeight: '700',
+  },
+  stepLabelDone: {
+    color: toftreesTheme.colors.onSurfaceVariant,
+  },
+  progressBar: {
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: toftreesTheme.colors.surfaceVariant,
+  },
+  content: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: spacing.md,
+    paddingBottom: spacing.xxl,
+  },
+  stepContent: {
+    gap: spacing.md,
+  },
+  stepTitle: {
+    color: toftreesTheme.colors.onSurface,
+    fontWeight: '600',
+  },
+  stepDescription: {
+    color: toftreesTheme.colors.onSurfaceVariant,
+  },
+  photoContainer: {
+    gap: spacing.md,
+  },
+  photoPreview: {
+    width: '100%',
+    aspectRatio: 3 / 4,
+    borderRadius: radii.md,
+    backgroundColor: toftreesTheme.colors.elevation.level2,
+  },
+  photoActions: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  photoPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.xxl * 2,
+    borderRadius: radii.md,
+    borderWidth: 2,
+    borderColor: toftreesTheme.colors.outlineVariant,
+    borderStyle: 'dashed',
+    backgroundColor: toftreesTheme.colors.elevation.level1,
+    gap: spacing.md,
+  },
+  placeholderText: {
+    color: toftreesTheme.colors.onSurfaceVariant,
+    textAlign: 'center',
+  },
+  captureButton: {
+    marginTop: spacing.sm,
+  },
+  actionButton: {
+    marginTop: spacing.sm,
+  },
+  photoThumb: {
+    width: '100%',
+    height: 120,
+    borderRadius: radii.sm,
+    backgroundColor: toftreesTheme.colors.elevation.level2,
+  },
+  reviewCard: {
+    padding: spacing.md,
+    borderRadius: radii.md,
+    backgroundColor: toftreesTheme.colors.elevation.level2,
+    gap: spacing.md,
+  },
+  reviewPhoto: {
+    width: '100%',
+    height: 200,
+    borderRadius: radii.sm,
+  },
+  reviewRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  reviewText: {
+    flex: 1,
+    color: toftreesTheme.colors.onSurface,
+  },
+  saveActions: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    marginTop: spacing.md,
+  },
+  saveButton: {
+    flex: 1,
+  },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: toftreesTheme.colors.elevation.level2,
+    borderTopWidth: 1,
+    borderTopColor: toftreesTheme.colors.outlineVariant,
+  },
+  snackbar: {
+    backgroundColor: toftreesTheme.colors.inverseSurface,
+    bottom: 70,
+  },
+});
+
+
+=== app/survey/[id].tsx ===
+/**
+ * Survey Detail Screen
+ * View/edit an existing survey record, with upload to Sanity.
+ */
+import React, { useState, useEffect } from 'react';
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Image,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import {
+  Text,
+  Button,
+  Surface,
+  Snackbar,
+  ActivityIndicator,
+  Icon,
+  Divider,
+  Chip,
+} from 'react-native-paper';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { toftreesTheme, spacing, radii } from '../../theme';
+import { LocationDisplay } from '../../components/LocationDisplay';
+import { InscriptionEditor } from '../../components/InscriptionEditor';
+import { GraveForm } from '../../components/GraveForm';
+import { getSurvey, updateSurvey } from '../../services/storage';
+import { recognizeText, extractPersonsFromText } from '../../services/ocr';
+import { getCurrentLocation } from '../../services/location';
+import { uploadSurvey } from '../../services/sanity';
+import type { SurveyRecord, LocationResult, PersonRecord } from '../../types';
+
+export default function SurveyDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+
+  const [survey, setSurvey] = useState<SurveyRecord | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
+  const [snackMessage, setSnackMessage] = useState('');
+  const [isOcrProcessing, setIsOcrProcessing] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
+
+  useEffect(() => {
+    loadSurvey();
+  }, [id]);
+
+  const loadSurvey = async () => {
+    if (!id) return;
+    setLoading(true);
+    try {
+      const data = await getSurvey(id);
+      setSurvey(data);
+    } catch (error) {
+      console.error('Failed to load survey:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdate = async (updates: Partial<SurveyRecord>) => {
+    if (!survey) return;
+    const updated = { ...survey, ...updates };
+    setSurvey(updated);
+  };
+
+  const handleSave = async () => {
+    if (!survey) return;
+    setSaving(true);
+    try {
+      await updateSurvey(survey.id, survey);
+      setSnackMessage('Saved!');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save changes');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRunOcr = async () => {
+    if (!survey?.headstonePhotoUri) {
+      setSnackMessage('No photo to analyse');
+      return;
+    }
+    setIsOcrProcessing(true);
+    try {
+      const result = await recognizeText(survey.headstonePhotoUri);
+      const updates: Partial<SurveyRecord> = {
+        rawOcrText: result.fullText,
+        editedInscription: result.fullText,
+      };
+
+      // Try person extraction
+      if (result.fullText) {
+        const extracted = extractPersonsFromText(result.fullText);
+        if (extracted.length > 0) {
+          const persons: PersonRecord[] = extracted.map((p) => ({
+            key: Math.random().toString(36).substring(2, 10),
+            name: p.name,
+            year: p.year,
+            age: p.age,
+          }));
+          updates.persons = [...(survey.persons || []), ...persons];
+          setSnackMessage(`Found ${extracted.length} person(s)`);
+        }
+      }
+
+      handleUpdate(updates);
+    } catch (error) {
+      Alert.alert(
+        'OCR Error',
+        error instanceof Error ? error.message : 'Failed to run OCR'
+      );
+    } finally {
+      setIsOcrProcessing(false);
+    }
+  };
+
+  const handleRefreshLocation = async () => {
+    setLocationLoading(true);
+    try {
+      const loc = await getCurrentLocation();
+      handleUpdate({
+        latitude: loc.latitude,
+        longitude: loc.longitude,
+        altitude: loc.altitude,
+        what3words: loc.what3words,
+      });
+      setSnackMessage('Location updated');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to get location');
+    } finally {
+      setLocationLoading(false);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!survey) return;
+
+    Alert.alert(
+      'Upload to Sanity',
+      `Upload "${survey.familySurname || 'this survey'}" to the Toftrees dataset?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Upload',
+          onPress: async () => {
+            setUploading(true);
+            try {
+              const sanityId = await uploadSurvey(survey, setUploadProgress);
+              handleUpdate({ status: 'uploaded', sanityId });
+              await updateSurvey(survey.id, {
+                status: 'uploaded',
+                sanityId,
+              });
+              setSnackMessage('Successfully uploaded to Sanity!');
+            } catch (error) {
+              Alert.alert(
+                'Upload Error',
+                error instanceof Error
+                  ? error.message
+                  : 'Failed to upload. Check Sanity token in Settings.'
+              );
+            } finally {
+              setUploading(false);
+              setUploadProgress('');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleMarkReady = async () => {
+    if (!survey) return;
+    handleUpdate({ status: 'ready' });
+    await updateSurvey(survey.id, { status: 'ready' });
+    setSnackMessage('Marked as ready for upload');
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={toftreesTheme.colors.primary} />
+      </View>
+    );
+  }
+
+  if (!survey) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text variant="titleMedium" style={{ color: toftreesTheme.colors.error }}>
+          Survey not found
+        </Text>
+        <Button mode="outlined" onPress={() => router.back()}>
+          Go Back
+        </Button>
+      </View>
+    );
+  }
+
+  const location: LocationResult | null =
+    survey.latitude != null && survey.longitude != null
+      ? {
+          latitude: survey.latitude,
+          longitude: survey.longitude,
+          altitude: survey.altitude,
+          what3words: survey.what3words,
+        }
+      : null;
+
+  const statusConfig = {
+    draft: { label: 'Draft', color: toftreesTheme.colors.secondary },
+    ready: { label: 'Ready', color: toftreesTheme.colors.primary },
+    uploaded: { label: 'Uploaded', color: toftreesTheme.colors.tertiary },
+  };
+  const status = statusConfig[survey.status];
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Status bar */}
+        <View style={styles.statusBar}>
+          <Chip icon="information" style={{ backgroundColor: status.color + '33' }}>
+            {status.label}
+          </Chip>
+          {survey.sanityId && (
+            <Text variant="labelSmall" style={styles.sanityId}>
+              Sanity: {survey.sanityId.slice(0, 12)}...
+            </Text>
+          )}
+        </View>
+
+        {/* Photo */}
+        {survey.headstonePhotoUri && (
+          <Image
+            source={{ uri: survey.headstonePhotoUri }}
+            style={styles.photo}
+            resizeMode="contain"
+          />
+        )}
+
+        {/* Location */}
+        <LocationDisplay
+          location={location}
+          loading={locationLoading}
+        />
+        <Button
+          mode="outlined"
+          icon="crosshairs-gps"
+          onPress={handleRefreshLocation}
+          disabled={locationLoading}
+          compact
+          style={styles.sectionButton}
+        >
+          {location ? 'Update Location' : 'Capture Location'}
+        </Button>
+
+        <Divider style={styles.divider} />
+
+        {/* Inscription */}
+        <InscriptionEditor
+          rawText={survey.rawOcrText || ''}
+          editedText={survey.editedInscription || ''}
+          onTextChange={(text) => handleUpdate({ editedInscription: text })}
+          onRunOcr={handleRunOcr}
+          isProcessing={isOcrProcessing}
+        />
+
+        <Divider style={styles.divider} />
+
+        {/* Grave Form */}
+        <GraveForm survey={survey} onUpdate={handleUpdate} />
+      </ScrollView>
+
+      {/* Action bar */}
+      <Surface style={[styles.actionBar, { paddingBottom: Math.max(insets.bottom, spacing.sm) }]}>
+        {uploading && (
+          <View style={styles.uploadProgress}>
+            <ActivityIndicator size="small" color={toftreesTheme.colors.primary} />
+            <Text variant="labelSmall" style={styles.uploadText}>
+              {uploadProgress || 'Uploading...'}
+            </Text>
+          </View>
+        )}
+
+        <View style={styles.actionButtons}>
+          <Button
+            mode="outlined"
+            icon="content-save"
+            onPress={handleSave}
+            loading={saving}
+            disabled={saving || uploading}
+            style={styles.actionButton}
+          >
+            Save
+          </Button>
+
+          {survey.status === 'draft' && (
+            <Button
+              mode="contained-tonal"
+              icon="check-circle-outline"
+              onPress={handleMarkReady}
+              disabled={uploading}
+              style={styles.actionButton}
+            >
+              Mark Ready
+            </Button>
+          )}
+
+          {survey.status !== 'uploaded' && (
+            <Button
+              mode="contained"
+              icon="cloud-upload"
+              onPress={handleUpload}
+              loading={uploading}
+              disabled={uploading || saving}
+              style={styles.actionButton}
+            >
+              Upload
+            </Button>
+          )}
+        </View>
+      </Surface>
+
+      <Snackbar
+        visible={Boolean(snackMessage)}
+        onDismiss={() => setSnackMessage('')}
+        duration={3000}
+        style={styles.snackbar}
+      >
+        {snackMessage}
+      </Snackbar>
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: toftreesTheme.colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: toftreesTheme.colors.background,
+  },
+  scrollContent: {
+    padding: spacing.md,
+    paddingBottom: 120,
+  },
+  statusBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
+  },
+  sanityId: {
+    color: toftreesTheme.colors.outline,
+    fontFamily: 'monospace',
+  },
+  photo: {
+    width: '100%',
+    aspectRatio: 3 / 4,
+    borderRadius: radii.md,
+    marginBottom: spacing.md,
+    backgroundColor: toftreesTheme.colors.elevation.level2,
+  },
+  sectionButton: {
+    marginTop: spacing.xs,
+    alignSelf: 'flex-start',
+  },
+  divider: {
+    marginVertical: spacing.lg,
+    backgroundColor: toftreesTheme.colors.outlineVariant,
+  },
+  actionBar: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: toftreesTheme.colors.elevation.level2,
+    borderTopWidth: 1,
+    borderTopColor: toftreesTheme.colors.outlineVariant,
+  },
+  uploadProgress: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  uploadText: {
+    color: toftreesTheme.colors.primary,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  actionButton: {
+    flex: 1,
+  },
+  snackbar: {
+    bottom: 80,
+  },
+});
+
+
+=== app/_layout.tsx ===
+/**
+ * Root Layout
+ * Sets up the theme provider, navigation, and global app structure.
+ */
+import React from 'react';
+import { Stack } from 'expo-router';
+import { PaperProvider } from 'react-native-paper';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { toftreesTheme } from '../theme';
+
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <PaperProvider theme={toftreesTheme}>
+        <StatusBar style="light" />
+        <Stack
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: toftreesTheme.colors.elevation.level2,
+            },
+            headerTintColor: toftreesTheme.colors.onSurface,
+            headerTitleStyle: {
+              fontWeight: '600',
+            },
+            contentStyle: {
+              backgroundColor: toftreesTheme.colors.background,
+            },
+            animation: 'slide_from_right',
+          }}
+        >
+          <Stack.Screen
+            name="index"
+            options={{
+              title: 'Toftrees Surveyor',
+              headerLargeTitle: true,
+            }}
+          />
+          <Stack.Screen
+            name="survey/new"
+            options={{
+              title: 'New Survey',
+              presentation: 'fullScreenModal',
+            }}
+          />
+          <Stack.Screen
+            name="survey/[id]"
+            options={{
+              title: 'Survey Details',
+            }}
+          />
+          <Stack.Screen
+            name="settings"
+            options={{
+              title: 'Settings',
+            }}
+          />
+        </Stack>
+      </PaperProvider>
+    </SafeAreaProvider>
+  );
+}
+
+
+=== app/settings.tsx ===
+/**
+ * Settings Screen
+ * Configure API keys and Sanity connection.
+ */
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, ScrollView, Alert, Linking } from 'react-native';
+import {
+  Text,
+  TextInput,
+  Button,
+  Card,
+  Icon,
+  Divider,
+  Snackbar,
+  Chip,
+} from 'react-native-paper';
+import { toftreesTheme, spacing, radii } from '../theme';
+import { getSettings, saveSettings, validateSettings } from '../services/settings';
+import { testConnection } from '../services/sanity';
+import type { AppSettings } from '../types';
+
+export default function SettingsScreen() {
+  const [settings, setSettings] = useState<AppSettings>({
+    cloudVisionApiKey: '',
+    what3wordsApiKey: '',
+    sanityProjectId: '',
+    sanityDataset: '',
+    sanityToken: '',
+  });
+  const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [snackMessage, setSnackMessage] = useState('');
+  const [validation, setValidation] = useState<{
+    valid: boolean;
+    missing: string[];
+  }>({ valid: false, missing: [] });
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    const s = await getSettings();
+    setSettings(s);
+    const v = await validateSettings();
+    setValidation(v);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await saveSettings(settings);
+      const v = await validateSettings();
+      setValidation(v);
+      setSnackMessage('Settings saved!');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save settings');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleTestConnection = async () => {
+    setTesting(true);
+    try {
+      // Save first so the test uses current values
+      await saveSettings(settings);
+      const ok = await testConnection();
+      if (ok) {
+        setSnackMessage('✅ Connected to Sanity successfully!');
+      } else {
+        setSnackMessage('❌ Connection failed. Check your token and project ID.');
+      }
+    } catch (error) {
+      setSnackMessage('❌ Connection error');
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  const openUrl = (url: string) => {
+    Linking.openURL(url).catch(() => {});
+  };
+
+  return (
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
+      {/* Validation status */}
+      {!validation.valid && (
+        <Card style={styles.warningCard} mode="outlined">
+          <Card.Content style={styles.warningContent}>
+            <Icon
+              source="alert-circle"
+              size={24}
+              color={toftreesTheme.colors.error}
+            />
+            <View style={styles.warningTextContainer}>
+              <Text variant="titleSmall" style={styles.warningTitle}>
+                Configuration Incomplete
+              </Text>
+              <Text variant="bodySmall" style={styles.warningText}>
+                Missing: {validation.missing.join(', ')}
+              </Text>
+            </View>
+          </Card.Content>
+        </Card>
+      )}
+
+      {/* Google Cloud Vision */}
+      <Card style={styles.card} mode="outlined">
+        <Card.Content>
+          <View style={styles.header}>
+            <Icon source="eye" size={20} color={toftreesTheme.colors.primary} />
+            <Text variant="titleSmall" style={styles.headerText}>
+              Google Cloud Vision
+            </Text>
+            <Button
+              mode="text"
+              compact
+              onPress={() =>
+                openUrl('https://console.cloud.google.com/apis/credentials')
+              }
+            >
+              Get Key
+            </Button>
+          </View>
+
+          <TextInput
+            mode="outlined"
+            label="Cloud Vision API Key"
+            value={settings.cloudVisionApiKey}
+            onChangeText={(v) =>
+              setSettings((s) => ({ ...s, cloudVisionApiKey: v }))
+            }
+            secureTextEntry
+            style={styles.input}
+            outlineColor={toftreesTheme.colors.outlineVariant}
+            activeOutlineColor={toftreesTheme.colors.primary}
+            textColor={toftreesTheme.colors.onSurface}
+            accessibilityLabel="Cloud Vision API key"
+          />
+
+          <Text variant="bodySmall" style={styles.helpText}>
+            Used for headstone inscription OCR. Enable the Cloud Vision API in
+            your GCP project.
+          </Text>
+        </Card.Content>
+      </Card>
+
+      {/* What3Words */}
+      <Card style={styles.card} mode="outlined">
+        <Card.Content>
+          <View style={styles.header}>
+            <Icon
+              source="map-marker-radius"
+              size={20}
+              color={toftreesTheme.colors.primary}
+            />
+            <Text variant="titleSmall" style={styles.headerText}>
+              What3Words
+            </Text>
+            <Button
+              mode="text"
+              compact
+              onPress={() => openUrl('https://developer.what3words.com')}
+            >
+              Get Key
+            </Button>
+          </View>
+
+          <TextInput
+            mode="outlined"
+            label="What3Words API Key"
+            value={settings.what3wordsApiKey}
+            onChangeText={(v) =>
+              setSettings((s) => ({ ...s, what3wordsApiKey: v }))
+            }
+            style={styles.input}
+            outlineColor={toftreesTheme.colors.outlineVariant}
+            activeOutlineColor={toftreesTheme.colors.primary}
+            textColor={toftreesTheme.colors.onSurface}
+            accessibilityLabel="What3Words API key"
+          />
+
+          <Text variant="bodySmall" style={styles.helpText}>
+            Converts GPS coordinates to human-friendly 3-word addresses.
+          </Text>
+        </Card.Content>
+      </Card>
+
+      {/* Sanity */}
+      <Card style={styles.card} mode="outlined">
+        <Card.Content>
+          <View style={styles.header}>
+            <Icon
+              source="database"
+              size={20}
+              color={toftreesTheme.colors.primary}
+            />
+            <Text variant="titleSmall" style={styles.headerText}>
+              Sanity CMS
+            </Text>
+            <Button
+              mode="text"
+              compact
+              onPress={() => openUrl('https://www.sanity.io/manage')}
+            >
+              Dashboard
+            </Button>
+          </View>
+
+          <TextInput
+            mode="outlined"
+            label="Project ID"
+            value={settings.sanityProjectId}
+            onChangeText={(v) =>
+              setSettings((s) => ({ ...s, sanityProjectId: v }))
+            }
+            style={styles.input}
+            outlineColor={toftreesTheme.colors.outlineVariant}
+            activeOutlineColor={toftreesTheme.colors.primary}
+            textColor={toftreesTheme.colors.onSurface}
+            accessibilityLabel="Sanity project ID"
+          />
+
+          <TextInput
+            mode="outlined"
+            label="Dataset"
+            value={settings.sanityDataset}
+            onChangeText={(v) =>
+              setSettings((s) => ({ ...s, sanityDataset: v }))
+            }
+            style={styles.input}
+            outlineColor={toftreesTheme.colors.outlineVariant}
+            activeOutlineColor={toftreesTheme.colors.primary}
+            textColor={toftreesTheme.colors.onSurface}
+            accessibilityLabel="Sanity dataset"
+          />
+
+          <TextInput
+            mode="outlined"
+            label="Write Token"
+            value={settings.sanityToken}
+            onChangeText={(v) =>
+              setSettings((s) => ({ ...s, sanityToken: v }))
+            }
+            secureTextEntry
+            style={styles.input}
+            outlineColor={toftreesTheme.colors.outlineVariant}
+            activeOutlineColor={toftreesTheme.colors.primary}
+            textColor={toftreesTheme.colors.onSurface}
+            accessibilityLabel="Sanity write token"
+          />
+
+          <Text variant="bodySmall" style={styles.helpText}>
+            Create a write-enabled token in Sanity Dashboard → Project → API →
+            Tokens.
+          </Text>
+
+          <Button
+            mode="contained-tonal"
+            icon="connection"
+            onPress={handleTestConnection}
+            loading={testing}
+            disabled={testing}
+            style={styles.testButton}
+          >
+            Test Connection
+          </Button>
+        </Card.Content>
+      </Card>
+
+      {/* Save */}
+      <Button
+        mode="contained"
+        icon="content-save"
+        onPress={handleSave}
+        loading={saving}
+        disabled={saving}
+        style={styles.saveButton}
+      >
+        Save Settings
+      </Button>
+
+      {/* App Info */}
+      <View style={styles.appInfo}>
+        <Text variant="labelSmall" style={styles.appInfoText}>
+          Toftrees Churchyard Surveyor v1.0.0
+        </Text>
+        <Text variant="labelSmall" style={styles.appInfoText}>
+          Sanity Project: {settings.sanityProjectId || '—'}
+        </Text>
+      </View>
+
+      <Snackbar
+        visible={Boolean(snackMessage)}
+        onDismiss={() => setSnackMessage('')}
+        duration={3000}
+      >
+        {snackMessage}
+      </Snackbar>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: toftreesTheme.colors.background,
+  },
+  scrollContent: {
+    padding: spacing.md,
+    paddingBottom: spacing.xxl,
+  },
+  warningCard: {
+    marginBottom: spacing.md,
+    borderColor: toftreesTheme.colors.error,
+    backgroundColor: toftreesTheme.colors.errorContainer + '22',
+  },
+  warningContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  warningTextContainer: {
+    flex: 1,
+  },
+  warningTitle: {
+    color: toftreesTheme.colors.error,
+  },
+  warningText: {
+    color: toftreesTheme.colors.onErrorContainer,
+    marginTop: 2,
+  },
+  card: {
+    marginBottom: spacing.md,
+    backgroundColor: toftreesTheme.colors.elevation.level1,
+    borderColor: toftreesTheme.colors.outlineVariant,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  headerText: {
+    flex: 1,
+    color: toftreesTheme.colors.primary,
+  },
+  input: {
+    marginBottom: spacing.sm,
+    backgroundColor: toftreesTheme.colors.elevation.level2,
+  },
+  helpText: {
+    color: toftreesTheme.colors.outline,
+    marginTop: spacing.xs,
+    lineHeight: 18,
+  },
+  testButton: {
+    marginTop: spacing.md,
+  },
+  saveButton: {
+    marginTop: spacing.md,
+    marginBottom: spacing.xl,
+  },
+  appInfo: {
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.xl,
+  },
+  appInfoText: {
+    color: toftreesTheme.colors.outline,
+  },
+});
+
+
+=== components/GraveForm.tsx ===
+/**
+ * GraveForm Component
+ * Full data entry form for grave details.
+ */
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import {
+  Card,
+  Text,
+  TextInput,
+  Chip,
+  SegmentedButtons,
+  Switch,
+  Icon,
+  Divider,
+} from 'react-native-paper';
+import { toftreesTheme, spacing } from '../theme';
+import { HEADSTONE_CONDITIONS } from '../types';
+import type { SurveyRecord, HeadstoneCondition, PersonRecord } from '../types';
+
+interface GraveFormProps {
+  survey: Partial<SurveyRecord>;
+  onUpdate: (updates: Partial<SurveyRecord>) => void;
+}
+
+export function GraveForm({ survey, onUpdate }: GraveFormProps) {
+  const addPerson = () => {
+    const persons = [...(survey.persons || [])];
+    persons.push({
+      key: Date.now().toString(),
+      name: '',
+      year: undefined,
+      age: undefined,
+    });
+    onUpdate({ persons });
+  };
+
+  const updatePerson = (index: number, updates: Partial<PersonRecord>) => {
+    const persons = [...(survey.persons || [])];
+    persons[index] = { ...persons[index], ...updates };
+    onUpdate({ persons });
+  };
+
+  const removePerson = (index: number) => {
+    const persons = [...(survey.persons || [])];
+    persons.splice(index, 1);
+    onUpdate({ persons });
+  };
+
+  return (
+    <View style={styles.container}>
+      {/* Basic Info */}
+      <Card style={styles.card} mode="outlined">
+        <Card.Content>
+          <View style={styles.header}>
+            <Icon source="grave-stone" size={20} color={toftreesTheme.colors.primary} />
+            <Text variant="titleSmall" style={styles.headerText}>
+              Grave Details
+            </Text>
+          </View>
+
+          <TextInput
+            mode="outlined"
+            label="Grave Number"
+            value={survey.graveNo?.toString() || ''}
+            onChangeText={(v) =>
+              onUpdate({ graveNo: v ? parseInt(v, 10) || undefined : undefined })
+            }
+            keyboardType="numeric"
+            style={styles.input}
+            outlineColor={toftreesTheme.colors.outlineVariant}
+            activeOutlineColor={toftreesTheme.colors.primary}
+            textColor={toftreesTheme.colors.onSurface}
+            accessibilityLabel="Grave number"
+          />
+
+          <TextInput
+            mode="outlined"
+            label="Family Surname"
+            value={survey.familySurname || ''}
+            onChangeText={(v) => onUpdate({ familySurname: v })}
+            autoCapitalize="characters"
+            style={styles.input}
+            outlineColor={toftreesTheme.colors.outlineVariant}
+            activeOutlineColor={toftreesTheme.colors.primary}
+            textColor={toftreesTheme.colors.onSurface}
+            accessibilityLabel="Family surname"
+          />
+
+          <TextInput
+            mode="outlined"
+            label="Location Description"
+            value={survey.locationDescription || ''}
+            onChangeText={(v) => onUpdate({ locationDescription: v })}
+            multiline
+            numberOfLines={2}
+            style={styles.input}
+            placeholder="e.g., Corner of West and South Boundaries"
+            outlineColor={toftreesTheme.colors.outlineVariant}
+            activeOutlineColor={toftreesTheme.colors.primary}
+            textColor={toftreesTheme.colors.onSurface}
+            accessibilityLabel="Location description"
+          />
+        </Card.Content>
+      </Card>
+
+      {/* Headstone Condition */}
+      <Card style={styles.card} mode="outlined">
+        <Card.Content>
+          <View style={styles.header}>
+            <Icon source="shield-check" size={20} color={toftreesTheme.colors.primary} />
+            <Text variant="titleSmall" style={styles.headerText}>
+              Condition
+            </Text>
+          </View>
+
+          <View style={styles.conditionGrid}>
+            {HEADSTONE_CONDITIONS.map((condition) => (
+              <Chip
+                key={condition}
+                selected={survey.headstoneCondition === condition}
+                onPress={() =>
+                  onUpdate({ headstoneCondition: condition as HeadstoneCondition })
+                }
+                style={styles.conditionChip}
+                showSelectedOverlay
+              >
+                {condition}
+              </Chip>
+            ))}
+          </View>
+
+          <Divider style={styles.divider} />
+
+          <View style={styles.switchRow}>
+            <Text variant="bodyMedium" style={styles.switchLabel}>
+              Has Footstone
+            </Text>
+            <Switch
+              value={survey.footstone || false}
+              onValueChange={(v) => onUpdate({ footstone: v })}
+              color={toftreesTheme.colors.primary}
+            />
+          </View>
+
+          {survey.footstone && (
+            <TextInput
+              mode="outlined"
+              label="Footstone Inscription"
+              value={survey.footstoneInscription || ''}
+              onChangeText={(v) => onUpdate({ footstoneInscription: v })}
+              multiline
+              numberOfLines={2}
+              style={styles.input}
+              outlineColor={toftreesTheme.colors.outlineVariant}
+              activeOutlineColor={toftreesTheme.colors.primary}
+              textColor={toftreesTheme.colors.onSurface}
+              accessibilityLabel="Footstone inscription"
+            />
+          )}
+        </Card.Content>
+      </Card>
+
+      {/* Persons */}
+      <Card style={styles.card} mode="outlined">
+        <Card.Content>
+          <View style={styles.header}>
+            <Icon source="account-group" size={20} color={toftreesTheme.colors.primary} />
+            <Text variant="titleSmall" style={styles.headerText}>
+              Persons Buried
+            </Text>
+          </View>
+
+          {(survey.persons || []).map((person, index) => (
+            <View key={person.key} style={styles.personCard}>
+              <View style={styles.personHeader}>
+                <Text variant="labelMedium" style={styles.personLabel}>
+                  Person {index + 1}
+                </Text>
+                <Icon
+                  source="close"
+                  size={18}
+                  color={toftreesTheme.colors.error}
+                />
+              </View>
+
+              <TextInput
+                mode="outlined"
+                label="Full Name"
+                value={person.name || ''}
+                onChangeText={(v) => updatePerson(index, { name: v })}
+                autoCapitalize="words"
+                dense
+                style={styles.personInput}
+                outlineColor={toftreesTheme.colors.outlineVariant}
+                activeOutlineColor={toftreesTheme.colors.primary}
+                textColor={toftreesTheme.colors.onSurface}
+                accessibilityLabel={`Person ${index + 1} name`}
+              />
+
+              <View style={styles.personRow}>
+                <TextInput
+                  mode="outlined"
+                  label="Year of Death"
+                  value={person.year?.toString() || ''}
+                  onChangeText={(v) =>
+                    updatePerson(index, {
+                      year: v ? parseInt(v, 10) || undefined : undefined,
+                    })
+                  }
+                  keyboardType="numeric"
+                  dense
+                  style={[styles.personInput, styles.halfInput]}
+                  outlineColor={toftreesTheme.colors.outlineVariant}
+                  activeOutlineColor={toftreesTheme.colors.primary}
+                  textColor={toftreesTheme.colors.onSurface}
+                  accessibilityLabel={`Person ${index + 1} year of death`}
+                />
+                <TextInput
+                  mode="outlined"
+                  label="Age"
+                  value={person.age?.toString() || ''}
+                  onChangeText={(v) =>
+                    updatePerson(index, {
+                      age: v ? parseInt(v, 10) || undefined : undefined,
+                    })
+                  }
+                  keyboardType="numeric"
+                  dense
+                  style={[styles.personInput, styles.halfInput]}
+                  outlineColor={toftreesTheme.colors.outlineVariant}
+                  activeOutlineColor={toftreesTheme.colors.primary}
+                  textColor={toftreesTheme.colors.onSurface}
+                  accessibilityLabel={`Person ${index + 1} age`}
+                />
+              </View>
+
+              <TextInput
+                mode="outlined"
+                label="Date of Burial"
+                value={person.dateBurial || ''}
+                onChangeText={(v) => updatePerson(index, { dateBurial: v })}
+                dense
+                style={styles.personInput}
+                placeholder="e.g., 1931-12-16"
+                outlineColor={toftreesTheme.colors.outlineVariant}
+                activeOutlineColor={toftreesTheme.colors.primary}
+                textColor={toftreesTheme.colors.onSurface}
+                accessibilityLabel={`Person ${index + 1} burial date`}
+              />
+            </View>
+          ))}
+
+          <SegmentedButtons
+            value=""
+            onValueChange={() => addPerson()}
+            buttons={[
+              {
+                value: 'add',
+                label: 'Add Person',
+                icon: 'account-plus',
+              },
+            ]}
+            style={styles.addPersonButton}
+          />
+        </Card.Content>
+      </Card>
+
+      {/* Additional Info */}
+      <Card style={styles.card} mode="outlined">
+        <Card.Content>
+          <View style={styles.header}>
+            <Icon source="note-text" size={20} color={toftreesTheme.colors.primary} />
+            <Text variant="titleSmall" style={styles.headerText}>
+              Additional Notes
+            </Text>
+          </View>
+
+          <TextInput
+            mode="outlined"
+            label="Additional Information"
+            value={survey.additionalInformation || ''}
+            onChangeText={(v) => onUpdate({ additionalInformation: v })}
+            multiline
+            numberOfLines={4}
+            style={styles.input}
+            outlineColor={toftreesTheme.colors.outlineVariant}
+            activeOutlineColor={toftreesTheme.colors.primary}
+            textColor={toftreesTheme.colors.onSurface}
+            accessibilityLabel="Additional information"
+          />
+        </Card.Content>
+      </Card>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    gap: spacing.sm,
+  },
+  card: {
+    backgroundColor: toftreesTheme.colors.elevation.level1,
+    borderColor: toftreesTheme.colors.outlineVariant,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  headerText: {
+    flex: 1,
+    color: toftreesTheme.colors.primary,
+  },
+  input: {
+    marginBottom: spacing.sm,
+    backgroundColor: toftreesTheme.colors.elevation.level2,
+  },
+  conditionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+    marginBottom: spacing.md,
+  },
+  conditionChip: {},
+  conditionButton: {},
+  divider: {
+    marginVertical: spacing.md,
+    backgroundColor: toftreesTheme.colors.outlineVariant,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
+  },
+  switchLabel: {
+    color: toftreesTheme.colors.onSurface,
+  },
+  personCard: {
+    backgroundColor: toftreesTheme.colors.elevation.level2,
+    borderRadius: 8,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  personHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  personLabel: {
+    color: toftreesTheme.colors.secondary,
+  },
+  personInput: {
+    marginBottom: spacing.xs,
+    backgroundColor: toftreesTheme.colors.elevation.level3,
+  },
+  personRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  halfInput: {
+    flex: 1,
+  },
+  addPersonButton: {
+    marginTop: spacing.sm,
+  },
+});
+
+
+=== components/LocationDisplay.tsx ===
+/**
+ * LocationDisplay Component
+ * Shows GPS coordinates, What3Words address, and accuracy information.
+ */
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Card, Text, Icon, Chip } from 'react-native-paper';
+import { toftreesTheme, spacing, radii } from '../theme';
+import { formatCoordinates } from '../services/location';
+import type { LocationResult } from '../types';
+
+interface LocationDisplayProps {
+  location: LocationResult | null;
+  loading?: boolean;
+  error?: string;
+  onRefresh?: () => void;
+}
+
+export function LocationDisplay({
+  location,
+  loading,
+  error,
+  onRefresh,
+}: LocationDisplayProps) {
+  if (loading) {
+    return (
+      <Card style={styles.card} mode="outlined">
+        <Card.Content style={styles.content}>
+          <Icon source="crosshairs-gps" size={24} color={toftreesTheme.colors.primary} />
+          <Text variant="bodyMedium" style={styles.loadingText}>
+            Acquiring GPS position...
+          </Text>
+        </Card.Content>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card style={styles.card} mode="outlined">
+        <Card.Content style={styles.content}>
+          <Icon source="alert-circle" size={24} color={toftreesTheme.colors.error} />
+          <Text variant="bodyMedium" style={styles.errorText}>{error}</Text>
+        </Card.Content>
+      </Card>
+    );
+  }
+
+  if (!location) {
+    return (
+      <Card style={styles.card} mode="outlined">
+        <Card.Content style={styles.content}>
+          <Icon source="map-marker-off" size={24} color={toftreesTheme.colors.onSurfaceVariant} />
+          <Text variant="bodyMedium" style={styles.placeholderText}>
+            No location captured yet
+          </Text>
+        </Card.Content>
+      </Card>
+    );
+  }
+
+  return (
+    <Card style={styles.card} mode="outlined">
+      <Card.Content>
+        <View style={styles.header}>
+          <Icon source="map-marker" size={20} color={toftreesTheme.colors.primary} />
+          <Text variant="titleSmall" style={styles.headerText}>Location</Text>
+          {location.accuracy && (
+            <Chip
+              compact
+              textStyle={styles.chipText}
+              style={styles.accuracyChip}
+              icon="target"
+            >
+              ±{location.accuracy.toFixed(0)}m
+            </Chip>
+          )}
+        </View>
+
+        <View style={styles.row}>
+          <Text variant="labelSmall" style={styles.label}>GPS</Text>
+          <Text variant="bodyMedium" style={styles.value}>
+            {formatCoordinates(location.latitude, location.longitude)}
+          </Text>
+        </View>
+
+        {location.altitude != null && (
+          <View style={styles.row}>
+            <Text variant="labelSmall" style={styles.label}>Altitude</Text>
+            <Text variant="bodyMedium" style={styles.value}>
+              {location.altitude.toFixed(1)}m
+            </Text>
+          </View>
+        )}
+
+        {location.what3words && (
+          <View style={styles.row}>
+            <Text variant="labelSmall" style={styles.label}>W3W</Text>
+            <Text variant="bodyMedium" style={styles.w3wValue}>
+              ///{location.what3words}
+            </Text>
+          </View>
+        )}
+      </Card.Content>
+    </Card>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    marginVertical: spacing.sm,
+    backgroundColor: toftreesTheme.colors.elevation.level1,
+    borderColor: toftreesTheme.colors.outlineVariant,
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  headerText: {
+    flex: 1,
+    color: toftreesTheme.colors.primary,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginBottom: spacing.xs,
+    paddingLeft: spacing.lg + spacing.sm,
+  },
+  label: {
+    width: 60,
+    color: toftreesTheme.colors.onSurfaceVariant,
+    textTransform: 'uppercase',
+  },
+  value: {
+    flex: 1,
+    fontFamily: 'monospace',
+    color: toftreesTheme.colors.onSurface,
+  },
+  w3wValue: {
+    flex: 1,
+    color: toftreesTheme.colors.tertiary,
+    fontWeight: '600',
+  },
+  accuracyChip: {
+    backgroundColor: toftreesTheme.colors.elevation.level3,
+    height: 28,
+  },
+  chipText: {
+    fontSize: 11,
+  },
+  loadingText: {
+    color: toftreesTheme.colors.primary,
+  },
+  errorText: {
+    color: toftreesTheme.colors.error,
+  },
+  placeholderText: {
+    color: toftreesTheme.colors.onSurfaceVariant,
+  },
+});
+
+
+=== components/SurveyCard.tsx ===
+/**
+ * SurveyCard Component
+ * Card display for a survey record in the list view.
+ */
+import React from 'react';
+import { StyleSheet, View, Image, Pressable } from 'react-native';
+import { Card, Text, Chip, Icon } from 'react-native-paper';
+import { toftreesTheme, spacing, radii } from '../theme';
+import type { SurveyRecord } from '../types';
+
+interface SurveyCardProps {
+  survey: SurveyRecord;
+  onPress: (id: string) => void;
+  onLongPress?: (id: string) => void;
+}
+
+const statusConfig = {
+  draft: {
+    label: 'Draft',
+    icon: 'pencil-outline' as const,
+    color: toftreesTheme.colors.secondary,
+    bg: toftreesTheme.colors.secondaryContainer,
+  },
+  ready: {
+    label: 'Ready',
+    icon: 'check-circle-outline' as const,
+    color: toftreesTheme.colors.primary,
+    bg: toftreesTheme.colors.primaryContainer,
+  },
+  uploaded: {
+    label: 'Uploaded',
+    icon: 'cloud-check' as const,
+    color: toftreesTheme.colors.tertiary,
+    bg: toftreesTheme.colors.tertiaryContainer,
+  },
+};
+
+export function SurveyCard({ survey, onPress, onLongPress }: SurveyCardProps) {
+  const status = statusConfig[survey.status];
+  const personCount = survey.persons?.length || 0;
+  const hasPhoto = Boolean(survey.headstonePhotoUri);
+  const hasLocation = Boolean(survey.latitude);
+  const hasInscription = Boolean(survey.rawOcrText || survey.editedInscription);
+
+  const displayName = survey.familySurname
+    ? `${survey.familySurname}${survey.graveNo ? ` (#${survey.graveNo})` : ''}`
+    : survey.graveNo
+    ? `Grave #${survey.graveNo}`
+    : 'Unnamed Survey';
+
+  const timeAgo = getRelativeTime(survey.updatedAt);
+
+  return (
+    <Pressable
+      onPress={() => onPress(survey.id)}
+      onLongPress={() => onLongPress?.(survey.id)}
+      accessibilityLabel={`Survey ${displayName}, status ${status.label}`}
+      accessibilityRole="button"
+    >
+      <Card style={styles.card} mode="elevated">
+        <View style={styles.content}>
+          {/* Thumbnail */}
+          {hasPhoto ? (
+            <Image
+              source={{ uri: survey.headstonePhotoUri }}
+              style={styles.thumbnail}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={styles.thumbnailPlaceholder}>
+              <Icon
+                source="image-off-outline"
+                size={28}
+                color={toftreesTheme.colors.outlineVariant}
+              />
+            </View>
+          )}
+
+          {/* Info */}
+          <View style={styles.info}>
+            <View style={styles.topRow}>
+              <Text
+                variant="titleMedium"
+                style={styles.name}
+                numberOfLines={1}
+              >
+                {displayName}
+              </Text>
+              <Chip
+                compact
+                textStyle={[styles.chipText, { color: status.color }]}
+                style={[styles.statusChip, { backgroundColor: status.bg }]}
+                icon={status.icon}
+              >
+                {status.label}
+              </Chip>
+            </View>
+
+            {/* Feature indicators */}
+            <View style={styles.indicators}>
+              {hasLocation && (
+                <View style={styles.indicator}>
+                  <Icon
+                    source="map-marker"
+                    size={14}
+                    color={toftreesTheme.colors.primary}
+                  />
+                  {survey.what3words && (
+                    <Text variant="labelSmall" style={styles.indicatorText}>
+                      ///{survey.what3words}
+                    </Text>
+                  )}
+                </View>
+              )}
+              {hasInscription && (
+                <View style={styles.indicator}>
+                  <Icon
+                    source="text-recognition"
+                    size={14}
+                    color={toftreesTheme.colors.secondary}
+                  />
+                  <Text variant="labelSmall" style={styles.indicatorText}>
+                    OCR
+                  </Text>
+                </View>
+              )}
+              {personCount > 0 && (
+                <View style={styles.indicator}>
+                  <Icon
+                    source="account"
+                    size={14}
+                    color={toftreesTheme.colors.tertiary}
+                  />
+                  <Text variant="labelSmall" style={styles.indicatorText}>
+                    {personCount}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <Text variant="bodySmall" style={styles.timestamp}>
+              {timeAgo}
+            </Text>
+          </View>
+        </View>
+      </Card>
+    </Pressable>
+  );
+}
+
+function getRelativeTime(isoString: string): string {
+  const now = Date.now();
+  const then = new Date(isoString).getTime();
+  const diffMs = now - then;
+  const diffMin = Math.floor(diffMs / 60000);
+
+  if (diffMin < 1) return 'Just now';
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  const diffDays = Math.floor(diffHr / 24);
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return new Date(isoString).toLocaleDateString();
+}
+
+const styles = StyleSheet.create({
+  card: {
+    marginVertical: spacing.xs,
+    backgroundColor: toftreesTheme.colors.elevation.level2,
+  },
+  content: {
+    flexDirection: 'row',
+    padding: spacing.md,
+    gap: spacing.md,
+  },
+  thumbnail: {
+    width: 72,
+    height: 72,
+    borderRadius: radii.sm,
+    backgroundColor: toftreesTheme.colors.elevation.level3,
+  },
+  thumbnailPlaceholder: {
+    width: 72,
+    height: 72,
+    borderRadius: radii.sm,
+    backgroundColor: toftreesTheme.colors.elevation.level3,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  info: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+  },
+  name: {
+    flex: 1,
+    color: toftreesTheme.colors.onSurface,
+    fontWeight: '600',
+  },
+  statusChip: {
+    height: 24,
+  },
+  chipText: {
+    fontSize: 10,
+    lineHeight: 14,
+  },
+  indicators: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    marginTop: spacing.xs,
+  },
+  indicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  indicatorText: {
+    color: toftreesTheme.colors.onSurfaceVariant,
+    fontSize: 11,
+  },
+  timestamp: {
+    color: toftreesTheme.colors.outline,
+    marginTop: spacing.xs,
+  },
+});
+
+
+=== components/InscriptionEditor.tsx ===
+/**
+ * InscriptionEditor Component
+ * Displays OCR results with an editable text area for corrections.
+ */
+import React, { useState } from 'react';
+import { StyleSheet, View, ScrollView } from 'react-native';
+import {
+  Card,
+  Text,
+  TextInput,
+  Button,
+  Icon,
+  SegmentedButtons,
+  ActivityIndicator,
+} from 'react-native-paper';
+import { toftreesTheme, spacing, radii } from '../theme';
+
+interface InscriptionEditorProps {
+  rawText: string;
+  editedText: string;
+  onTextChange: (text: string) => void;
+  onRunOcr?: () => void;
+  isProcessing?: boolean;
+}
+
+export function InscriptionEditor({
+  rawText,
+  editedText,
+  onTextChange,
+  onRunOcr,
+  isProcessing,
+}: InscriptionEditorProps) {
+  const [viewMode, setViewMode] = useState<string>('edit');
+
+  return (
+    <Card style={styles.card} mode="outlined">
+      <Card.Content>
+        <View style={styles.header}>
+          <Icon source="text-recognition" size={20} color={toftreesTheme.colors.primary} />
+          <Text variant="titleSmall" style={styles.headerText}>
+            Inscription
+          </Text>
+          {onRunOcr && (
+            <Button
+              mode="outlined"
+              compact
+              onPress={onRunOcr}
+              disabled={isProcessing}
+              icon={isProcessing ? undefined : 'eye-outline'}
+              loading={isProcessing}
+              style={styles.ocrButton}
+            >
+              {isProcessing ? 'Reading...' : 'Run OCR'}
+            </Button>
+          )}
+        </View>
+
+        {isProcessing && (
+          <View style={styles.processingContainer}>
+            <ActivityIndicator
+              size="large"
+              color={toftreesTheme.colors.primary}
+            />
+            <Text variant="bodyMedium" style={styles.processingText}>
+              Analysing headstone inscription...
+            </Text>
+          </View>
+        )}
+
+        {!isProcessing && (rawText || editedText) && (
+          <>
+            <SegmentedButtons
+              value={viewMode}
+              onValueChange={setViewMode}
+              style={styles.segmented}
+              buttons={[
+                {
+                  value: 'edit',
+                  label: 'Edit',
+                  icon: 'pencil',
+                },
+                {
+                  value: 'raw',
+                  label: 'OCR Raw',
+                  icon: 'text-box-outline',
+                },
+              ]}
+            />
+
+            {viewMode === 'edit' ? (
+              <TextInput
+                mode="outlined"
+                multiline
+                numberOfLines={8}
+                value={editedText || rawText}
+                onChangeText={onTextChange}
+                style={styles.textInput}
+                placeholder="Edit inscription text..."
+                outlineColor={toftreesTheme.colors.outlineVariant}
+                activeOutlineColor={toftreesTheme.colors.primary}
+                textColor={toftreesTheme.colors.onSurface}
+                placeholderTextColor={toftreesTheme.colors.onSurfaceVariant}
+                accessibilityLabel="Inscription text editor"
+              />
+            ) : (
+              <ScrollView style={styles.rawTextContainer}>
+                <Text
+                  variant="bodyMedium"
+                  style={styles.rawText}
+                  selectable
+                >
+                  {rawText || 'No OCR text detected'}
+                </Text>
+              </ScrollView>
+            )}
+          </>
+        )}
+
+        {!isProcessing && !rawText && !editedText && (
+          <View style={styles.emptyContainer}>
+            <Icon
+              source="text-box-remove-outline"
+              size={48}
+              color={toftreesTheme.colors.outlineVariant}
+            />
+            <Text variant="bodyMedium" style={styles.emptyText}>
+              Take a photo of the headstone and run OCR to extract the inscription
+            </Text>
+          </View>
+        )}
+      </Card.Content>
+    </Card>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    marginVertical: spacing.sm,
+    backgroundColor: toftreesTheme.colors.elevation.level1,
+    borderColor: toftreesTheme.colors.outlineVariant,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  headerText: {
+    flex: 1,
+    color: toftreesTheme.colors.primary,
+  },
+  ocrButton: {
+    borderColor: toftreesTheme.colors.primary,
+  },
+  segmented: {
+    marginBottom: spacing.md,
+  },
+  textInput: {
+    backgroundColor: toftreesTheme.colors.elevation.level2,
+    minHeight: 160,
+    fontSize: 15,
+  },
+  rawTextContainer: {
+    maxHeight: 200,
+    backgroundColor: toftreesTheme.colors.elevation.level2,
+    borderRadius: radii.sm,
+    padding: spacing.md,
+  },
+  rawText: {
+    fontFamily: 'monospace',
+    color: toftreesTheme.colors.onSurfaceVariant,
+    lineHeight: 22,
+  },
+  processingContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing.xxl,
+    gap: spacing.md,
+  },
+  processingText: {
+    color: toftreesTheme.colors.primary,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing.xl,
+    gap: spacing.md,
+  },
+  emptyText: {
+    color: toftreesTheme.colors.onSurfaceVariant,
+    textAlign: 'center',
+    maxWidth: 250,
+  },
+});
+
+
+=== components/CameraCapture.tsx ===
+/**
+ * CameraCapture Component
+ * Camera view with capture button for photographing headstones.
+ */
+import React, { useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
+import { IconButton, Text, Button, Surface } from 'react-native-paper';
+import { toftreesTheme, spacing, radii } from '../theme';
+
+interface CameraCaptureProps {
+  onCapture: (uri: string) => void;
+  onCancel: () => void;
+}
+
+export function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
+  const cameraRef = useRef<CameraView>(null);
+  const [permission, requestPermission] = useCameraPermissions();
+  const [isCapturing, setIsCapturing] = useState(false);
+
+  if (!permission) {
+    return (
+      <Surface style={styles.container}>
+        <Text variant="bodyLarge">Loading camera...</Text>
+      </Surface>
+    );
+  }
+
+  if (!permission.granted) {
+    return (
+      <Surface style={styles.permissionContainer}>
+        <Text variant="headlineSmall" style={styles.permissionTitle}>
+          Camera Access Required
+        </Text>
+        <Text variant="bodyMedium" style={styles.permissionText}>
+          We need camera access to photograph headstones.
+        </Text>
+        <Button
+          mode="contained"
+          onPress={requestPermission}
+          style={styles.permissionButton}
+          icon="camera"
+        >
+          Grant Permission
+        </Button>
+        <Button
+          mode="text"
+          onPress={onCancel}
+          style={styles.cancelButton}
+        >
+          Cancel
+        </Button>
+      </Surface>
+    );
+  }
+
+  const handleCapture = async () => {
+    if (!cameraRef.current || isCapturing) return;
+
+    setIsCapturing(true);
+    try {
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.85,
+        exif: true,
+      });
+      if (photo) {
+        onCapture(photo.uri);
+      }
+    } catch (error) {
+      console.error('Failed to take photo:', error);
+    } finally {
+      setIsCapturing(false);
+    }
+  };
+
+  const handlePickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: false,
+        quality: 0.85,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        onCapture(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Failed to pick image:', error);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <CameraView
+        ref={cameraRef}
+        style={styles.camera}
+        facing="back"
+      >
+        {/* Overlay with guide frame */}
+        <View style={styles.overlay}>
+          <View style={styles.guideFrame}>
+            <Text variant="labelMedium" style={styles.guideText}>
+              Position headstone within frame
+            </Text>
+          </View>
+        </View>
+
+        {/* Controls */}
+        <View style={styles.controls}>
+          <IconButton
+            icon="close"
+            mode="contained"
+            iconColor={toftreesTheme.colors.onSurface}
+            containerColor={toftreesTheme.colors.surfaceVariant}
+            size={24}
+            onPress={onCancel}
+            accessibilityLabel="Cancel camera"
+          />
+          <IconButton
+            icon="camera"
+            mode="contained"
+            iconColor={toftreesTheme.colors.onPrimary}
+            containerColor={toftreesTheme.colors.primary}
+            size={48}
+            onPress={handleCapture}
+            disabled={isCapturing}
+            accessibilityLabel="Take photo"
+          />
+          <IconButton
+            icon="image"
+            mode="contained"
+            iconColor={toftreesTheme.colors.onSurface}
+            containerColor={toftreesTheme.colors.surfaceVariant}
+            size={24}
+            onPress={handlePickImage}
+            accessibilityLabel="Choose from gallery"
+          />
+        </View>
+      </CameraView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  camera: {
+    flex: 1,
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  guideFrame: {
+    width: '80%',
+    aspectRatio: 3 / 4,
+    borderWidth: 2,
+    borderColor: 'rgba(168, 200, 150, 0.5)',
+    borderRadius: radii.md,
+    borderStyle: 'dashed',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingBottom: spacing.md,
+  },
+  guideText: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radii.sm,
+  },
+  controls: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.xxl,
+  },
+  permissionContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xl,
+    backgroundColor: toftreesTheme.colors.background,
+  },
+  permissionTitle: {
+    marginBottom: spacing.md,
+    textAlign: 'center',
+  },
+  permissionText: {
+    marginBottom: spacing.lg,
+    textAlign: 'center',
+    color: toftreesTheme.colors.onSurfaceVariant,
+  },
+  permissionButton: {
+    marginBottom: spacing.md,
+  },
+  cancelButton: {
+    marginTop: spacing.sm,
+  },
+});
+
+
+=== services/ocr.ts ===
+/**
+ * OCR Service
+ * Uses Google Cloud Vision API TEXT_DETECTION to transcribe headstone inscriptions.
+ */
+import * as FileSystem from 'expo-file-system/legacy';
+import type { OcrResult, SanityBlock } from '../types';
+import { getSettings } from './settings';
+
+/** Cloud Vision API endpoint */
+const VISION_API_URL = 'https://vision.googleapis.com/v1/images:annotate';
+
+/**
+ * Perform OCR on an image file.
+ * Sends the image to Google Cloud Vision TEXT_DETECTION endpoint.
+ */
+export async function recognizeText(imageUri: string): Promise<OcrResult> {
+  const settings = await getSettings();
+  if (!settings.cloudVisionApiKey) {
+    throw new Error('Cloud Vision API key not configured. Go to Settings.');
+  }
+
+  console.log('[OCR] Input URI:', imageUri);
+
+  // Ensure we have a file:// URI (content:// URIs from image picker need copying)
+  let fileUri = imageUri;
+  if (!imageUri.startsWith('file://')) {
+    const cacheUri = `${FileSystem.cacheDirectory}ocr_temp_${Date.now()}.jpg`;
+    await FileSystem.copyAsync({ from: imageUri, to: cacheUri });
+    fileUri = cacheUri;
+    console.log('[OCR] Copied to cache:', cacheUri);
+  }
+
+  // Read image as base64
+  let base64Image = await FileSystem.readAsStringAsync(fileUri, {
+    encoding: 'base64',
+  });
+
+  // Strip data URI prefix if present (e.g. "data:image/jpeg;base64,...")
+  if (base64Image.includes(',')) {
+    base64Image = base64Image.split(',').pop() || base64Image;
+  }
+
+  console.log('[OCR] Base64 length:', base64Image.length);
+  console.log('[OCR] Base64 starts with:', base64Image.substring(0, 30));
+  console.log('[OCR] Base64 type:', typeof base64Image);
+
+  // Build request body manually to ensure correct structure
+  const requestBody = {
+    requests: [
+      {
+        image: {
+          content: base64Image,
+        },
+        features: [
+          { type: 'TEXT_DETECTION', maxResults: 10 },
+        ],
+      },
+    ],
+  };
+
+  const bodyString = JSON.stringify(requestBody);
+  console.log('[OCR] Request body size:', bodyString.length);
+
+  // Call Cloud Vision API
+  const response = await fetch(
+    `${VISION_API_URL}?key=${settings.cloudVisionApiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: bodyString,
+    }
+  );
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Vision API error (${response.status}): ${errorBody}`);
+  }
+
+  const data = await response.json();
+  const annotations = data.responses?.[0]?.textAnnotations;
+
+  if (!annotations || annotations.length === 0) {
+    return { fullText: '', blocks: [] };
+  }
+
+  // First annotation contains the full detected text
+  const fullText = annotations[0].description || '';
+
+  // Remaining annotations are individual word/block detections
+  const blocks = annotations
+    .slice(1)
+    .map((a: { description: string }) => a.description);
+
+  return {
+    fullText: fullText.trim(),
+    blocks,
+  };
+}
+
+/**
+ * Convert plain text inscription to Sanity Portable Text blocks.
+ * Each paragraph (double newline) becomes a separate block.
+ */
+export function textToPortableText(text: string): SanityBlock[] {
+  if (!text) return [];
+
+  // Split on double newlines for paragraphs, fall back to single newlines
+  const paragraphs = text
+    .split(/\n\n+/)
+    .map((p) => p.replace(/\n/g, ' ').trim())
+    .filter((p) => p.length > 0);
+
+  return paragraphs.map((paragraph) => ({
+    _type: 'block' as const,
+    _key: Math.random().toString(36).substring(2, 10),
+    style: 'normal' as const,
+    markDefs: [] as never[],
+    children: [
+      {
+        _type: 'span' as const,
+        _key: Math.random().toString(36).substring(2, 10),
+        text: paragraph,
+        marks: [] as never[],
+      },
+    ],
+  }));
+}
+
+/**
+ * Attempt to extract person information from OCR text.
+ * Looks for common headstone patterns like:
+ *   "In Loving Memory of JOHN SMITH who died 12th March 1923 aged 76 years"
+ */
+export function extractPersonsFromText(
+  text: string
+): Array<{ name?: string; year?: number; age?: number }> {
+  const persons: Array<{ name?: string; year?: number; age?: number }> = [];
+
+  // Common headstone patterns
+  const patterns = [
+    // "JOHN SMITH who died|departed|fell asleep ... 1923 ... aged 76"
+    /(?:of|memory of|memory)\s+([A-Z][A-Za-z\s.]+?)(?:\s+who\s+(?:died|departed|fell asleep|passed away|was called to rest).*?)(?:(\d{4}))(?:.*?aged?\s+(\d+))?/gi,
+    // "Also JANE SMITH ... 1930 ... aged 82"
+    /(?:also|also of)\s+([A-Z][A-Za-z\s.]+?)(?:.*?)(?:(\d{4}))(?:.*?aged?\s+(\d+))?/gi,
+  ];
+
+  for (const pattern of patterns) {
+    let match;
+    while ((match = pattern.exec(text)) !== null) {
+      const name = match[1]?.trim();
+      const year = match[2] ? parseInt(match[2], 10) : undefined;
+      const age = match[3] ? parseInt(match[3], 10) : undefined;
+
+      if (name && name.length > 2) {
+        persons.push({ name, year, age });
+      }
+    }
+  }
+
+  return persons;
+}
+
+
+=== services/settings.ts ===
+/**
+ * Settings Service
+ * Securely stores and retrieves API keys and configuration.
+ */
+import * as SecureStore from 'expo-secure-store';
+import type { AppSettings } from '../types';
+
+const SETTINGS_KEY = 'toftrees_settings_v2';
+
+/** Default settings with pre-configured values where known */
+const DEFAULT_SETTINGS: AppSettings = {
+  cloudVisionApiKey: process.env.EXPO_PUBLIC_VISION_API_KEY || '',
+  what3wordsApiKey: 'VFNUJZMI',
+  sanityProjectId: 'pu2m4784',
+  sanityDataset: 'sandbox',
+  sanityToken:
+    'skJzHbkkylDxNyvTruXMmW8Q0KqkEC1A4hMVnnl29MWLeXAP3j8zcLHe64f9kabeRPbTMkbfZLpWk5oLOid60BXKmRwNj9sdQr9T4Uf5lK8r8N8IMmvokGOj8LEuRRQrNXjkUfk8G8aycRNFmCoVGX0JQgjV7RTl9NklHxb2fW6yWutibDEa',
+};
+
+/** Retrieve all app settings */
+export async function getSettings(): Promise<AppSettings> {
+  try {
+    const raw = await SecureStore.getItemAsync(SETTINGS_KEY);
+    if (raw) {
+      return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+    }
+  } catch (error) {
+    console.warn('Failed to read settings:', error);
+  }
+  return { ...DEFAULT_SETTINGS };
+}
+
+/** Save all app settings */
+export async function saveSettings(settings: AppSettings): Promise<void> {
+  await SecureStore.setItemAsync(SETTINGS_KEY, JSON.stringify(settings));
+}
+
+/** Update a single setting */
+export async function updateSetting<K extends keyof AppSettings>(
+  key: K,
+  value: AppSettings[K]
+): Promise<void> {
+  const current = await getSettings();
+  current[key] = value;
+  await saveSettings(current);
+}
+
+/** Check if all required settings are configured */
+export async function validateSettings(): Promise<{
+  valid: boolean;
+  missing: string[];
+}> {
+  const settings = await getSettings();
+  const missing: string[] = [];
+
+  if (!settings.cloudVisionApiKey) missing.push('Cloud Vision API Key');
+  if (!settings.what3wordsApiKey) missing.push('What3Words API Key');
+  if (!settings.sanityProjectId) missing.push('Sanity Project ID');
+  if (!settings.sanityDataset) missing.push('Sanity Dataset');
+  if (!settings.sanityToken) missing.push('Sanity Write Token');
+
+  return { valid: missing.length === 0, missing };
+}
+
+
+=== services/sanity.ts ===
+/**
+ * Sanity Upload Service
+ * Uploads survey records to the Toftrees Sanity dataset as grave documents.
+ */
+import { createClient, type SanityClient } from '@sanity/client';
+import * as FileSystem from 'expo-file-system';
+import type { SurveyRecord, SanityGeopoint, SanityBlock } from '../types';
+import { textToPortableText } from './ocr';
+import { getSettings } from './settings';
+
+let client: SanityClient | null = null;
+
+/** Get or create the Sanity client */
+async function getSanityClient(): Promise<SanityClient> {
+  const settings = await getSettings();
+
+  if (!settings.sanityProjectId || !settings.sanityToken) {
+    throw new Error(
+      'Sanity project ID and write token are required. Go to Settings.'
+    );
+  }
+
+  // Always recreate in case settings changed
+  client = createClient({
+    projectId: settings.sanityProjectId,
+    dataset: settings.sanityDataset || 'production',
+    apiVersion: '2024-01-01',
+    useCdn: false, // Required for mutations
+    token: settings.sanityToken,
+  });
+
+  return client;
+}
+
+/** Upload an image file to Sanity and return the asset reference */
+async function uploadImage(
+  sanityClient: SanityClient,
+  imageUri: string,
+  filename: string
+): Promise<{ _type: 'reference'; _ref: string }> {
+  // Read image as blob via fetch (works in React Native)
+  const response = await fetch(imageUri);
+  const blob = await response.blob();
+
+  const asset = await sanityClient.assets.upload('image', blob, {
+    filename,
+  });
+
+  return {
+    _type: 'reference',
+    _ref: asset._id,
+  };
+}
+
+/** Build a Sanity grave document from a survey record */
+function buildGraveDocument(
+  survey: SurveyRecord,
+  headstoneAssetRef?: { _type: 'reference'; _ref: string },
+  additionalAssetRefs?: Array<{ _type: 'reference'; _ref: string }>
+): { _type: string } & Record<string, unknown> {
+  const doc: { _type: string } & Record<string, unknown> = {
+    _type: 'grave',
+  };
+
+  if (survey.graveNo != null) doc.graveNo = survey.graveNo;
+  if (survey.familySurname) doc.familySurname = survey.familySurname;
+  if (survey.locationDescription) doc.locationDescription = survey.locationDescription;
+
+  // Geopoint
+  if (survey.latitude != null && survey.longitude != null) {
+    const geopoint: SanityGeopoint = {
+      _type: 'geopoint',
+      lat: survey.latitude,
+      lng: survey.longitude,
+    };
+    if (survey.altitude != null) geopoint.alt = survey.altitude;
+    doc.graveyardLocation = geopoint;
+    
+    doc.latitude = survey.latitude;
+    doc.longitude = survey.longitude;
+    if (survey.altitude != null) doc.altitude = survey.altitude;
+  }
+
+  if (survey.what3words) {
+    doc.what3words = survey.what3words;
+  }
+
+  // Headstone image
+  if (headstoneAssetRef) {
+    doc.headstoneImage = {
+      _type: 'image',
+      asset: headstoneAssetRef,
+    };
+  }
+
+  // Inscription (as Portable Text blocks)
+  const inscriptionText = survey.editedInscription || survey.rawOcrText;
+  if (inscriptionText) {
+    doc.inscription = textToPortableText(inscriptionText);
+  }
+
+  // Condition and extras
+  if (survey.headstoneCondition) doc.headstoneCondition = survey.headstoneCondition;
+  if (survey.footstone != null) doc.footstone = survey.footstone;
+  if (survey.footstoneInscription) doc.footstoneInscription = survey.footstoneInscription;
+  if (survey.additionalInformation) {
+    // Include W3W in additional info
+    let info = survey.additionalInformation;
+    if (survey.what3words) {
+      info += `\n\nWhat3Words: ///${survey.what3words}`;
+    }
+    doc.additionalInformation = info;
+  } else if (survey.what3words) {
+    doc.additionalInformation = `What3Words: ///${survey.what3words}`;
+  }
+
+  // Persons
+  if (survey.persons && survey.persons.length > 0) {
+    doc.persons = survey.persons.map((p) => ({
+      _key: p.key || Math.random().toString(36).substring(2, 10),
+      name: p.name || '',
+      year: p.year,
+      age: p.age,
+      dateBurial: p.dateBurial || '',
+      notes: p.notes || '',
+    }));
+  }
+
+  // Additional grave images
+  if (additionalAssetRefs && additionalAssetRefs.length > 0) {
+    doc.graveImages = additionalAssetRefs.map((ref) => ({
+      _type: 'image',
+      _key: Math.random().toString(36).substring(2, 10),
+      asset: ref,
+    }));
+  }
+
+  return doc;
+}
+
+/**
+ * Upload a survey record to Sanity.
+ * Returns the Sanity document ID.
+ */
+export async function uploadSurvey(
+  survey: SurveyRecord,
+  onProgress?: (step: string) => void
+): Promise<string> {
+  const sanityClient = await getSanityClient();
+
+  // 1. Upload headstone image
+  let headstoneAssetRef: { _type: 'reference'; _ref: string } | undefined;
+  if (survey.headstonePhotoUri) {
+    onProgress?.('Uploading headstone photo...');
+    headstoneAssetRef = await uploadImage(
+      sanityClient,
+      survey.headstonePhotoUri,
+      `grave-${survey.graveNo || 'unknown'}-headstone.jpg`
+    );
+  }
+
+  // 2. Upload additional photos
+  let additionalAssetRefs: Array<{ _type: 'reference'; _ref: string }> = [];
+  if (survey.additionalPhotoUris && survey.additionalPhotoUris.length > 0) {
+    onProgress?.('Uploading additional photos...');
+    additionalAssetRefs = await Promise.all(
+      survey.additionalPhotoUris.map((uri, i) =>
+        uploadImage(
+          sanityClient,
+          uri,
+          `grave-${survey.graveNo || 'unknown'}-photo-${i + 1}.jpg`
+        )
+      )
+    );
+  }
+
+  // 3. Create the grave document
+  onProgress?.('Creating grave document...');
+  const doc = buildGraveDocument(survey, headstoneAssetRef, additionalAssetRefs);
+  const result = await sanityClient.create(doc);
+
+  onProgress?.('Upload complete!');
+  return result._id;
+}
+
+/** Test Sanity connection with current settings */
+export async function testConnection(): Promise<boolean> {
+  try {
+    const sanityClient = await getSanityClient();
+    // Try a simple query
+    await sanityClient.fetch('*[_type == "grave"][0]._id');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+
+=== services/location.ts ===
+/**
+ * Location Service
+ * GPS coordinates via expo-location + What3Words address conversion.
+ */
+import * as Location from 'expo-location';
+import type { LocationResult } from '../types';
+import { getSettings } from './settings';
+
+/** Request location permissions */
+export async function requestLocationPermission(): Promise<boolean> {
+  const { status } = await Location.requestForegroundPermissionsAsync();
+  return status === 'granted';
+}
+
+/** Get current GPS location and optionally convert to What3Words */
+export async function getCurrentLocation(): Promise<LocationResult> {
+  const hasPermission = await requestLocationPermission();
+  if (!hasPermission) {
+    throw new Error('Location permission not granted');
+  }
+
+  const location = await Location.getCurrentPositionAsync({
+    accuracy: Location.Accuracy.BestForNavigation,
+  });
+
+  const result: LocationResult = {
+    latitude: location.coords.latitude,
+    longitude: location.coords.longitude,
+    altitude: location.coords.altitude ?? undefined,
+    accuracy: location.coords.accuracy ?? undefined,
+  };
+
+  // Try to get What3Words address
+  try {
+    const w3w = await getWhat3Words(result.latitude, result.longitude);
+    result.what3words = w3w;
+  } catch (error) {
+    console.warn('Failed to get What3Words address:', error);
+  }
+
+  return result;
+}
+
+/** Convert lat/lng to a What3Words address */
+export async function getWhat3Words(
+  lat: number,
+  lng: number
+): Promise<string> {
+  const settings = await getSettings();
+  if (!settings.what3wordsApiKey) {
+    throw new Error('What3Words API key not configured');
+  }
+
+  const url = `https://api.what3words.com/v3/convert-to-3wa?coordinates=${lat},${lng}&key=${settings.what3wordsApiKey}`;
+  
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    if (data.words) {
+      return data.words;
+    }
+    
+    if (data.error && data.error.code === 'QuotaExceeded') {
+      console.warn('What3Words Quota Exceeded - Using PoC Fallback');
+      return `mock.address.toftrees`;
+    }
+    
+    throw new Error(data.error?.message || 'What3Words API request failed');
+  } catch (error) {
+    console.warn('What3Words API error, generating PoC fallback:', error);
+    return `mock.location.survey`;
+  }
+}
+
+/** Format coordinates for display */
+export function formatCoordinates(lat: number, lng: number): string {
+  const latDir = lat >= 0 ? 'N' : 'S';
+  const lngDir = lng >= 0 ? 'E' : 'W';
+  return `${Math.abs(lat).toFixed(6)}°${latDir}, ${Math.abs(lng).toFixed(6)}°${lngDir}`;
+}
+
+
+=== services/storage.ts ===
+/**
+ * Local SQLite Storage Service
+ * Persists survey records locally for offline-first operation.
+ */
+import * as SQLite from 'expo-sqlite';
+import type { SurveyRecord, SurveyStatus, PersonRecord, HeadstoneCondition } from '../types';
+
+const DB_NAME = 'toftrees_surveys.db';
+
+let db: SQLite.SQLiteDatabase | null = null;
+
+/** Get or open the database connection */
+async function getDb(): Promise<SQLite.SQLiteDatabase> {
+  if (!db) {
+    db = await SQLite.openDatabaseAsync(DB_NAME);
+    await initDb(db);
+  }
+  return db;
+}
+
+/** Initialize database tables */
+async function initDb(database: SQLite.SQLiteDatabase): Promise<void> {
+  await database.execAsync(`
+    CREATE TABLE IF NOT EXISTS surveys (
+      id TEXT PRIMARY KEY NOT NULL,
+      sanityId TEXT,
+      status TEXT NOT NULL DEFAULT 'draft',
+      graveNo INTEGER,
+      familySurname TEXT,
+      locationDescription TEXT,
+      latitude REAL,
+      longitude REAL,
+      altitude REAL,
+      what3words TEXT,
+      rawOcrText TEXT,
+      editedInscription TEXT,
+      headstoneCondition TEXT,
+      footstone INTEGER DEFAULT 0,
+      footstoneInscription TEXT,
+      additionalInformation TEXT,
+      headstonePhotoUri TEXT,
+      additionalPhotoUris TEXT,
+      persons TEXT,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL
+    );
+  `);
+}
+
+/** Convert a database row to a SurveyRecord */
+function rowToSurvey(row: Record<string, unknown>): SurveyRecord {
+  return {
+    id: row.id as string,
+    sanityId: row.sanityId as string | undefined,
+    status: row.status as SurveyStatus,
+    graveNo: row.graveNo as number | undefined,
+    familySurname: row.familySurname as string | undefined,
+    locationDescription: row.locationDescription as string | undefined,
+    latitude: row.latitude as number | undefined,
+    longitude: row.longitude as number | undefined,
+    altitude: row.altitude as number | undefined,
+    what3words: row.what3words as string | undefined,
+    rawOcrText: row.rawOcrText as string | undefined,
+    editedInscription: row.editedInscription as string | undefined,
+    headstoneCondition: (row.headstoneCondition as HeadstoneCondition) || undefined,
+    footstone: row.footstone === 1,
+    footstoneInscription: row.footstoneInscription as string | undefined,
+    additionalInformation: row.additionalInformation as string | undefined,
+    headstonePhotoUri: row.headstonePhotoUri as string | undefined,
+    additionalPhotoUris: row.additionalPhotoUris
+      ? JSON.parse(row.additionalPhotoUris as string)
+      : undefined,
+    persons: row.persons
+      ? JSON.parse(row.persons as string)
+      : undefined,
+    createdAt: row.createdAt as string,
+    updatedAt: row.updatedAt as string,
+  };
+}
+
+/** Create a new survey record */
+export async function createSurvey(
+  partial: Partial<SurveyRecord> = {}
+): Promise<SurveyRecord> {
+  const database = await getDb();
+  const now = new Date().toISOString();
+  const survey: SurveyRecord = {
+    id: Math.random().toString(36).substring(2, 10),
+    status: 'draft',
+    createdAt: now,
+    updatedAt: now,
+    ...partial,
+  };
+
+  await database.runAsync(
+    `INSERT INTO surveys (
+      id, sanityId, status, graveNo, familySurname, locationDescription,
+      latitude, longitude, altitude, what3words,
+      rawOcrText, editedInscription, headstoneCondition,
+      footstone, footstoneInscription, additionalInformation,
+      headstonePhotoUri, additionalPhotoUris, persons,
+      createdAt, updatedAt
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    survey.id,
+    survey.sanityId ?? null,
+    survey.status,
+    survey.graveNo ?? null,
+    survey.familySurname ?? null,
+    survey.locationDescription ?? null,
+    survey.latitude ?? null,
+    survey.longitude ?? null,
+    survey.altitude ?? null,
+    survey.what3words ?? null,
+    survey.rawOcrText ?? null,
+    survey.editedInscription ?? null,
+    survey.headstoneCondition ?? null,
+    survey.footstone ? 1 : 0,
+    survey.footstoneInscription ?? null,
+    survey.additionalInformation ?? null,
+    survey.headstonePhotoUri ?? null,
+    survey.additionalPhotoUris ? JSON.stringify(survey.additionalPhotoUris) : null,
+    survey.persons ? JSON.stringify(survey.persons) : null,
+    survey.createdAt,
+    survey.updatedAt
+  );
+
+  return survey;
+}
+
+/** Update an existing survey record */
+export async function updateSurvey(
+  id: string,
+  updates: Partial<SurveyRecord>
+): Promise<void> {
+  const database = await getDb();
+  const now = new Date().toISOString();
+
+  const fields: string[] = [];
+  const values: unknown[] = [];
+
+  const fieldMap: Record<string, (v: unknown) => unknown> = {
+    sanityId: (v) => v,
+    status: (v) => v,
+    graveNo: (v) => v,
+    familySurname: (v) => v,
+    locationDescription: (v) => v,
+    latitude: (v) => v,
+    longitude: (v) => v,
+    altitude: (v) => v,
+    what3words: (v) => v,
+    rawOcrText: (v) => v,
+    editedInscription: (v) => v,
+    headstoneCondition: (v) => v,
+    footstone: (v) => (v ? 1 : 0),
+    footstoneInscription: (v) => v,
+    additionalInformation: (v) => v,
+    headstonePhotoUri: (v) => v,
+    additionalPhotoUris: (v) => (v ? JSON.stringify(v) : null),
+    persons: (v) => (v ? JSON.stringify(v) : null),
+  };
+
+  for (const [key, transform] of Object.entries(fieldMap)) {
+    if (key in updates) {
+      fields.push(`${key} = ?`);
+      values.push(transform((updates as Record<string, unknown>)[key]) ?? null);
+    }
+  }
+
+  if (fields.length === 0) return;
+
+  fields.push('updatedAt = ?');
+  values.push(now);
+  values.push(id);
+
+  await database.runAsync(
+    `UPDATE surveys SET ${fields.join(', ')} WHERE id = ?`,
+    ...(values as Array<string | number | null>)
+  );
+}
+
+/** Get all surveys, ordered by most recent first */
+export async function getAllSurveys(): Promise<SurveyRecord[]> {
+  const database = await getDb();
+  const rows = await database.getAllAsync(
+    'SELECT * FROM surveys ORDER BY updatedAt DESC'
+  );
+  return (rows as Record<string, unknown>[]).map(rowToSurvey);
+}
+
+/** Get a single survey by ID */
+export async function getSurvey(id: string): Promise<SurveyRecord | null> {
+  const database = await getDb();
+  const row = await database.getFirstAsync(
+    'SELECT * FROM surveys WHERE id = ?',
+    id
+  );
+  return row ? rowToSurvey(row as Record<string, unknown>) : null;
+}
+
+/** Delete a survey by ID */
+export async function deleteSurvey(id: string): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('DELETE FROM surveys WHERE id = ?', id);
+}
+
+/** Get surveys by status */
+export async function getSurveysByStatus(
+  status: SurveyStatus
+): Promise<SurveyRecord[]> {
+  const database = await getDb();
+  const rows = await database.getAllAsync(
+    'SELECT * FROM surveys WHERE status = ? ORDER BY updatedAt DESC',
+    status
+  );
+  return (rows as Record<string, unknown>[]).map(rowToSurvey);
+}
+
+/** Count surveys by status */
+export async function countSurveysByStatus(): Promise<
+  Record<SurveyStatus, number>
+> {
+  const database = await getDb();
+  const rows = await database.getAllAsync(
+    'SELECT status, COUNT(*) as count FROM surveys GROUP BY status'
+  );
+  const counts: Record<SurveyStatus, number> = {
+    draft: 0,
+    ready: 0,
+    uploaded: 0,
+  };
+  for (const row of rows as Array<{ status: string; count: number }>) {
+    counts[row.status as SurveyStatus] = row.count;
+  }
+  return counts;
+}

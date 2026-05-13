@@ -511,7 +511,7 @@ export function GraveHeroBanner({
                                   src={urlFor(img.image).url()}
                                   alt={img.alt}
                                   fill
-                                  style={{ objectFit: 'cover' }}
+                                  style={{ objectFit: 'contain' }}
                                   sizes={`${Math.round(width)}px`}
                                 />
                               </Box>
