@@ -12,8 +12,8 @@ import Link from 'next/link'
 function ArrowIcon({ direction }: { direction: 'left' | 'right' }) {
   return (
     <svg
-      width="19"
-      height="8"
+      width="28"
+      height="12"
       viewBox="0 0 19 8"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -539,7 +539,9 @@ export function GraveHeroBanner({
                     onClick={scrollLeft}
                     bg="rgba(255, 255, 255, 0.5)"
                     _hover={{ bg: 'rgba(255, 255, 255, 0.9)', opacity: 1 }}
-                    size="44px"
+                    w="56px"
+                    h="56px"
+                    minW="56px"
                     borderRadius="0"
                     transition="all 0.2s ease"
                   />
@@ -549,7 +551,9 @@ export function GraveHeroBanner({
                     onClick={scrollRight}
                     bg="rgba(255, 255, 255, 0.5)"
                     _hover={{ bg: 'rgba(255, 255, 255, 0.9)', opacity: 1 }}
-                    size="44px"
+                    w="56px"
+                    h="56px"
+                    minW="56px"
                     borderRadius="0"
                     transition="all 0.2s ease"
                   />
