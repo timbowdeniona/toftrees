@@ -11,8 +11,10 @@ import {
   PopoverContent,
   PopoverArrow,
   IconButton,
+  Spinner,
 } from "@chakra-ui/react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Grave, ImageMap, Hotspot } from "../../types";
 import { formatPersonName } from "../../utils/name-parser";
 import Image from "next/image";
@@ -33,8 +35,70 @@ export function GraveListView({
   imageMap,
   searchQuery = "",
 }: GraveListViewProps) {
-  const [viewType, setViewType] = useState<ViewType>("list");
+  const searchParams = useSearchParams();
+  const selectParam = searchParams?.get("select");
+
+  const [viewType, setViewType] = useState<ViewType>(selectParam ? "map" : "list");
   const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(null);
+
+  const [pendingScrollTarget, setPendingScrollTarget] = useState<Hotspot | null>(null);
+  const [isLocating, setIsLocating] = useState(!!selectParam);
+
+  // Sync isLocating when selectParam changes
+  useEffect(() => {
+    if (selectParam) {
+      setIsLocating(true);
+    }
+  }, [selectParam]);
+
+  // Handle select query param on load
+  useEffect(() => {
+    if (selectParam && imageMap?.hotspots) {
+      const targetHotspot = imageMap.hotspots.find((h) => {
+        const grave = h.grave && typeof h.grave === "object" && "_id" in h.grave ? h.grave : null;
+        return grave?._id === selectParam;
+      });
+
+      if (targetHotspot) {
+        setViewType("map");
+        setPendingScrollTarget(targetHotspot);
+      } else {
+        setIsLocating(false);
+      }
+    } else if (selectParam && (!imageMap || !imageMap.hotspots)) {
+      setIsLocating(false);
+    }
+  }, [selectParam, imageMap]);
+
+  // Execute pending scroll when map view becomes active
+  useEffect(() => {
+    if (viewType === "map" && pendingScrollTarget) {
+      // Step 1: Set selected hotspot to open the popover (letting Chakra auto-focus it)
+      const openTimer = setTimeout(() => {
+        setSelectedHotspot(pendingScrollTarget);
+
+        // Step 2: Smoothly scroll the pin into the center of the viewport after the popover mounts/settles
+        const scrollTimer = setTimeout(() => {
+          const pinEl = document.getElementById(`pin-${pendingScrollTarget._key}`);
+          if (pinEl) {
+            pinEl.scrollIntoView({ behavior: "smooth", block: "center" });
+          } else {
+            // Fallback if pin still not found
+            const mapEl = document.getElementById("grave-list-view");
+            if (mapEl) {
+              mapEl.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          }
+          setPendingScrollTarget(null);
+          setIsLocating(false);
+        }, 150); // 150ms delay overrides any focus-scroll hijacking
+
+        return () => clearTimeout(scrollTimer);
+      }, 500); // 500ms to guarantee map DOM is fully painted
+
+      return () => clearTimeout(openTimer);
+    }
+  }, [viewType, pendingScrollTarget]);
 
   // Filter hotspots based on search query for map view
   const filteredHotspots = useMemo(() => {
@@ -144,6 +208,36 @@ export function GraveListView({
       w="full"
       pt={{ base: "24px", md: "0px" }}
       pb={{ base: "48px", md: "96px" }}>
+      
+      {/* Loading Overlay */}
+      {isLocating && (
+        <Flex
+          position="fixed"
+          top={0}
+          left={0}
+          w="100vw"
+          h="100vh"
+          bg="white"
+          zIndex={99999}
+          align="center"
+          justify="center"
+          flexDirection="column"
+          gap="24px"
+        >
+          <Spinner size="xl" color="#2E4028" thickness="4px" />
+          <Text
+            sx={{
+              fontFamily: '"Host Grotesk", sans-serif',
+              fontSize: "18px",
+              fontWeight: 600,
+              color: "#2E4028",
+            }}
+          >
+            Locating grave...
+          </Text>
+        </Flex>
+      )}
+
       <Container
         maxW="100%"
         px={{ base: viewType === "list" ? "24px" : "0px", md: "0px" }}>
@@ -503,6 +597,7 @@ export function GraveListView({
                         isLazy>
                         <PopoverTrigger>
                           <Box
+                            id={`pin-${hotspot._key}`}
                             position="absolute"
                             left={`${hotspot.x}%`}
                             top={`${hotspot.y}%`}
@@ -517,7 +612,7 @@ export function GraveListView({
                               transform: "translate(-50%, -100%) scale(1.1)",
                             }}>
                             <Image
-                              src="/pointer.svg"
+                              src={isOpen || isHighlighted ? "/pointer-active.svg" : "/pointer.svg"}
                               alt="Grave location marker"
                               width={isHighlighted ? 60 : 50}
                               height={isHighlighted ? 60 : 50}

@@ -2,6 +2,7 @@
 
 import { Box, Container, Flex, Text, VStack } from '@chakra-ui/react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { urlFor } from '../../sanity/client'
 import { Grave, ImageMap } from '../../types'
 
@@ -225,40 +226,53 @@ export function GraveDetailsSection({ grave, imageMap }: GraveDetailsSectionProp
               bg="#f0f0f0"
               borderRadius="4px"
             >
-              <Box position="relative" w="full" h="full">
-                <Image
-                  src={urlFor(mapImage).url()}
-                  alt="Grave location map"
-                  fill
-                  style={{
-                    objectFit: 'cover',
-                    objectPosition: 'center',
-                  }}
-                />
+              <Link
+                href={`/graves?select=${grave._id}`}
+                style={{ display: 'block', width: '100%', height: '100%', cursor: 'pointer' }}
+              >
+                <Box position="relative" w="full" h="full">
+                  <Box
+                    position="absolute"
+                    left="50%"
+                    top="50%"
+                    transform={`translate(-${markerPosition.x}%, -${markerPosition.y}%)`}
+                    w={{ base: "250%", md: "150%" }}
+                    minW="800px"
+                  >
+                    <Box position="relative" w="full" pb={`${(2543 / 1856) * 100}%`}>
+                      <Image
+                        src={urlFor(mapImage).url()}
+                        alt="Grave location map"
+                        fill
+                        style={{
+                          objectFit: 'cover',
+                          objectPosition: 'center',
+                        }}
+                      />
 
-                {/* Pointer Marker */}
-                <Box
-                  position="absolute"
-                  left={`${markerPosition.x}%`}
-                  top={`${markerPosition.y}%`}
-                  transform="translate(-50%, -50%)"
-                  w="26px"
-                  h="auto"
-                  zIndex={10}
-                  pointerEvents="none"
-                >
-                  <Image
-                    src="/pointer.svg"
-                    alt="Location marker"
-                    width={26}
-                    height={50}
-                    style={{
-                      width: '26px',
-                      height: 'auto',
-                    }}
-                  />
+                      {/* Pointer Marker */}
+                      <Box
+                        position="absolute"
+                        left={`${markerPosition.x}%`}
+                        top={`${markerPosition.y}%`}
+                        transform="translate(-50%, -100%)"
+                        zIndex={10}
+                        w={{ base: "40px", md: "50px" }}
+                        h={{ base: "40px", md: "50px" }}
+                      >
+                        <Box w="full" h="full" position="relative">
+                          <Image
+                            src="/pointer-active.svg"
+                            alt="Location marker"
+                            fill
+                            style={{ objectFit: 'contain' }}
+                          />
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Box>
                 </Box>
-              </Box>
+              </Link>
             </Box>
           )}
         </Flex>

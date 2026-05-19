@@ -3,7 +3,7 @@
 import { MarketingLayout } from '../../components/layout/marketing-layout'
 import { ContentSectionRenderer, GraveListView } from '../../components/content-sections'
 import { Grave, ImageMap } from '../../types'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 
 interface ContentSection {
   _type: string
@@ -101,11 +101,13 @@ export default function GravesPageClient({
       />
       
       {/* Grave List View Component */}
-      <GraveListView
-        graves={graves}
-        imageMap={imageMap || undefined}
-        searchQuery={searchQuery}
-      />
+      <Suspense fallback={<div>Loading map...</div>}>
+        <GraveListView
+          graves={graves}
+          imageMap={imageMap || undefined}
+          searchQuery={searchQuery}
+        />
+      </Suspense>
     </MarketingLayout>
   )
 }
