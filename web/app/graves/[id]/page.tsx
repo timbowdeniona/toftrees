@@ -36,6 +36,7 @@ async function getGraveData(id: string, isDraftMode: boolean) {
       graveImages,
       locationDescription,
       headstoneCondition,
+      graveType,
       footstone,
       footstoneInscription,
       additionalInformation,

@@ -3,7 +3,7 @@
  * Persists survey records locally for offline-first operation.
  */
 import * as SQLite from 'expo-sqlite';
-import type { SurveyRecord, SurveyStatus, PersonRecord, HeadstoneCondition } from '../types';
+import type { SurveyRecord, SurveyStatus, PersonRecord, HeadstoneCondition, GraveType } from '../types';
 
 const DB_NAME = 'toftrees_surveys.db';
 
@@ -41,10 +41,16 @@ async function initDb(database: SQLite.SQLiteDatabase): Promise<void> {
       headstonePhotoUri TEXT,
       additionalPhotoUris TEXT,
       persons TEXT,
+      graveType TEXT,
       createdAt TEXT NOT NULL,
       updatedAt TEXT NOT NULL
     );
   `);
+  try {
+    await database.execAsync(`ALTER TABLE surveys ADD COLUMN graveType TEXT;`);
+  } catch (e) {
+    // Column might already exist
+  }
 }
 
 /** Convert a database row to a SurveyRecord */
@@ -63,6 +69,7 @@ function rowToSurvey(row: Record<string, unknown>): SurveyRecord {
     rawOcrText: row.rawOcrText as string | undefined,
     editedInscription: row.editedInscription as string | undefined,
     headstoneCondition: (row.headstoneCondition as HeadstoneCondition) || undefined,
+    graveType: (row.graveType as GraveType | undefined) || undefined,
     footstone: row.footstone === 1,
     footstoneInscription: row.footstoneInscription as string | undefined,
     additionalInformation: row.additionalInformation as string | undefined,
@@ -98,9 +105,9 @@ export async function createSurvey(
       latitude, longitude, altitude, what3words,
       rawOcrText, editedInscription, headstoneCondition,
       footstone, footstoneInscription, additionalInformation,
-      headstonePhotoUri, additionalPhotoUris, persons,
+      headstonePhotoUri, additionalPhotoUris, persons, graveType,
       createdAt, updatedAt
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     survey.id,
     survey.sanityId ?? null,
     survey.status,
@@ -120,6 +127,7 @@ export async function createSurvey(
     survey.headstonePhotoUri ?? null,
     survey.additionalPhotoUris ? JSON.stringify(survey.additionalPhotoUris) : null,
     survey.persons ? JSON.stringify(survey.persons) : null,
+    survey.graveType ?? null,
     survey.createdAt,
     survey.updatedAt
   );
@@ -157,6 +165,7 @@ export async function updateSurvey(
     headstonePhotoUri: (v) => v,
     additionalPhotoUris: (v) => (v ? JSON.stringify(v) : null),
     persons: (v) => (v ? JSON.stringify(v) : null),
+    graveType: (v) => v,
   };
 
   for (const [key, transform] of Object.entries(fieldMap)) {

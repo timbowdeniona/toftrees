@@ -18,6 +18,8 @@ export const HEADSTONE_CONDITIONS = [
 
 export type HeadstoneCondition = (typeof HEADSTONE_CONDITIONS)[number];
 
+export type GraveType = 'upright' | 'flat';
+
 /** A locally-stored survey record */
 export interface SurveyRecord {
   id: string;
@@ -41,6 +43,7 @@ export interface SurveyRecord {
 
   // Condition
   headstoneCondition?: HeadstoneCondition;
+  graveType?: GraveType;
   footstone?: boolean;
   footstoneInscription?: string;
   additionalInformation?: string;

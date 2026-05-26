@@ -158,6 +158,27 @@ export function GraveForm({ survey, onUpdate }: GraveFormProps) {
               accessibilityLabel="Footstone inscription"
             />
           )}
+
+          <Divider style={styles.divider} />
+
+          <Text variant="bodyMedium" style={[styles.switchLabel, { marginBottom: spacing.xs }]}>
+            Type of Grave
+          </Text>
+          <SegmentedButtons
+            value={survey.graveType || 'upright'}
+            onValueChange={(v) => onUpdate({ graveType: v as 'upright' | 'flat' })}
+            buttons={[
+              {
+                value: 'upright',
+                label: 'Upright',
+              },
+              {
+                value: 'flat',
+                label: 'Flat',
+              },
+            ]}
+            style={styles.segmentedButton}
+          />
         </Card.Content>
       </Card>
 
@@ -366,5 +387,9 @@ const styles = StyleSheet.create({
   },
   addPersonButton: {
     marginTop: spacing.sm,
+  },
+  segmentedButton: {
+    marginTop: spacing.xs,
+    backgroundColor: toftreesTheme.colors.elevation.level2,
   },
 });
