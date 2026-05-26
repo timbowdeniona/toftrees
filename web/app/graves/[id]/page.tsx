@@ -275,10 +275,23 @@ async function getGraveData(id: string, isDraftMode: boolean) {
     }
   }`);
 
+  // Fetch microtext for explanation under map
+  const explanationContent = await sanityClient.fetch(`*[_type == "microtext" && key.current == "grave-details-explanation"][0]{
+    title,
+    image {
+      asset {
+        _ref
+      }
+    },
+    imageAltText,
+    text
+  }`);
+
   return {
     grave,
     siteSettings,
     imageMap: imageMap || null,
+    explanationContent: explanationContent || null,
   };
 }
 
@@ -310,6 +323,7 @@ export default async function GraveDetailsPage({
       grave={data.grave}
       siteSettings={data.siteSettings}
       imageMap={data.imageMap}
+      explanationContent={data.explanationContent}
     />
   );
 }
