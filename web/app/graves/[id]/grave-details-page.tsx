@@ -10,6 +10,7 @@ import { BurialDetails } from '../../../components/content-sections/burial-detai
 import { OtherPeopleBuried } from '../../../components/content-sections/other-people-buried'
 import { Inscription } from '../../../components/content-sections/inscription'
 import { GraveDetailsSection } from '../../../components/content-sections/grave-details-section'
+import { GraveDetailsExplanation } from '../../../components/content-sections/grave-details-explanation'
 
 interface ContentSection {
   _type: string
@@ -87,10 +88,12 @@ export default function GraveDetailsPageClient({
   grave,
   siteSettings,
   imageMap,
+  explanationContent,
 }: {
   grave: Grave
   siteSettings?: SiteSettings
   imageMap?: ImageMap | null
+  explanationContent?: any
 }) {
   // Get person name for breadcrumb
   const getPersonName = (): string => {
@@ -165,6 +168,9 @@ export default function GraveDetailsPageClient({
 
         {/* Grave Details Section */}
         <GraveDetailsSection grave={grave} imageMap={imageMap} />
+
+        {/* Grave Details Explanation Component */}
+        <GraveDetailsExplanation data={explanationContent} />
 
         {/* Content Sections */}
         <ContentSectionRenderer

@@ -22,6 +22,7 @@ import spacing from "./spacing"
 import containerPadding from "./containerPadding"
 import graveListPage from "./graveListPage"
 import graveDetailsPage from "./graveDetailsPage"
+import microtext from "./microtext"
 
 export const schemaTypes = [
     grave,
@@ -47,5 +48,6 @@ export const schemaTypes = [
     spacing,
     containerPadding,
     graveListPage,
-    graveDetailsPage
+    graveDetailsPage,
+    microtext
 ]
