@@ -114,6 +114,19 @@ export default defineType({
       type: 'text',
     }),
     defineField({
+      name: 'graveType',
+      title: 'Type of Grave',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Upright', value: 'upright' },
+          { title: 'Flat', value: 'flat' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'upright',
+    }),
+    defineField({
       name: 'footstone',
       title: 'Footstone',
       type: 'boolean',

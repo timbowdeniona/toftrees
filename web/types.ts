@@ -71,6 +71,7 @@ export type Grave = {
     _key: string;
   }>;
   headstoneCondition?: string;
+  graveType?: 'upright' | 'flat';
   footstone?: boolean;
   footstoneInscription?: string;
   additionalInformation?: string;

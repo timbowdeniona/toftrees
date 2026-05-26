@@ -101,6 +101,7 @@ function buildGraveDocument(
 
   // Condition and extras
   if (survey.headstoneCondition) doc.headstoneCondition = survey.headstoneCondition;
+  if (survey.graveType) doc.graveType = survey.graveType;
   if (survey.footstone != null) doc.footstone = survey.footstone;
   if (survey.footstoneInscription) doc.footstoneInscription = survey.footstoneInscription;
   if (survey.additionalInformation) {

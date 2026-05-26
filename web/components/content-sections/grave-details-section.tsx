@@ -174,9 +174,10 @@ export function GraveDetailsSection({ grave, imageMap }: GraveDetailsSectionProp
                       fontWeight: 300,
                       lineHeight: '150%',
                       color: 'var(--Secondary-Dark-Green, #1A1F16)',
+                      textTransform: 'capitalize',
                     }}
                   >
-                    Upright
+                    {grave.graveType || 'upright'}
                   </Text>
                 </VStack>
               </Flex>
