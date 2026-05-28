@@ -37,8 +37,11 @@ export function GraveListView({
 }: GraveListViewProps) {
   const searchParams = useSearchParams();
   const selectParam = searchParams?.get("select");
+  const viewParam = searchParams?.get("view");
 
-  const [viewType, setViewType] = useState<ViewType>(selectParam ? "map" : "list");
+  const [viewType, setViewType] = useState<ViewType>(
+    selectParam || viewParam === "map" ? "map" : "list"
+  );
   const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(null);
 
   const [pendingScrollTarget, setPendingScrollTarget] = useState<Hotspot | null>(null);
@@ -50,6 +53,17 @@ export function GraveListView({
       setIsLocating(true);
     }
   }, [selectParam]);
+
+  // Sync viewType when selectParam or viewParam changes
+  useEffect(() => {
+    if (selectParam) {
+      setViewType("map");
+    } else if (viewParam === "map") {
+      setViewType("map");
+    } else if (viewParam === "list") {
+      setViewType("list");
+    }
+  }, [selectParam, viewParam]);
 
   // Handle select query param on load
   useEffect(() => {

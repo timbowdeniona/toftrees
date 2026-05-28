@@ -25,4 +25,14 @@ describe('Navigation', () => {
     expect(screen.getByText('About')).toBeInTheDocument()
     expect(screen.getByText('Contact')).toBeInTheDocument()
   })
+
+  it('transforms CMS links for Map Admin to graves?view=map', () => {
+    const mockLinks = [
+      { linkUrl: '/map', linkText: 'Map Admin' }
+    ]
+    render(<Navigation links={mockLinks} />)
+    const mapLinks = screen.getAllByText('Map')
+    expect(mapLinks.length).toBeGreaterThan(0)
+    expect(mapLinks[0].closest('a')).toHaveAttribute('href', '/graves?view=map')
+  })
 })

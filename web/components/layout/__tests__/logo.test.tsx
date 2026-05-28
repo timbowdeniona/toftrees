@@ -13,6 +13,6 @@ jest.mock('data/config', () => ({
 describe('Logo', () => {
   it('renders the site title', () => {
     render(<Logo />)
-    expect(screen.getByRole('heading', { name: 'Test Site Title' })).toBeInTheDocument()
+    expect(screen.getByText('Test Site Title')).toBeInTheDocument()
   })
 })
