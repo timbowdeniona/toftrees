@@ -22,7 +22,17 @@ export const Footer: React.FC<FooterProps> = ({ config }) => {
   // Fallback to default config if no CMS config is provided
   const copyrightText = config?.copyrightText || siteConfig.footer.copyright;
   const navigationLinks =
-    config?.navigationLinks || siteConfig.footer?.links || [];
+    config?.navigationLinks?.map(link => {
+      let url = link.url;
+      let label = link.label;
+      if (url === '/map') {
+        url = '/graves?view=map';
+      }
+      if (label === 'Map Admin') {
+        label = 'Map';
+      }
+      return { ...link, url, label };
+    }) || siteConfig.footer?.links || [];
   const additionLinks = config?.additionLinks || [];
 
   return (

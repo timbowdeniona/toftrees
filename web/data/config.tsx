@@ -28,8 +28,8 @@ const siteConfig = {
       },
       {
         id: 'map',
-        label: 'Map Admin',
-        href: '/map',
+        label: 'Map',
+        href: '/graves?view=map',
       },
     ],
   },

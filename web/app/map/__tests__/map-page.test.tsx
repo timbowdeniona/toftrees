@@ -19,6 +19,12 @@ jest.mock('sanity/client', () => ({
   },
 }));
 
+// Mock next/navigation
+jest.mock('next/navigation', () => ({
+  useSearchParams: () => new URLSearchParams(''),
+  usePathname: () => '/map',
+}));
+
 const mockImageMap = {
   _id: 'map-1',
   title: 'Churchyard Map',

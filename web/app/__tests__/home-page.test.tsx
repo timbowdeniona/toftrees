@@ -10,12 +10,50 @@ jest.mock('sanity/client', () => ({
 }));
 
 const mockSettings = {
-  churchImage: {
-    asset: {
-      _ref: 'image-doubled-next-js-and-sanity-io-the-perfect-match-for-a-jamstack-website-building-a-blog-from-scratch-with-a-powerful-cms-and-a-flexible-front-end-framework',
+  contentSections: [
+    {
+      _type: 'heroBanner',
+      _key: 'hero-1',
+      title: 'Toftrees Churchyard',
+      bodyText: [
+        {
+          _type: 'block',
+          _key: 'block-1',
+          children: [
+            {
+              _type: 'span',
+              _key: 'span-1',
+              text: 'A history of the graves in the Toftrees churchyard in Norfolk.',
+            },
+          ],
+        },
+      ],
+      backgroundImage: {
+        asset: {
+          _ref: 'image-ref',
+        },
+      },
+      backgroundImageAltText: 'Toftrees Church',
     },
-  },
-  shortHistory: 'This is a short history of the church.',
+    {
+      _type: 'headingBodyText',
+      _key: 'history-1',
+      heading: 'A Short History',
+      bodyText: [
+        {
+          _type: 'block',
+          _key: 'block-2',
+          children: [
+            {
+              _type: 'span',
+              _key: 'span-2',
+              text: 'This is a short history of the church.',
+            },
+          ],
+        },
+      ],
+    },
+  ],
 };
 
 describe('HomePage', () => {

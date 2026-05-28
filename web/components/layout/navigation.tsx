@@ -31,11 +31,21 @@ const Navigation: React.FC<NavigationProps> = ({ links, navigationConfig }) => {
   
   // Use CMS links if provided, otherwise fallback to siteConfig
   const cmsLinks = links && links.length > 0
-    ? links.map(link => ({
-        href: link.linkUrl,
-        label: link.linkText,
-        id: link.linkUrl.replace(/^\//, '').replace(/\//g, '-'),
-      }))
+    ? links.map(link => {
+        let href = link.linkUrl
+        let label = link.linkText
+        if (href === '/map') {
+          href = '/graves?view=map'
+        }
+        if (label === 'Map Admin') {
+          label = 'Map'
+        }
+        return {
+          href,
+          label,
+          id: href.replace(/^\//, '').replace(/\//g, '-'),
+        }
+      })
     : siteConfig.header.links
   
   // Desktop links (without Home)

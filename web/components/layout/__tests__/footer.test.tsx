@@ -12,8 +12,8 @@ jest.mock('../../../data/config', () => ({
     footer: {
       copyright: 'Test Copyright',
       links: [
-        { href: '/about', label: 'About' },
-        { href: '/contact', label: 'Contact' },
+        { url: '/about', label: 'About' },
+        { url: '/contact', label: 'Contact' },
       ],
     },
   },
@@ -22,7 +22,7 @@ jest.mock('../../../data/config', () => ({
 describe('Footer', () => {
   it('renders the copyright text', () => {
     render(<Footer />)
-    expect(screen.getByText('Test Copyright')).toBeInTheDocument()
+    expect(screen.getAllByText('Test Copyright')[0]).toBeInTheDocument()
   })
 
   it('renders footer links', () => {
