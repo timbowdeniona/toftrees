@@ -15,7 +15,7 @@ import { NavLink } from '../nav-link'
 import siteConfig from '../../data/config'
 import { NavigationBarConfig } from '../../types'
 import { Logo } from './logo'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 
 interface NavigationProps {
   links?: NavigationBarConfig['navigationLinks'];
@@ -30,32 +30,44 @@ const Navigation: React.FC<NavigationProps> = ({ links, navigationConfig }) => {
   const [navSpacing, setNavSpacing] = useState(64) // Start with 64px spacing
   
   // Use CMS links if provided, otherwise fallback to siteConfig
-  const cmsLinks = links && links.length > 0
-    ? links.map(link => {
-        let href = link.linkUrl
-        let label = link.linkText
-        if (href === '/map') {
-          href = '/graves?view=map'
-        }
-        if (label === 'Map Admin') {
-          label = 'Map'
-        }
-        return {
-          href,
-          label,
-          id: href.replace(/^\//, '').replace(/\//g, '-'),
-        }
-      })
-    : siteConfig.header.links
+  const cmsLinks = useMemo(() => {
+    return links && links.length > 0
+      ? links.map(link => {
+          let href = link.linkUrl
+          let label = link.linkText
+          if (href === '/map') {
+            href = '/graves?view=map'
+          }
+          if (label === 'Map Admin') {
+            label = 'Map'
+          }
+          return {
+            href,
+            label,
+            id: href.replace(/^\//, '').replace(/\//g, '-'),
+          }
+        })
+      : siteConfig.header.links
+  }, [links])
+
+  // Filter out any existing Home link in case it is already configured in the dataset or config
+  const linksWithoutHome = useMemo(() => {
+    return cmsLinks.filter(
+      (link) => link.href !== '/' && link.label?.toLowerCase() !== 'home' && link.id !== 'home'
+    )
+  }, [cmsLinks])
   
-  // Desktop links (without Home)
-  const desktopLinks = cmsLinks
+  // Desktop links (with Home as the first item)
+  const desktopLinks = useMemo(() => [
+    { href: '/', label: 'Home', id: 'home' },
+    ...linksWithoutHome
+  ], [linksWithoutHome])
   
   // Mobile/Hamburger links (with Home at the beginning)
-  const mobileLinks = [
+  const mobileLinks = useMemo(() => [
     { href: '/', label: 'Home', id: 'home' },
-    ...cmsLinks
-  ]
+    ...linksWithoutHome
+  ], [linksWithoutHome])
 
   // Adjust spacing based on overflow (only on xl breakpoint and above)
   useEffect(() => {
