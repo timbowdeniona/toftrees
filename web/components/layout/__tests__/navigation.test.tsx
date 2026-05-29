@@ -26,6 +26,19 @@ describe('Navigation', () => {
     expect(screen.getByText('Contact')).toBeInTheDocument()
   })
 
+  it('renders the Home link as the first item in desktop navigation', () => {
+    render(<Navigation />)
+    // Find all desktop links. In navigation.tsx, links are NavLink (which render as anchors)
+    const desktopLinks = screen.getAllByRole('link').filter(el => {
+      // In the structure, we have desktop links inside HStack and mobile links elsewhere.
+      // Since screen.getAllByRole gets everything, we can assert the first desktop link is Home.
+      // Actually, mobile links might not be rendered unless the drawer is open (isOpen is false by default).
+      return el.closest('a') !== null;
+    })
+    expect(desktopLinks[0]).toHaveTextContent('Home')
+    expect(desktopLinks[0]).toHaveAttribute('href', '/')
+  })
+
   it('transforms CMS links for Map Admin to graves?view=map', () => {
     const mockLinks = [
       { linkUrl: '/map', linkText: 'Map Admin' }
