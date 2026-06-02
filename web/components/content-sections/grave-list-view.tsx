@@ -12,6 +12,11 @@ import {
   PopoverArrow,
   IconButton,
   Spinner,
+  Portal,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalBody,
 } from "@chakra-ui/react";
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
@@ -46,6 +51,14 @@ export function GraveListView({
 
   const [pendingScrollTarget, setPendingScrollTarget] = useState<Hotspot | null>(null);
   const [isLocating, setIsLocating] = useState(!!selectParam);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Sync isLocating when selectParam changes
   useEffect(() => {
@@ -214,6 +227,152 @@ export function GraveListView({
   }, [filteredGraves]);
 
   console.log("groupedGraves", groupedGraves);
+
+  const renderGraveDetailsContent = (grave: Grave) => (
+    <VStack spacing={{ base: "16px", md: "32px" }} align="stretch">
+      {/* Header Section */}
+      <Flex justify="space-between" align="start" w="full">
+        <Text
+          sx={{
+            fontFamily: '"Cormorant Garamond", serif',
+            fontSize: "16px",
+            fontWeight: 600,
+            color: "#2E4028",
+            textTransform: "uppercase",
+            letterSpacing: "1.92px",
+          }}>
+          Grave
+        </Text>
+        {grave.graveNo && (
+          <Text
+            sx={{
+              fontFamily: '"Host Grotesk", sans-serif',
+              fontSize: "16px",
+              fontWeight: 600,
+              color: "#2E4028",
+            }}>
+            #{grave.graveNo}
+          </Text>
+        )}
+      </Flex>
+
+      {/* Table Headers - Sticky */}
+      <Box
+        position="sticky"
+        top="0"
+        bg="white"
+        zIndex={10}
+        pb="8px"
+        borderBottom="1px solid #2E4028"
+        w="full"
+        overflow="hidden">
+        <Flex justify="space-between" align="end" w="full" gap="16px">
+          <Text
+            flex="1"
+            minW={0}
+            sx={{
+              fontFamily: '"Host Grotesk", sans-serif',
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#6B7A52",
+              textTransform: "uppercase",
+              letterSpacing: "2.24px",
+            }}>
+            Name
+          </Text>
+          <Text
+            flexShrink={0}
+            sx={{
+              fontFamily: '"Host Grotesk", sans-serif',
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#6B7A52",
+              textTransform: "uppercase",
+              letterSpacing: "2.24px",
+            }}>
+            Burial Year
+          </Text>
+        </Flex>
+      </Box>
+
+      {/* Table Rows */}
+      <VStack spacing={0} align="stretch">
+        {grave.persons && grave.persons.length > 0 ? (
+          grave.persons.map((person, index) => {
+            const totalPersons = grave.persons?.length || 0;
+            const displayName = person.name
+              ? formatPersonName(person.name)
+              : (grave.familySurname || "");
+
+            return (
+              <Box
+                key={index}
+                position="relative"
+                py="8px"
+                borderBottom={
+                  index < totalPersons - 1
+                    ? "1px solid #D9D9D9"
+                    : "none"
+                }
+                w="full"
+                overflow="hidden">
+                <Flex justify="space-between" align="start" w="full" gap="16px">
+                  <Text
+                    flex="1"
+                    minW={0}
+                    sx={{
+                      fontFamily: '"Cormorant Garamond", serif',
+                      fontSize: "16px",
+                      fontWeight: 600,
+                      color: "#2E4028",
+                      textTransform: "uppercase",
+                      letterSpacing: "1.92px",
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                    }}>
+                    {displayName || grave.familySurname || ""}
+                  </Text>
+                  {person.year && (
+                    <Text
+                      flexShrink={0}
+                      sx={{
+                        fontFamily: '"Host Grotesk", sans-serif',
+                        fontSize: "16px",
+                        fontWeight: 600,
+                        color: "#2E4028",
+                        textTransform: "uppercase",
+                      }}>
+                      {person.year}
+                    </Text>
+                  )}
+                </Flex>
+              </Box>
+            );
+          })
+        ) : (
+          <Box py="8px" w="full" overflow="hidden">
+            <Flex justify="space-between" align="start" w="full" gap="16px">
+              <Text
+                flex="1"
+                minW={0}
+                sx={{
+                  fontFamily: '"Cormorant Garamond", serif',
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  color: "#2E4028",
+                  textTransform: "uppercase",
+                  letterSpacing: "1.92px",
+                  wordBreak: "break-word",
+                  overflowWrap: "break-word",
+                }}>
+                {grave.familySurname || ""}
+              </Text>
+            </Flex>
+          </Box>
+        )}
+      </VStack>
+    </VStack>
+  );
 
 
   return (
@@ -600,6 +759,41 @@ export function GraveListView({
                       searchQuery.trim() &&
                       filteredHotspots.some((h) => h._key === hotspot._key);
 
+                    // 1. Mobile view: simple pin Box + click to open mobile Modal
+                    if (isMobile) {
+                      return (
+                        <Box
+                          key={hotspot._key}
+                          id={`pin-${hotspot._key}`}
+                          position="absolute"
+                          left={`${hotspot.x}%`}
+                          top={`${hotspot.y}%`}
+                          transform="translate(-50%, -100%)"
+                          w={isHighlighted ? "60px" : "50px"}
+                          h={isHighlighted ? "60px" : "50px"}
+                          cursor="pointer"
+                          zIndex={isHighlighted ? 6 : 5}
+                          onClick={() => setSelectedHotspot(hotspot)}
+                          transition="all 0.2s ease"
+                          _hover={{
+                            transform: "translate(-50%, -100%) scale(1.1)",
+                          }}>
+                          <Image
+                            src={isOpen || isHighlighted ? "/pointer-active.svg" : "/pointer.svg"}
+                            alt="Grave location marker"
+                            width={isHighlighted ? 60 : 50}
+                            height={isHighlighted ? 60 : 50}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "contain",
+                            }}
+                          />
+                        </Box>
+                      );
+                    }
+
+                    // 2. Desktop view: traditional Popover
                     return (
                       <Popover
                         key={hotspot._key}
@@ -639,233 +833,66 @@ export function GraveListView({
                           </Box>
                         </PopoverTrigger>
                         {grave && (
-                          <PopoverContent
-                            w={{ base: "calc(100vw - 48px)", md: "400px" }}
-                            maxW="90vw"
-                            maxH="80vh"
-                            overflowY="auto"
-                            border="none"
-                            borderRadius="4px"
-                            boxShadow="0px 4px 20px 0px rgba(0, 0, 0, 0.25)"
-                            bg="white"
-                            p={0}
-                            pt="64px"
-                            pb={{ base: "24px", md: "44px" }}
-                            px={{ base: "24px", md: "32px" }}
-                            position="relative"
-                            zIndex={9999}
-                            sx={{
-                              zIndex: "9999 !important",
-                              position: "fixed",
-                            }}>
-                            <PopoverArrow bg="white" />
+                          <Portal>
+                            <PopoverContent
+                              w="400px"
+                              maxW="90vw"
+                              maxH="80vh"
+                              overflowY="auto"
+                              border="none"
+                              borderRadius="4px"
+                              boxShadow="0px 4px 20px 0px rgba(0, 0, 0, 0.25)"
+                              bg="white"
+                              p={0}
+                              pt="64px"
+                              pb="44px"
+                              pl="32px"
+                              pr="56px"
+                              zIndex={9999}>
+                              <PopoverArrow bg="white" />
 
-                            {/* Close Button - Absolute positioned */}
-                            <IconButton
-                              aria-label="Close"
-                              icon={
-                                <Box position="relative" w="14px" h="11px">
-                                  <Box
-                                    position="absolute"
-                                    left="1.7px"
-                                    top="50%"
-                                    transform="translateY(-50%) rotate(45deg)"
-                                    w="14px"
-                                    h="1px"
-                                    bg="#2E4028"
-                                  />
-                                  <Box
-                                    position="absolute"
-                                    left="1.7px"
-                                    top="50%"
-                                    transform="translateY(-50%) rotate(-45deg)"
-                                    w="14px"
-                                    h="1px"
-                                    bg="#2E4028"
-                                  />
-                                </Box>
-                              }
-                              position="absolute"
-                              top="0"
-                              right="0"
-                              size="44px"
-                              onClick={() => setSelectedHotspot(null)}
-                              bg="rgba(217, 203, 176, 0.3)"
-                              color="#2E4028"
-                              borderRadius="0"
-                              borderTopRightRadius="4px"
-                              _hover={{ bg: "rgba(217, 203, 176, 0.5)" }}
-                              minW="44px"
-                              h="44px"
-                            />
-
-                            <VStack
-                              spacing={{ base: "16px", md: "32px" }}
-                              align="stretch">
-                              {/* Header Section */}
-                              <Flex
-                                justify="space-between"
-                                align="start"
-                                w="full">
-                                <Text
-                                  sx={{
-                                    fontFamily: '"Cormorant Garamond", serif',
-                                    fontSize: "16px",
-                                    fontWeight: 600,
-                                    color: "#2E4028",
-                                    textTransform: "uppercase",
-                                    letterSpacing: "1.92px",
-                                  }}>
-                                  Grave
-                                </Text>
-                                {grave.graveNo && (
-                                  <Text
-                                    sx={{
-                                      fontFamily: '"Host Grotesk", sans-serif',
-                                      fontSize: "16px",
-                                      fontWeight: 600,
-                                      color: "#2E4028",
-                                    }}>
-                                    #{grave.graveNo}
-                                  </Text>
-                                )}
-                              </Flex>
-
-                              {/* Table Headers - Sticky */}
-                              <Box
-                                position="sticky"
-                                top="0"
-                                bg="white"
-                                zIndex={10}
-                                pb="8px"
-                                borderBottom="1px solid #2E4028"
-                                w="full"
-                                overflow="hidden">
-                                <Flex
-                                  justify="space-between"
-                                  align="end"
-                                  w="full"
-                                  gap="16px">
-                                  <Text
-                                    flex="1"
-                                    minW={0}
-                                    sx={{
-                                      fontFamily: '"Host Grotesk", sans-serif',
-                                      fontSize: "14px",
-                                      fontWeight: 600,
-                                      color: "#6B7A52",
-                                      textTransform: "uppercase",
-                                      letterSpacing: "2.24px",
-                                    }}>
-                                    Name
-                                  </Text>
-                                  <Text
-                                    flexShrink={0}
-                                    sx={{
-                                      fontFamily: '"Host Grotesk", sans-serif',
-                                      fontSize: "14px",
-                                      fontWeight: 600,
-                                      color: "#6B7A52",
-                                      textTransform: "uppercase",
-                                      letterSpacing: "2.24px",
-                                    }}>
-                                    Burial Year
-                                  </Text>
-                                </Flex>
-                              </Box>
-
-                              {/* Table Rows */}
-                              <VStack spacing={0} align="stretch">
-                                {grave.persons && grave.persons.length > 0 ? (
-                                  grave.persons.map((person, index) => {
-                                    const totalPersons =
-                                      grave.persons?.length || 0;
-                                    const displayName = person.name
-                                       ? formatPersonName(person.name)
-                                       : (grave.familySurname || "");
-
-                                    return (
-                                      <Box
-                                        key={index}
-                                        position="relative"
-                                        py="8px"
-                                        borderBottom={
-                                          index < totalPersons - 1
-                                            ? "1px solid #D9D9D9"
-                                            : "none"
-                                        }
-                                        w="full"
-                                        overflow="hidden">
-                                        <Flex
-                                          justify="space-between"
-                                          align="start"
-                                          w="full"
-                                          gap="16px">
-                                          <Text
-                                            flex="1"
-                                            minW={0}
-                                            sx={{
-                                              fontFamily:
-                                                '"Cormorant Garamond", serif',
-                                              fontSize: "16px",
-                                              fontWeight: 600,
-                                              color: "#2E4028",
-                                              textTransform: "uppercase",
-                                              letterSpacing: "1.92px",
-                                              wordBreak: "break-word",
-                                              overflowWrap: "break-word",
-                                            }}>
-                                            {displayName ||
-                                              grave.familySurname ||
-                                              ""}
-                                          </Text>
-                                          {person.year && (
-                                            <Text
-                                              flexShrink={0}
-                                              sx={{
-                                                fontFamily:
-                                                  '"Host Grotesk", sans-serif',
-                                                fontSize: "16px",
-                                                fontWeight: 600,
-                                                color: "#2E4028",
-                                                textTransform: "uppercase",
-                                              }}>
-                                              {person.year}
-                                            </Text>
-                                          )}
-                                        </Flex>
-                                      </Box>
-                                    );
-                                  })
-                                ) : (
-                                  <Box py="8px" w="full" overflow="hidden">
-                                    <Flex
-                                      justify="space-between"
-                                      align="start"
-                                      w="full"
-                                      gap="16px">
-                                      <Text
-                                        flex="1"
-                                        minW={0}
-                                        sx={{
-                                          fontFamily:
-                                            '"Cormorant Garamond", serif',
-                                          fontSize: "16px",
-                                          fontWeight: 600,
-                                          color: "#2E4028",
-                                          textTransform: "uppercase",
-                                          letterSpacing: "1.92px",
-                                          wordBreak: "break-word",
-                                          overflowWrap: "break-word",
-                                        }}>
-                                        {grave.familySurname || ""}
-                                      </Text>
-                                    </Flex>
+                              {/* Close Button - Absolute positioned */}
+                              <IconButton
+                                aria-label="Close"
+                                icon={
+                                  <Box position="relative" w="14px" h="11px">
+                                    <Box
+                                      position="absolute"
+                                      left="1.7px"
+                                      top="50%"
+                                      transform="translateY(-50%) rotate(45deg)"
+                                      w="14px"
+                                      h="1px"
+                                      bg="#2E4028"
+                                    />
+                                    <Box
+                                      position="absolute"
+                                      left="1.7px"
+                                      top="50%"
+                                      transform="translateY(-50%) rotate(-45deg)"
+                                      w="14px"
+                                      h="1px"
+                                      bg="#2E4028"
+                                    />
                                   </Box>
-                                )}
-                              </VStack>
-                            </VStack>
-                          </PopoverContent>
+                                }
+                                position="absolute"
+                                top="0"
+                                right="0"
+                                size="44px"
+                                onClick={() => setSelectedHotspot(null)}
+                                bg="rgba(217, 203, 176, 0.3)"
+                                color="#2E4028"
+                                borderRadius="0"
+                                borderTopRightRadius="4px"
+                                _hover={{ bg: "rgba(217, 203, 176, 0.5)" }}
+                                minW="44px"
+                                h="44px"
+                              />
+
+                              {renderGraveDetailsContent(grave)}
+                            </PopoverContent>
+                          </Portal>
                         )}
                       </Popover>
                     );
@@ -880,6 +907,87 @@ export function GraveListView({
                   color="#2E4028">
                   <Text>Map not available</Text>
                 </Box>
+              )}
+
+              {/* Mobile Grave Details Modal */}
+              {isMobile && selectedHotspot && (
+                (() => {
+                  const grave =
+                    selectedHotspot.grave &&
+                    typeof selectedHotspot.grave === "object" &&
+                    "_id" in selectedHotspot.grave
+                      ? selectedHotspot.grave
+                      : null;
+
+                  if (!grave) return null;
+
+                  return (
+                    <Modal
+                      isOpen={isMobile && !!selectedHotspot}
+                      onClose={() => setSelectedHotspot(null)}
+                      isCentered
+                      size="xs">
+                      <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(2px)" />
+                      <ModalContent
+                        bg="white"
+                        borderRadius="4px"
+                        p={0}
+                        position="relative"
+                        mx="16px"
+                        w="calc(100vw - 32px)"
+                        maxW="400px">
+                        <IconButton
+                          aria-label="Close"
+                          icon={
+                            <Box position="relative" w="14px" h="11px">
+                              <Box
+                                position="absolute"
+                                left="1.7px"
+                                top="50%"
+                                transform="translateY(-50%) rotate(45deg)"
+                                w="14px"
+                                h="1px"
+                                bg="#2E4028"
+                              />
+                              <Box
+                                position="absolute"
+                                left="1.7px"
+                                top="50%"
+                                transform="translateY(-50%) rotate(-45deg)"
+                                w="14px"
+                                h="1px"
+                                bg="#2E4028"
+                              />
+                            </Box>
+                          }
+                          position="absolute"
+                          top="0"
+                          right="0"
+                          size="44px"
+                          onClick={() => setSelectedHotspot(null)}
+                          bg="rgba(217, 203, 176, 0.3)"
+                          color="#2E4028"
+                          borderRadius="0"
+                          borderTopRightRadius="4px"
+                          _hover={{ bg: "rgba(217, 203, 176, 0.5)" }}
+                          minW="44px"
+                          h="44px"
+                          zIndex={10}
+                        />
+                        <ModalBody
+                          p={0}
+                          pt="64px"
+                          pb="24px"
+                          pl="24px"
+                          pr="48px"
+                          maxH="80vh"
+                          overflowY="auto">
+                          {renderGraveDetailsContent(grave)}
+                        </ModalBody>
+                      </ModalContent>
+                    </Modal>
+                  );
+                })()
               )}
             </Box>
           )}
