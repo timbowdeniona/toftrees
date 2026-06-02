@@ -152,4 +152,15 @@ describe('GraveHeroBanner', () => {
 
     scrollBySpy.mockRestore()
   })
+
+  it('positions the desktop navigation buttons absolutely with bounded coordinates to prevent clipping', () => {
+    render(<GraveHeroBanner grave={mockGrave} images={mockTwoImages} />)
+    const leftBtn = screen.getByRole('button', { name: /scroll left/i })
+    const buttonsContainer = leftBtn.parentElement
+    expect(buttonsContainer).toHaveStyle({
+      position: 'absolute',
+      bottom: '80px',
+      right: '16px'
+    })
+  })
 })

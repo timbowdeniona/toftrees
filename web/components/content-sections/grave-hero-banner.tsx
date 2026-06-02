@@ -184,11 +184,13 @@ export function GraveHeroBanner({
   const textMx = hasImages ? '0' : { base: '0', sm: 'auto' }
 
   return (
-    <Box bg={bannerColour} w="full" position="relative" overflow="hidden" data-testid="grave-hero-banner">
+    <Box bg={bannerColour} w="full" maxW="full" minW="0" position="relative" overflow="hidden" data-testid="grave-hero-banner">
       <Box 
         position="relative"
         py={{ base: '48px', sm: '64px' }}
         w="full"
+        maxW="full"
+        minW="0"
         px={0}
       >
         <Flex 
@@ -197,6 +199,8 @@ export function GraveHeroBanner({
           align="stretch"
           justify={hasImages ? 'flex-start' : 'center'}
           w="full"
+          maxW="full"
+          minW="0"
         >
           {/* Text Content - First on Mobile */}
           <Flex
@@ -539,44 +543,46 @@ export function GraveHeroBanner({
                 </Flex>
               </Box>
 
-              {/* Navigation Buttons */}
-              {(columns.length > 1 || allImages.length === 2) && (
-                <Flex
-                  position="absolute"
-                  bottom="16px"
-                  right="16px"
-                  gap={2}
-                  zIndex={10}
-                >
-                  <IconButton
-                    aria-label="Scroll left"
-                    icon={<ArrowIcon direction="left" />}
-                    onClick={scrollLeft}
-                    bg="rgba(255, 255, 255, 0.5)"
-                    _hover={{ bg: 'rgba(255, 255, 255, 0.9)', opacity: 1 }}
-                    w="56px"
-                    h="56px"
-                    minW="56px"
-                    borderRadius="0"
-                    transition="all 0.2s ease"
-                  />
-                  <IconButton
-                    aria-label="Scroll right"
-                    icon={<ArrowIcon direction="right" />}
-                    onClick={scrollRight}
-                    bg="rgba(255, 255, 255, 0.5)"
-                    _hover={{ bg: 'rgba(255, 255, 255, 0.9)', opacity: 1 }}
-                    w="56px"
-                    h="56px"
-                    minW="56px"
-                    borderRadius="0"
-                    transition="all 0.2s ease"
-                  />
-                </Flex>
-              )}
             </Box>
           )}
         </Flex>
+
+        {/* Navigation Buttons positioned relative to parent inner Box to prevent horizontal clipping */}
+        {(columns.length > 1 || allImages.length === 2) && (
+          <Flex
+            display={{ base: 'none', sm: 'flex' }}
+            position="absolute"
+            bottom="80px"
+            right="16px"
+            gap={2}
+            zIndex={10}
+          >
+            <IconButton
+              aria-label="Scroll left"
+              icon={<ArrowIcon direction="left" />}
+              onClick={scrollLeft}
+              bg="rgba(255, 255, 255, 0.5)"
+              _hover={{ bg: 'rgba(255, 255, 255, 0.9)', opacity: 1 }}
+              w="56px"
+              h="56px"
+              minW="56px"
+              borderRadius="0"
+              transition="all 0.2s ease"
+            />
+            <IconButton
+              aria-label="Scroll right"
+              icon={<ArrowIcon direction="right" />}
+              onClick={scrollRight}
+              bg="rgba(255, 255, 255, 0.5)"
+              _hover={{ bg: 'rgba(255, 255, 255, 0.9)', opacity: 1 }}
+              w="56px"
+              h="56px"
+              minW="56px"
+              borderRadius="0"
+              transition="all 0.2s ease"
+            />
+          </Flex>
+        )}
       </Box>
 
       {/* Mobile: Image Slider Below Text Block */}
