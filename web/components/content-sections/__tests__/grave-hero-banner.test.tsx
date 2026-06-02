@@ -66,6 +66,22 @@ describe('GraveHeroBanner', () => {
     expect(screen.getByText('1753')).toBeInTheDocument()
   })
 
+  it('has overflow hidden on the outer container to clip overflowing pictures and buttons', () => {
+    render(<GraveHeroBanner grave={mockGrave} images={[]} />)
+    const banner = screen.getByTestId('grave-hero-banner')
+    expect(banner).toHaveStyle({ overflow: 'hidden' })
+  })
+
+  it('has overflow hidden on the desktop image carousel to prevent stretching and clipping the navigation buttons', () => {
+    const { rerender } = render(<GraveHeroBanner grave={mockGrave} images={mockTwoImages} />)
+    let carousel = screen.getByTestId('grave-image-carousel')
+    expect(carousel).toHaveStyle({ overflow: 'hidden' })
+
+    rerender(<GraveHeroBanner grave={mockGrave} images={mockThreeImages} />)
+    carousel = screen.getByTestId('grave-image-carousel')
+    expect(carousel).toHaveStyle({ overflow: 'hidden' })
+  })
+
   it('renders navigation buttons and rotates images on click when exactly 2 images are loaded', () => {
     render(<GraveHeroBanner grave={mockGrave} images={mockTwoImages} />)
 
@@ -135,5 +151,16 @@ describe('GraveHeroBanner', () => {
     expect(scrollBySpy).toHaveBeenCalledWith({ left: -300, behavior: 'smooth' })
 
     scrollBySpy.mockRestore()
+  })
+
+  it('positions the desktop navigation buttons absolutely with bounded coordinates to prevent clipping', () => {
+    render(<GraveHeroBanner grave={mockGrave} images={mockTwoImages} />)
+    const leftBtn = screen.getByRole('button', { name: /scroll left/i })
+    const buttonsContainer = leftBtn.parentElement
+    expect(buttonsContainer).toHaveStyle({
+      position: 'absolute',
+      bottom: '80px',
+      right: '16px'
+    })
   })
 })
