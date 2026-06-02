@@ -72,6 +72,12 @@ describe('GraveHeroBanner', () => {
     expect(banner).toHaveStyle({ overflow: 'hidden' })
   })
 
+  it('has overflow hidden on the desktop image carousel to prevent stretching and clipping the navigation buttons', () => {
+    render(<GraveHeroBanner grave={mockGrave} images={mockTwoImages} />)
+    const carousel = screen.getByTestId('grave-image-carousel')
+    expect(carousel).toHaveStyle({ overflow: 'hidden' })
+  })
+
   it('renders navigation buttons and rotates images on click when exactly 2 images are loaded', () => {
     render(<GraveHeroBanner grave={mockGrave} images={mockTwoImages} />)
 

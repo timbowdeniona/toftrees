@@ -476,6 +476,8 @@ export function GraveHeroBanner({
               h="523px"
               w="auto"
               minW="0"
+              overflow="hidden"
+              data-testid="grave-image-carousel"
             >
               <Box
                 ref={scrollRef}
