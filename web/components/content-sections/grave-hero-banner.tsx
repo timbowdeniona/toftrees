@@ -3,7 +3,7 @@
 import { Box, Container, Flex, Text, VStack, IconButton } from '@chakra-ui/react'
 import Image from 'next/image'
 import { urlFor } from '../../sanity/client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Grave } from '../../types'
 import { formatPersonName } from '../../utils/name-parser'
 import Link from 'next/link'
@@ -89,6 +89,14 @@ export function GraveHeroBanner({
     return []
   })()
 
+  // Manage display images state to support rotation when exactly 2 images are loaded
+  const [displayImages, setDisplayImages] = useState<typeof allImages>(allImages)
+
+  // Reset displayImages state when grave ID changes
+  useEffect(() => {
+    setDisplayImages(allImages)
+  }, [grave._id])
+
   // Determine aspect ratio helper
   const getAspectRatio = (ref?: string): number => {
     if (!ref) return 1
@@ -101,8 +109,8 @@ export function GraveHeroBanner({
     return 1
   }
 
-  // Pre-process images
-  const allImagesWithAspect = allImages.map((img) => ({
+  // Pre-process images using displayImages state
+  const allImagesWithAspect = displayImages.map((img) => ({
     ...img,
     aspect: getAspectRatio(img.image?.asset?._ref),
   }))
@@ -142,13 +150,17 @@ export function GraveHeroBanner({
   const graveNo = grave.graveNo
 
   const scrollLeft = () => {
-    if (scrollRef.current) {
+    if (allImages.length === 2) {
+      setDisplayImages((prev) => [prev[1], prev[0]])
+    } else if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: -300, behavior: 'smooth' })
     }
   }
 
   const scrollRight = () => {
-    if (scrollRef.current) {
+    if (allImages.length === 2) {
+      setDisplayImages((prev) => [prev[1], prev[0]])
+    } else if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: 300, behavior: 'smooth' })
     }
   }
@@ -525,7 +537,7 @@ export function GraveHeroBanner({
               </Box>
 
               {/* Navigation Buttons */}
-              {columns.length > 1 && (
+              {(columns.length > 1 || allImages.length === 2) && (
                 <Flex
                   position="absolute"
                   bottom="16px"
