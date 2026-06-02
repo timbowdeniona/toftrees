@@ -8,7 +8,6 @@ const siteConfig = {
     description: 'A history of the graves in the Toftrees churchyard in Norfolk.',
   } as NextSeoProps,
   termsUrl: '#',
-  privacyUrl: '#',
   header: {
     links: [
       {

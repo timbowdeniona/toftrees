@@ -77,8 +77,6 @@ interface SiteSettings {
   footer?: {
     navigationLinks?: Array<{ _key?: string; label: string; url: string }>
     copyrightText?: string
-    privacyPolicyLabel?: string
-    privacyPolicyUrl?: string
     termsLabel?: string
     termsUrl?: string
   }
