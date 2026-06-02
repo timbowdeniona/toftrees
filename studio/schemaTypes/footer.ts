@@ -47,7 +47,7 @@ export default defineType({
       name: 'additionLinks',
       title: 'Additional Links',
       type: 'array',
-      description: 'Additional links to display in the footer (e.g., Privacy Policy, Terms & Conditions, Contact)',
+      description: 'Additional links to display in the footer (e.g., Terms & Conditions, Contact)',
       of: [
         {
           type: 'object',
