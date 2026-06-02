@@ -474,7 +474,8 @@ export function GraveHeroBanner({
               flex={{ base: '1', sm: imageFlex }}
               position="relative"
               h="523px"
-              w="auto"
+              w={{ base: 'full', sm: hasMoreThanTwoImages ? '66.666%' : '50%' }}
+              maxW={{ base: 'full', sm: hasMoreThanTwoImages ? '66.666%' : '50%' }}
               minW="0"
               overflow="hidden"
               data-testid="grave-image-carousel"

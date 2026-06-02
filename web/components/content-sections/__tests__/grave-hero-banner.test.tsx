@@ -73,8 +73,12 @@ describe('GraveHeroBanner', () => {
   })
 
   it('has overflow hidden on the desktop image carousel to prevent stretching and clipping the navigation buttons', () => {
-    render(<GraveHeroBanner grave={mockGrave} images={mockTwoImages} />)
-    const carousel = screen.getByTestId('grave-image-carousel')
+    const { rerender } = render(<GraveHeroBanner grave={mockGrave} images={mockTwoImages} />)
+    let carousel = screen.getByTestId('grave-image-carousel')
+    expect(carousel).toHaveStyle({ overflow: 'hidden' })
+
+    rerender(<GraveHeroBanner grave={mockGrave} images={mockThreeImages} />)
+    carousel = screen.getByTestId('grave-image-carousel')
     expect(carousel).toHaveStyle({ overflow: 'hidden' })
   })
 
