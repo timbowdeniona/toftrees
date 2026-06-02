@@ -184,7 +184,7 @@ export function GraveHeroBanner({
   const textMx = hasImages ? '0' : { base: '0', sm: 'auto' }
 
   return (
-    <Box bg={bannerColour} w="full" position="relative">
+    <Box bg={bannerColour} w="full" position="relative" overflow="hidden" data-testid="grave-hero-banner">
       <Box 
         position="relative"
         py={{ base: '48px', sm: '64px' }}

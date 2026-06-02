@@ -66,6 +66,12 @@ describe('GraveHeroBanner', () => {
     expect(screen.getByText('1753')).toBeInTheDocument()
   })
 
+  it('has overflow hidden on the outer container to clip overflowing pictures and buttons', () => {
+    render(<GraveHeroBanner grave={mockGrave} images={[]} />)
+    const banner = screen.getByTestId('grave-hero-banner')
+    expect(banner).toHaveStyle({ overflow: 'hidden' })
+  })
+
   it('renders navigation buttons and rotates images on click when exactly 2 images are loaded', () => {
     render(<GraveHeroBanner grave={mockGrave} images={mockTwoImages} />)
 
