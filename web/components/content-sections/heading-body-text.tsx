@@ -101,6 +101,24 @@ export function HeadingBodyTextSection({ heading, bodyText, spacing }: HeadingBo
                     mb: 0,
                   },
                 },
+                '& ul': {
+                  listStyleType: 'disc',
+                  listStylePosition: 'outside',
+                  pl: '24px',
+                  mb: '16px',
+                  mt: '8px',
+                },
+                '& ol': {
+                  listStyleType: 'decimal',
+                  listStylePosition: 'outside',
+                  pl: '24px',
+                  mb: '16px',
+                  mt: '8px',
+                },
+                '& li': {
+                  mb: '8px',
+                  lineHeight: '1.5',
+                },
               }}
             >
               <PortableText value={bodyText} />

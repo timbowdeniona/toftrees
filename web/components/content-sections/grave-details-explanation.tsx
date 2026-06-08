@@ -1,9 +1,14 @@
 'use client'
 
-import { Box, Container, Flex, Heading, Text, VStack } from '@chakra-ui/react'
+import { Box, Container, Flex, Heading } from '@chakra-ui/react'
 import { PortableText } from '@portabletext/react'
 import Image from 'next/image'
 import { urlFor } from '../../sanity/client'
+
+interface BlockContent {
+  _type: string
+  [key: string]: unknown
+}
 
 interface MicrotextContent {
   title?: string
@@ -13,7 +18,7 @@ interface MicrotextContent {
     }
   }
   imageAltText?: string
-  text?: any[]
+  text?: BlockContent[]
 }
 
 interface GraveDetailsExplanationProps {
@@ -99,6 +104,24 @@ export function GraveDetailsExplanation({ data }: GraveDetailsExplanationProps) 
                 },
                 '& p:last-of-type': {
                   mb: 0,
+                },
+                '& ul': {
+                  listStyleType: 'disc',
+                  listStylePosition: 'outside',
+                  pl: '24px',
+                  mb: '16px',
+                  mt: '8px',
+                },
+                '& ol': {
+                  listStyleType: 'decimal',
+                  listStylePosition: 'outside',
+                  pl: '24px',
+                  mb: '16px',
+                  mt: '8px',
+                },
+                '& li': {
+                  mb: '8px',
+                  lineHeight: '1.5',
                 },
               }}
             >

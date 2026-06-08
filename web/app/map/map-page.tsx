@@ -32,6 +32,8 @@ import { useSearchParams } from 'next/navigation';
 import { useState, useRef, MouseEvent, useMemo } from 'react'
 import { FaFlag } from 'react-icons/fa'
 
+const generateHotspotKey = () => Date.now().toString()
+
 export default function MapPageClient({
   imageMap: initialImageMap,
   graves,
@@ -121,7 +123,7 @@ export default function MapPageClient({
   const handleGraveSelect = async (grave: Grave) => {
     if (newHotspotCoords) {
       const newHotspot: Hotspot = {
-        _key: Date.now().toString(),
+        _key: generateHotspotKey(),
         _type: 'hotspot',
         x: newHotspotCoords.x,
         y: newHotspotCoords.y,

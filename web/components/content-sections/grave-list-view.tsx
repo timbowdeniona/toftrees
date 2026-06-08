@@ -53,49 +53,50 @@ export function GraveListView({
   const [isLocating, setIsLocating] = useState(!!selectParam);
   const [isMobile, setIsMobile] = useState(false);
 
+  // Stored state from previous renders for syncing
+  const [prevSelectParam, setPrevSelectParam] = useState<string | null>(null);
+  const [prevViewParam, setPrevViewParam] = useState<string | null>(null);
+  const [prevImageMap, setPrevImageMap] = useState<ImageMap | undefined>(undefined);
+
+  if (selectParam !== prevSelectParam || viewParam !== prevViewParam || imageMap !== prevImageMap) {
+    setPrevSelectParam(selectParam || null);
+    setPrevViewParam(viewParam || null);
+    setPrevImageMap(imageMap);
+
+    if (selectParam) {
+      setIsLocating(true);
+      setViewType("map");
+      
+      if (imageMap?.hotspots) {
+        const targetHotspot = imageMap.hotspots.find((h) => {
+          const grave = h.grave && typeof h.grave === "object" && "_id" in h.grave ? h.grave : null;
+          return grave?._id === selectParam;
+        });
+
+        if (targetHotspot) {
+          setPendingScrollTarget(targetHotspot);
+        } else {
+          setIsLocating(false);
+        }
+      } else if (!imageMap || !imageMap.hotspots) {
+        setIsLocating(false);
+      }
+    } else {
+      setIsLocating(false);
+      if (viewParam === "map") {
+        setViewType("map");
+      } else if (viewParam === "list") {
+        setViewType("list");
+      }
+    }
+  }
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
-
-  // Sync isLocating when selectParam changes
-  useEffect(() => {
-    if (selectParam) {
-      setIsLocating(true);
-    }
-  }, [selectParam]);
-
-  // Sync viewType when selectParam or viewParam changes
-  useEffect(() => {
-    if (selectParam) {
-      setViewType("map");
-    } else if (viewParam === "map") {
-      setViewType("map");
-    } else if (viewParam === "list") {
-      setViewType("list");
-    }
-  }, [selectParam, viewParam]);
-
-  // Handle select query param on load
-  useEffect(() => {
-    if (selectParam && imageMap?.hotspots) {
-      const targetHotspot = imageMap.hotspots.find((h) => {
-        const grave = h.grave && typeof h.grave === "object" && "_id" in h.grave ? h.grave : null;
-        return grave?._id === selectParam;
-      });
-
-      if (targetHotspot) {
-        setViewType("map");
-        setPendingScrollTarget(targetHotspot);
-      } else {
-        setIsLocating(false);
-      }
-    } else if (selectParam && (!imageMap || !imageMap.hotspots)) {
-      setIsLocating(false);
-    }
-  }, [selectParam, imageMap]);
 
   // Execute pending scroll when map view becomes active
   useEffect(() => {
@@ -228,7 +229,14 @@ export function GraveListView({
 
   console.log("groupedGraves", groupedGraves);
 
-  const renderGraveDetailsContent = (grave: Grave) => (
+  const renderGraveDetailsContent = (grave: {
+    graveNo?: number;
+    familySurname?: string;
+    persons?: Array<{
+      name?: string;
+      year?: number;
+    }>;
+  }) => (
     <VStack spacing={{ base: "16px", md: "32px" }} align="stretch">
       {/* Header Section */}
       <Flex justify="space-between" align="start" w="full">

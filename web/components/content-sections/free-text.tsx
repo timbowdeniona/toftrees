@@ -221,7 +221,16 @@ export function FreeTextSection({
             mt: 0,
           },
         },
-        "& ul, & ol": {
+        "& ul": {
+          listStyleType: "disc",
+          listStylePosition: "outside",
+          mb: "16px",
+          pl: "24px",
+          color: "#1A1F16",
+        },
+        "& ol": {
+          listStyleType: "decimal",
+          listStylePosition: "outside",
           mb: "16px",
           pl: "24px",
           color: "#1A1F16",

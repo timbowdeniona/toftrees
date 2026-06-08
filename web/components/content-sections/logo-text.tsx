@@ -120,6 +120,26 @@ export function LogoTextSection({
                 mb: 0,
               },
             },
+            "& ul": {
+              listStyleType: "disc",
+              listStylePosition: "outside",
+              pl: "24px",
+              mb: "16px",
+              mt: "8px",
+              textAlign: "left",
+            },
+            "& ol": {
+              listStyleType: "decimal",
+              listStylePosition: "outside",
+              pl: "24px",
+              mb: "16px",
+              mt: "8px",
+              textAlign: "left",
+            },
+            "& li": {
+              mb: "8px",
+              lineHeight: "1.5",
+            },
           }}>
           <PortableText
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

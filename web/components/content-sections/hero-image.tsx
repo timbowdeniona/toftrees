@@ -19,6 +19,29 @@ type HeroImageProps = {
   }>
 }
 
+// SVG Separator component
+const HeroImageSeparator = () => {
+  const svgString = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none"><path d="M0.353554 10L5.35355 5M10.3536 0L5.35355 5M5.35355 5L10.3536 10L0.353554 0" stroke="#FFFFFF"/></svg>'
+  const svgPattern = encodeURIComponent(svgString)
+
+  return (
+    <Box 
+      w="full"
+      bg="transparent"
+      overflow="hidden"
+      position="relative"
+      bottom="5px"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,${svgPattern}")`,
+        backgroundRepeat: 'repeat-x',
+        backgroundSize: '11px 10px',
+        backgroundPosition: '0 50%',
+        height: '10px',
+      }}
+    />
+  )
+}
+
 export function HeroImageSection({
   heroBackgroundImage,
   heroImageAltText,
@@ -27,11 +50,6 @@ export function HeroImageSection({
   bottomSection,
   bottomIcons,
 }: HeroImageProps) {
-  if (!heroBackgroundImage) return null
-
-  // Duplicate icons for seamless infinite scroll
-  const duplicatedIcons = bottomIcons ? [...bottomIcons, ...bottomIcons] : []
-
   // Inject CSS animation
   useEffect(() => {
     if (bottomIcons && bottomIcons.length > 0) {
@@ -57,28 +75,10 @@ export function HeroImageSection({
     }
   }, [bottomIcons])
 
-  // SVG Separator component
-  const HeroImageSeparator = () => {
-    const svgString = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none"><path d="M0.353554 10L5.35355 5M10.3536 0L5.35355 5M5.35355 5L10.3536 10L0.353554 0" stroke="#FFFFFF"/></svg>'
-    const svgPattern = encodeURIComponent(svgString)
+  if (!heroBackgroundImage) return null
 
-    return (
-      <Box 
-        w="full"
-        bg="transparent"
-        overflow="hidden"
-        position="relative"
-        bottom="5px"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,${svgPattern}")`,
-          backgroundRepeat: 'repeat-x',
-          backgroundSize: '11px 10px',
-          backgroundPosition: '0 50%',
-          height: '10px',
-        }}
-      />
-    )
-  }
+  // Duplicate icons for seamless infinite scroll
+  const duplicatedIcons = bottomIcons ? [...bottomIcons, ...bottomIcons] : []
 
   return (
     <VStack spacing={0} align="stretch" w="full">

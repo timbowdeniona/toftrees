@@ -91,7 +91,19 @@ export default function GraveDetailsPageClient({
   grave: Grave
   siteSettings?: SiteSettings
   imageMap?: ImageMap | null
-  explanationContent?: any
+  explanationContent?: {
+    title?: string
+    image?: {
+      asset: {
+        _ref: string
+      }
+    }
+    imageAltText?: string
+    text?: Array<{
+      _type: string
+      [key: string]: unknown
+    }>
+  } | null
 }) {
   // Get person name for breadcrumb
   const getPersonName = (): string => {

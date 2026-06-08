@@ -209,6 +209,24 @@ export function TextComponent2({
                           mb: 0,
                         },
                       },
+                      '& ul': {
+                        listStyleType: 'disc',
+                        listStylePosition: 'outside',
+                        pl: '24px',
+                        mb: '16px',
+                        mt: '8px',
+                      },
+                      '& ol': {
+                        listStyleType: 'decimal',
+                        listStylePosition: 'outside',
+                        pl: '24px',
+                        mb: '16px',
+                        mt: '8px',
+                      },
+                      '& li': {
+                        mb: '8px',
+                        lineHeight: '1.5',
+                      },
                       '& a': {
                         color: '#1A1F16',
                         textDecoration: 'underline',
@@ -287,6 +305,24 @@ export function TextComponent2({
                         '&:last-child': {
                           mb: 0,
                         },
+                      },
+                      '& ul': {
+                        listStyleType: 'disc',
+                        listStylePosition: 'outside',
+                        pl: '24px',
+                        mb: '16px',
+                        mt: '8px',
+                      },
+                      '& ol': {
+                        listStyleType: 'decimal',
+                        listStylePosition: 'outside',
+                        pl: '24px',
+                        mb: '16px',
+                        mt: '8px',
+                      },
+                      '& li': {
+                        mb: '8px',
+                        lineHeight: '1.5',
                       },
                       '& a': {
                         color: '#1A1F16',
