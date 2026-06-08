@@ -20,11 +20,14 @@ export interface HeaderProps extends Omit<BoxProps, 'children'> {
 export const Header = ({ navigationConfig, ...props }: HeaderProps) => {
   const ref = React.useRef<HTMLHeadingElement>(null)
   const [y, setY] = React.useState(0)
-  const { height = 0 } = ref.current?.getBoundingClientRect() ?? {}
+  const [headerHeight, setHeaderHeight] = React.useState(0)
 
   React.useEffect(() => {
     const handleScroll = () => {
       setY(window.scrollY)
+      if (ref.current) {
+        setHeaderHeight(ref.current.getBoundingClientRect().height)
+      }
     }
     
     window.addEventListener('scroll', handleScroll)
@@ -47,7 +50,7 @@ export const Header = ({ navigationConfig, ...props }: HeaderProps) => {
       borderColor="gray.200"
       transitionProperty="common"
       transitionDuration="normal"
-      boxShadow={y > height ? 'md' : 'none'}
+      boxShadow={y > headerHeight ? 'md' : 'none'}
       borderBottomWidth="1px"
       {...props}
     >

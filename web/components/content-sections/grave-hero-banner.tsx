@@ -1,9 +1,9 @@
 'use client'
 
-import { Box, Container, Flex, Text, VStack, IconButton } from '@chakra-ui/react'
+import { Box, Flex, Text, VStack, IconButton } from '@chakra-ui/react'
 import Image from 'next/image'
 import { urlFor } from '../../sanity/client'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { Grave } from '../../types'
 import { formatPersonName } from '../../utils/name-parser'
 import Link from 'next/link'
@@ -25,6 +25,18 @@ function ArrowIcon({ direction }: { direction: 'left' | 'right' }) {
       />
     </svg>
   )
+}
+
+interface ImageItem {
+  image: {
+    asset?: {
+      _ref: string
+      _type?: string
+      _weak?: boolean
+    } | null
+    _type?: string
+  } | null
+  alt: string
 }
 
 interface GraveHeroBannerProps {
@@ -71,7 +83,7 @@ export function GraveHeroBanner({
   }
 
   // Get all images (from config or fallback to headstone image)
-  const allImages = (() => {
+  const allImages: ImageItem[] = (() => {
     if (images && images.length > 0) {
       return images.map((img) => ({
         image: img.image,
@@ -90,12 +102,13 @@ export function GraveHeroBanner({
   })()
 
   // Manage display images state to support rotation when exactly 2 images are loaded
-  const [displayImages, setDisplayImages] = useState<typeof allImages>(allImages)
+  const [displayImages, setDisplayImages] = useState<ImageItem[]>(allImages)
+  const [prevGraveId, setPrevGraveId] = useState(grave._id)
 
-  // Reset displayImages state when grave ID changes
-  useEffect(() => {
+  if (grave._id !== prevGraveId) {
+    setPrevGraveId(grave._id)
     setDisplayImages(allImages)
-  }, [grave._id])
+  }
 
   // Determine aspect ratio helper
   const getAspectRatio = (ref?: string): number => {
@@ -145,7 +158,6 @@ export function GraveHeroBanner({
   }
 
   const personName = getPersonName()
-  const personNameLower = personName.toLowerCase()
   const buriedDate = getBuriedDate()
   const graveNo = grave.graveNo
 
